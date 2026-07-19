@@ -1,0 +1,232 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Brand ── */
+  --color-brand-blue:        #2c87d0;
+  --color-brand-blue-light:  #5baadf;
+  --color-brand-blue-dark:   #1f6aa8;
+  --color-brand-teal:        #19b0a1;
+  --color-brand-teal-light:  #2dd4bf;
+  --color-brand-teal-dark:   #128577;
+
+  /* ── Surfaces (light paper scale — everything except the hero) ── */
+  --color-ink:   #ffffff;   /* base surface — page white */
+  --color-ink-2: #f6f7f9;
+  --color-ink-3: #eef0f4;
+  --color-ink-4: #e5e8ee;
+  --color-line:  #e1e4ea;   /* hairline borders */
+
+  /* ── Text ── */
+  --color-foreground: #0a0d16;   /* primary dark text */
+  --color-mist:     #4c5468;     /* secondary text */
+  --color-mist-dim: #838aa0;     /* tertiary text */
+
+  /* ── Fonts ── */
+  --font-display: var(--font-slabo), Georgia, serif;
+  --font-sans:    var(--font-inter), system-ui, sans-serif;
+
+  /* ── Motion ── */
+  --ease-expo:   cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ──────────────────────────────────────── Base ── */
+:root {
+  --background: #ffffff;
+  --foreground: #0a0d16;
+}
+
+* { border-color: var(--color-line); }
+
+html {
+  /* NO `scroll-behavior: smooth` here. It is the documented cause of the one-frame
+     "bounce" when GSAP ScrollTrigger's pin first engages: at first downward engage GSAP
+     inserts the pin-spacer, which shifts document height at the current offset, so GSAP
+     issues a scroll-position correction to hold the view steady. `scroll-behavior: smooth`
+     makes the browser ANIMATE that instant correction, so the pinned MacBook visibly slides
+     for one frame before settling. It's first-downward-only (on re-pin the spacer already
+     exists → no correction to animate), which is exactly the reported symptom, and it
+     survives anticipatePin / overflow-x:clip because neither touches the scroll setter.
+     If smooth anchor navigation is ever needed, do it with GSAP's ScrollToPlugin, not CSS. */
+  background: var(--background);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* `clip`, NOT `hidden`: `overflow-x: hidden` forces the computed overflow-y to `auto`,
+     turning <body> into its own scroll container. GSAP ScrollTrigger pins with
+     position:fixed (viewport-relative), so a body-scroller makes the pinned MacBook's
+     fixed coords disagree with the scroll offset for one frame at first pin-engage — the
+     one-frame "bounce" scrolling down (smooth on re-pin). `clip` blocks horizontal scroll
+     without establishing a scroll container, so <html> stays the scroller. */
+  overflow-x: clip;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+/* ──────────────────────────────────────── Gradients ── */
+
+.text-gradient {
+  background: linear-gradient(105deg, var(--color-brand-blue-light) 0%, var(--color-brand-teal-light) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.bg-gradient-brand {
+  background: linear-gradient(105deg, var(--color-brand-blue) 0%, var(--color-brand-teal) 100%);
+}
+
+/* ──────────────────────────────────────── Glassmorphism ── */
+
+/* Standard glass card — use on elevated surfaces */
+.glass {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid rgba(10, 13, 22, 0.07);
+}
+
+/* Lighter glass for navbar */
+.glass-nav {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  border-bottom: 1px solid rgba(10, 13, 22, 0.06);
+}
+
+/* Card surface — no blur, just subtle depth */
+.surface {
+  background: rgba(10, 13, 22, 0.025);
+  border: 1px solid rgba(10, 13, 22, 0.07);
+}
+
+/* ──────────────────────────────────────── Borders ── */
+
+/* Gradient hairline border — wraps child via pseudo-element */
+.border-gradient {
+  position: relative;
+  isolation: isolate;
+}
+.border-gradient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--color-brand-blue), var(--color-brand-teal));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ──────────────────────────────────────── Grid backdrop ── */
+
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(44, 135, 208, 0.10) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(44, 135, 208, 0.10) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.bg-grid-fade {
+  -webkit-mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, #000 35%, transparent 100%);
+  mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, #000 35%, transparent 100%);
+}
+
+/* ──────────────────────────────────────── Glows ── */
+
+.glow-blue  { box-shadow: 0 0 100px -24px rgba(44, 135, 208, 0.6); }
+.glow-teal  { box-shadow: 0 0 100px -24px rgba(25, 176, 161, 0.6); }
+
+/* Subtle glow behind primary CTA */
+.glow-cta {
+  box-shadow:
+    0 8px 32px -8px rgba(44, 135, 208, 0.55),
+    0 0 0 1px rgba(44, 135, 208, 0.15);
+}
+.glow-cta:hover {
+  box-shadow:
+    0 12px 48px -8px rgba(25, 176, 161, 0.65),
+    0 0 0 1px rgba(25, 176, 161, 0.2);
+}
+
+/* ──────────────────────────────────────── Ambient orbs ── */
+
+/* Large background glow orbs that slowly drift — attach to a relative container */
+.orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  pointer-events: none;
+  will-change: transform;
+}
+
+.orb-blue {
+  background: radial-gradient(circle, rgba(44, 135, 208, 0.22) 0%, transparent 70%);
+  animation: orb-drift-a 18s ease-in-out infinite;
+}
+
+.orb-teal {
+  background: radial-gradient(circle, rgba(25, 176, 161, 0.18) 0%, transparent 70%);
+  animation: orb-drift-b 22s ease-in-out infinite;
+}
+
+@keyframes orb-drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(60px, -40px) scale(1.08); }
+  66%       { transform: translate(-40px, 30px) scale(0.94); }
+}
+
+@keyframes orb-drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40%       { transform: translate(-70px, 50px) scale(1.12); }
+  70%       { transform: translate(50px, -30px) scale(0.92); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orb { animation: none !important; }
+}
+
+/* ──────────────────────────────────────── Marquee ── */
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 36s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee { animation: none; }
+}
+
+/* ──────────────────────────────────────── Pulsing badge ring ── */
+
+@keyframes ping-slow {
+  0%       { transform: scale(1); opacity: 0.6; }
+  75%, 100%{ transform: scale(2); opacity: 0; }
+}
+
+.animate-ping-slow {
+  animation: ping-slow 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* ──────────────────────────────────────── Scrollbar ── */
+
+::-webkit-scrollbar        { width: 8px; }
+::-webkit-scrollbar-track  { background: var(--color-ink-2); }
+::-webkit-scrollbar-thumb  { background: var(--color-mist-dim); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-brand-blue); }

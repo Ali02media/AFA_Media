@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AFA Media — Websites & AI booking systems for UK trades</title>
+<meta name="description" content="We build fast websites and AI booking systems for UK tradespeople, so you never miss another job while you're on the tools. Live in two weeks." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#08080a;
+  --bg-2:#0d0d11;
+  --surface:#111116;
+  --surface-2:#16161c;
+  --text:#f5f5f7;
+  --muted:#9a9aa6;
+  --faint:#6b6b76;
+  --line:rgba(255,255,255,0.08);
+  --line-2:rgba(255,255,255,0.14);
+  --accent:#ff5a1f;          /* hi-vis molten orange — warm tension against cool glass */
+  --accent-soft:rgba(255,90,31,0.14);
+  --maxw:1180px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+h1,h2,h3,h4{font-family:'Inter Tight','Inter',sans-serif;letter-spacing:-0.025em;line-height:1.05;font-weight:600}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--accent);color:#fff}
+
+/* ───────── NAV ───────── */
+nav{
+  position:fixed;inset:0 0 auto 0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px clamp(20px,5vw,56px);
+  transition:background .4s ease,border-color .4s ease,padding .4s ease;
+  border-bottom:1px solid transparent;
+}
+nav.scrolled{
+  background:rgba(8,8,10,0.72);
+  backdrop-filter:blur(18px) saturate(140%);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
+  border-bottom-color:var(--line);
+  padding-top:16px;padding-bottom:16px;
+}
+.brand{font-family:'Inter Tight';font-weight:700;font-size:1.12rem;letter-spacing:-0.03em;display:flex;align-items:center;gap:9px}
+.brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px var(--accent)}
+.nav-links{display:flex;align-items:center;gap:34px}
+.nav-links a:not(.nav-btn){font-size:.9rem;color:var(--muted);transition:color .2s}
+.nav-links a:not(.nav-btn):hover{color:var(--text)}
+.nav-btn{
+  font-size:.88rem;font-weight:600;color:var(--text);
+  padding:10px 20px;border:1px solid var(--line-2);border-radius:100px;
+  transition:background .25s,border-color .25s,transform .25s;
+}
+.nav-btn:hover{background:#fff;color:#0a0a0a;border-color:#fff;transform:translateY(-1px)}
+.nav-burger{display:none}
+
+/* ───────── HERO ───────── */
+#hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden}
+#glass{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hero-veil{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(120% 80% at 15% 50%, rgba(8,8,10,0.86) 0%, rgba(8,8,10,0.5) 38%, rgba(8,8,10,0) 70%),
+    linear-gradient(to top, var(--bg) 2%, rgba(8,8,10,0) 32%);
+}
+.hero-inner{position:relative;z-index:2;width:100%;max-width:var(--maxw);margin:0 auto;padding:0 clamp(20px,5vw,56px)}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:10px;
+  font-size:.76rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:30px;
+  opacity:0;transform:translateY(14px);
+}
+.hero-eyebrow .pip{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:pip 2.4s ease-in-out infinite}
+@keyframes pip{0%,100%{opacity:1}50%{opacity:.35}}
+h1{font-size:clamp(2.9rem,7.4vw,6.1rem);max-width:14ch;margin-bottom:28px}
+h1 .ln{display:block;overflow:hidden}
+h1 .ln > span{display:block;transform:translateY(110%)}
+h1 em{font-style:normal;color:transparent;background:linear-gradient(92deg,#fff 0%,#b9c6d6 45%,#7f8fa6 100%);-webkit-background-clip:text;background-clip:text}
+.hero-sub{
+  font-size:clamp(1.02rem,1.5vw,1.2rem);color:var(--muted);max-width:46ch;margin-bottom:40px;
+  opacity:0;transform:translateY(16px);
+}
+.hero-cta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;opacity:0;transform:translateY(16px)}
+.btn{display:inline-flex;align-items:center;gap:10px;font-weight:600;font-size:.96rem;border-radius:100px;transition:transform .25s,box-shadow .25s,background .25s,border-color .25s;cursor:pointer}
+.btn-primary{background:var(--accent);color:#140a05;padding:15px 28px;box-shadow:0 0 0 0 var(--accent-soft),0 10px 40px -8px rgba(255,90,31,.5)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 0 6px var(--accent-soft),0 16px 50px -8px rgba(255,90,31,.6)}
+.btn-secondary{color:var(--text);padding:15px 24px;border:1px solid var(--line-2)}
+.btn-secondary:hover{background:rgba(255,255,255,.05);border-color:var(--line-2);transform:translateY(-2px)}
+.btn svg{width:17px;height:17px}
+.hero-foot{
+  position:absolute;left:clamp(20px,5vw,56px);right:clamp(20px,5vw,56px);bottom:30px;z-index:2;
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:.78rem;color:var(--faint);letter-spacing:.04em;
+}
+.hero-foot .scroll-word{display:flex;align-items:center;gap:10px}
+.hero-foot .scroll-line{width:34px;height:1px;background:var(--line-2);position:relative;overflow:hidden}
+.hero-foot .scroll-line::after{content:"";position:absolute;inset:0;background:var(--accent);transform:translateX(-100%);animation:scrollL 2.6s ease-in-out infinite}
+@keyframes scrollL{0%{transform:translateX(-100%)}55%{transform:translateX(0)}100%{transform:translateX(100%)}}
+
+/* ───────── MARQUEE / TRUST ───────── */
+.trust{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg-2);overflow:hidden}
+.trust-track{display:flex;gap:60px;padding:22px 0;white-space:nowrap;width:max-content;animation:marq 32s linear infinite}
+.trust:hover .trust-track{animation-play-state:paused}
+@keyframes marq{to{transform:translateX(-50%)}}
+.trust-item{display:inline-flex;align-items:center;gap:13px;color:var(--faint);font-size:.92rem;font-weight:500}
+.trust-item svg{width:18px;height:18px;color:var(--muted)}
+
+/* ───────── SECTION SHELL ───────── */
+section{position:relative}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:clamp(80px,11vw,150px) clamp(20px,5vw,56px)}
+.kicker{display:inline-flex;align-items:center;gap:10px;font-size:.76rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:22px}
+.kicker::before{content:"";width:26px;height:1px;background:var(--accent)}
+h2{font-size:clamp(2rem,4.4vw,3.5rem);max-width:18ch;margin-bottom:20px}
+.section-lead{font-size:clamp(1.02rem,1.5vw,1.18rem);color:var(--muted);max-width:52ch}
+
+/* ───────── PROBLEM (editorial split) ───────── */
+#problem{background:var(--bg)}
+.problem-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,7vw,100px);align-items:start}
+.problem-stat{font-family:'Inter Tight';font-weight:700;font-size:clamp(3.4rem,8vw,6.2rem);line-height:.92;letter-spacing:-0.04em;background:linear-gradient(180deg,#fff,#7f8fa6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.problem-stat + p{color:var(--muted);font-size:1.04rem;margin-top:14px;max-width:34ch}
+.pain-list{list-style:none;margin-top:40px;display:flex;flex-direction:column}
+.pain-list li{display:flex;gap:18px;padding:22px 0;border-top:1px solid var(--line)}
+.pain-list li:last-child{border-bottom:1px solid var(--line)}
+.pain-list .pi{flex-shrink:0;width:40px;height:40px;border-radius:11px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center}
+.pain-list .pi svg{width:19px;height:19px;color:var(--accent)}
+.pain-list h3{font-size:1.04rem;font-weight:600;margin-bottom:4px;font-family:'Inter',sans-serif;letter-spacing:-0.01em}
+.pain-list p{font-size:.92rem;color:var(--muted)}
+
+/* ───────── SERVICES ───────── */
+#services{background:var(--bg-2);border-top:1px solid var(--line)}
+.svc-head{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap;margin-bottom:56px}
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.svc{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:34px 30px 38px;overflow:hidden;transition:border-color .35s,transform .35s}
+.svc:hover{border-color:var(--line-2);transform:translateY(-4px)}
+.svc::after{content:"";position:absolute;inset:0 0 auto 0;height:1px;background:linear-gradient(90deg,transparent,var(--line-2),transparent);opacity:0;transition:opacity .35s}
+.svc:hover::after{opacity:1}
+.svc-ic{width:50px;height:50px;border-radius:13px;background:linear-gradient(160deg,var(--surface-2),#0c0c10);border:1px solid var(--line);display:grid;place-items:center;margin-bottom:26px}
+.svc-ic svg{width:23px;height:23px;color:var(--text)}
+.svc.feat{background:linear-gradient(165deg,rgba(255,90,31,.07),var(--surface) 60%);border-color:rgba(255,90,31,.26)}
+.svc.feat .svc-ic{background:var(--accent-soft);border-color:rgba(255,90,31,.3)}
+.svc.feat .svc-ic svg{color:var(--accent)}
+.svc-tag{position:absolute;top:18px;right:18px;font-size:.66rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:100px}
+.svc h3{font-size:1.28rem;margin-bottom:12px;font-family:'Inter Tight'}
+.svc > p{font-size:.93rem;color:var(--muted);margin-bottom:24px}
+.svc ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+.svc li{display:flex;gap:11px;font-size:.88rem;color:var(--muted)}
+.svc li svg{width:16px;height:16px;color:var(--accent);flex-shrink:0;margin-top:3px}
+
+/* ───────── PROCESS ───────── */
+#process{background:var(--bg)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:60px;counter-reset:s}
+.step{padding:0 34px;border-left:1px solid var(--line);position:relative}
+.step:first-child{padding-left:0;border-left:none}
+.step-n{font-family:'Inter Tight';font-weight:700;font-size:.85rem;letter-spacing:.1em;color:var(--accent);margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.step-n::before{counter-increment:s;content:"0" counter(s);font-size:2.3rem;letter-spacing:-0.04em;color:var(--text);opacity:.16}
+.step h3{font-size:1.32rem;margin-bottom:12px;font-family:'Inter Tight'}
+.step p{font-size:.95rem;color:var(--muted);max-width:30ch}
+
+/* ───────── WORK ───────── */
+#work{background:var(--bg-2);border-top:1px solid var(--line)}
+.work-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:56px}
+.work{display:block;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--surface);transition:border-color .35s,transform .35s}
+.work:hover{border-color:var(--line-2);transform:translateY(-4px)}
+.work-vis{height:260px;position:relative;overflow:hidden;display:grid;place-items:center}
+.work-vis::before{content:"";position:absolute;inset:0;background:radial-gradient(130% 110% at 50% 0%,rgba(255,255,255,.06),transparent 60%)}
+.work-vis .mono{font-family:'Inter Tight';font-weight:700;font-size:2.6rem;letter-spacing:-0.04em;color:rgba(255,255,255,.92);position:relative;z-index:1}
+.work-body{padding:26px 28px 30px;display:flex;align-items:flex-start;justify-content:space-between;gap:20px}
+.work-tag{font-size:.7rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:9px}
+.work-body h3{font-size:1.3rem;font-family:'Inter Tight';margin-bottom:6px}
+.work-body p{font-size:.9rem;color:var(--muted);max-width:34ch}
+.work-arrow{flex-shrink:0;width:42px;height:42px;border-radius:50%;border:1px solid var(--line-2);display:grid;place-items:center;transition:background .25s,transform .25s}
+.work-arrow svg{width:18px;height:18px;transition:transform .25s}
+.work:hover .work-arrow{background:#fff;color:#0a0a0a}
+.work:hover .work-arrow svg{transform:translate(2px,-2px)}
+
+/* ───────── OFFER ───────── */
+#offer{position:relative;background:var(--bg);overflow:hidden;border-top:1px solid var(--line)}
+#offer .glow{position:absolute;top:-30%;left:50%;transform:translateX(-50%);width:760px;height:760px;background:radial-gradient(circle,rgba(255,90,31,.13),transparent 64%);pointer-events:none}
+.offer-inner{position:relative;z-index:1;max-width:880px;margin:0 auto;text-align:center}
+.offer-badge{display:inline-flex;align-items:center;gap:10px;font-size:.76rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(255,90,31,.3);background:var(--accent-soft);padding:9px 18px;border-radius:100px;margin-bottom:30px}
+#offer h2{margin:0 auto 20px;text-align:center}
+.offer-inner > p.section-lead{margin:0 auto 44px;text-align:center}
+.spots{display:flex;justify-content:center;gap:12px;margin-bottom:48px;flex-wrap:wrap}
+.spot{width:64px;height:64px;border-radius:14px;border:1px solid var(--line);background:var(--surface);display:grid;place-content:center;gap:6px;justify-items:center;font-size:.6rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.spot svg{width:18px;height:18px;color:var(--accent)}
+.spot.taken{color:var(--faint);border-style:dashed}
+.spot.taken svg{color:var(--faint)}
+.offer-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:clamp(28px,4vw,44px);text-align:left;margin-bottom:40px}
+.offer-card-h{font-size:.74rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:28px}
+.offer-list{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.offer-list .oi{display:flex;gap:14px}
+.offer-list .oic{flex-shrink:0;width:38px;height:38px;border-radius:10px;background:var(--accent-soft);display:grid;place-items:center}
+.offer-list .oic svg{width:18px;height:18px;color:var(--accent)}
+.offer-list strong{display:block;font-size:.94rem;font-weight:600;margin-bottom:2px;font-family:'Inter Tight'}
+.offer-list span{font-size:.84rem;color:var(--muted)}
+.offer-trade{border-top:1px solid var(--line);margin-top:28px;padding-top:24px;font-size:.94rem;color:var(--muted);text-align:center}
+.offer-trade strong{color:var(--text);font-weight:600}
+.offer-fine{font-size:.84rem;color:var(--faint);margin-top:16px}
+
+/* ───────── FAQ ───────── */
+#faq{background:var(--bg-2);border-top:1px solid var(--line)}
+.faq-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(30px,6vw,80px);align-items:start}
+.faq-list{display:flex;flex-direction:column}
+.faq-item{border-top:1px solid var(--line)}
+.faq-item:last-child{border-bottom:1px solid var(--line)}
+.faq-q{width:100%;background:none;border:none;color:var(--text);font-family:'Inter Tight';font-weight:600;font-size:1.06rem;letter-spacing:-0.01em;text-align:left;padding:24px 0;display:flex;justify-content:space-between;gap:20px;align-items:center;cursor:pointer;transition:color .2s}
+.faq-q:hover{color:var(--accent)}
+.faq-ic{flex-shrink:0;width:22px;height:22px;position:relative}
+.faq-ic::before,.faq-ic::after{content:"";position:absolute;background:currentColor;transition:transform .3s ease}
+.faq-ic::before{top:50%;left:3px;right:3px;height:1.5px;transform:translateY(-50%)}
+.faq-ic::after{left:50%;top:3px;bottom:3px;width:1.5px;transform:translateX(-50%)}
+.faq-item.open .faq-ic::after{transform:translateX(-50%) scaleY(0)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.faq-a-in{padding:0 0 26px;font-size:.96rem;color:var(--muted);max-width:54ch}
+.faq-item.open .faq-a{max-height:260px}
+
+/* ───────── FINAL CTA ───────── */
+#final{background:var(--bg);border-top:1px solid var(--line)}
+.final-inner{max-width:var(--maxw);margin:0 auto;padding:clamp(80px,12vw,150px) clamp(20px,5vw,56px);text-align:center}
+#final h2{margin:0 auto 26px;font-size:clamp(2.2rem,5.5vw,4.4rem)}
+#final .btn-primary{font-size:1.04rem;padding:17px 36px}
+
+/* ───────── FOOTER ───────── */
+footer{background:var(--bg);border-top:1px solid var(--line)}
+.foot-top{max-width:var(--maxw);margin:0 auto;padding:64px clamp(20px,5vw,56px) 48px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:50px}
+.foot-about p{color:var(--muted);font-size:.92rem;margin-top:16px;max-width:30ch}
+.foot-col h4{font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:18px;font-family:'Inter',sans-serif}
+.foot-col ul{list-style:none;display:flex;flex-direction:column;gap:12px}
+.foot-col a{color:var(--muted);font-size:.92rem;transition:color .2s}
+.foot-col a:hover{color:var(--text)}
+.foot-bot{max-width:var(--maxw);margin:0 auto;padding:24px clamp(20px,5vw,56px);border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--faint)}
+
+/* ───────── REVEAL ───────── */
+.reveal{opacity:0;transform:translateY(30px)}
+
+/* ───────── RESPONSIVE ───────── */
+@media(max-width:920px){
+  .problem-grid{grid-template-columns:1fr;gap:48px}
+  .svc-grid{grid-template-columns:1fr;gap:14px}
+  .steps{grid-template-columns:1fr;gap:34px}
+  .step{padding:0 0 0 0;border-left:none;border-top:1px solid var(--line);padding-top:26px}
+  .step:first-child{border-top:none;padding-top:0}
+  .work-grid{grid-template-columns:1fr}
+  .offer-list{grid-template-columns:1fr}
+  .faq-grid{grid-template-columns:1fr}
+  .foot-top{grid-template-columns:1fr;gap:38px}
+}
+@media(max-width:680px){
+  .nav-links{display:none}
+  .hero-foot .hero-foot-r{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .reveal,.hero-eyebrow,.hero-sub,.hero-cta{opacity:1!important;transform:none!important}
+  h1 .ln>span{transform:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#hero" class="brand"><span class="dot"></span>AFA Media</a>
+  <div class="nav-links">
+    <a href="#services">Services</a>
+    <a href="#process">How it works</a>
+    <a href="#work">Work</a>
+    <a href="#faq">FAQ</a>
+    <a href="#offer" class="nav-btn">Claim a spot</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <canvas id="glass"></canvas>
+  <div class="hero-veil"></div>
+  <div class="hero-inner">
+    <span class="hero-eyebrow" id="eyebrow"><span class="pip"></span>For UK tradespeople</span>
+    <h1>
+      <span class="ln"><span>Never miss</span></span>
+      <span class="ln"><span>another <em>job.</em></span></span>
+    </h1>
+    <p class="hero-sub" id="sub">Fast websites and AI booking systems built for trades. While you're on the tools, we make sure every call, quote and enquiry gets answered — day or night.</p>
+    <div class="hero-cta" id="cta">
+      <a href="#offer" class="btn btn-primary">
+        Claim a founding spot
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <a href="#work" class="btn btn-secondary">See our work</a>
+    </div>
+  </div>
+  <div class="hero-foot">
+    <span class="scroll-word"><span class="scroll-line"></span>Scroll to explore</span>
+    <span class="hero-foot-r">Brighton · United Kingdom</span>
+  </div>
+</section>
+
+<!-- TRUST MARQUEE -->
+<div class="trust">
+  <div class="trust-track" id="marquee">
+    <!-- duplicated in JS for seamless loop -->
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="wrap problem-grid">
+    <div>
+      <span class="kicker reveal">The cost of doing nothing</span>
+      <div class="problem-stat reveal">£1,000s</div>
+      <p class="reveal">in work walks out the door every month — lost to missed calls, a tired website, and competitors who simply answer faster.</p>
+    </div>
+    <div>
+      <ul class="pain-list">
+        <li class="reveal">
+          <span class="pi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M9.5 4.4A9 9 0 0 1 21 13M5 9a9 9 0 0 0-1 4c0 1.7.5 3.3 1.3 4.7"/><path d="M15 15l-2 2"/></svg></span>
+          <div><h3>Missed calls become missed jobs</h3><p>Nearly half of calls to trades go unanswered. Most people don't leave a voicemail — they ring the next name on the list.</p></div>
+        </li>
+        <li class="reveal">
+          <span class="pi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M2 9h20M7 18v3M17 18v3"/></svg></span>
+          <div><h3>A dated website loses you trust</h3><p>Customers judge your work by your website. Slow or clunky on a phone and they're gone before you ever speak.</p></div>
+        </li>
+        <li class="reveal">
+          <span class="pi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4"/><circle cx="12" cy="12" r="3"/></svg></span>
+          <div><h3>Evenings lost to admin</h3><p>Chasing quotes and replying to messages at 10pm. The right setup handles most of it automatically.</p></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="wrap">
+    <div class="svc-head">
+      <div>
+        <span class="kicker reveal">What we build</span>
+        <h2 class="reveal">Everything you need online, handled in one place</h2>
+      </div>
+      <p class="section-lead reveal">No juggling three different companies. No jargon. We build it, we run it, you get the work.</p>
+    </div>
+    <div class="svc-grid">
+      <div class="svc reveal">
+        <div class="svc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.9 6 4 9-.1 3-1.5 6.4-4 9-2.5-2.6-3.9-6-4-9 .1-3 1.5-6.4 4-9z"/></svg></div>
+        <h3>Professional website</h3>
+        <p>A fast, modern site that earns trust before the phone even rings — and is built to be found on Google.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>Custom design for your trade</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>Loads instantly on mobile</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>Before / after galleries</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>Click-to-call & quote forms</li>
+        </ul>
+      </div>
+      <div class="svc feat reveal">
+        <span class="svc-tag">Most popular</span>
+        <div class="svc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V4h6v3M9 13h.01M15 13h.01M8 17h8"/><path d="M12 1v3"/></svg></div>
+        <h3>AI booking system</h3>
+        <p>An assistant that answers enquiries, books jobs and sends quotes 24/7 — even when you're up a ladder.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>Instant replies to every enquiry</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>Online booking & scheduling</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>Automated quote requests</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>WhatsApp & SMS follow-ups</li>
+        </ul>
+      </div>
+      <div class="svc reveal">
+        <div class="svc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-7-7 18-2.5-7.5L3 11z"/></svg></div>
+        <h3>Getting found locally</h3>
+        <p>Show up when someone nearby searches for your trade — on Google, maps and the new AI search.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>Local SEO & Google Business</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>Review-building system</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>Google Ads (optional)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>Plain-English monthly reports</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="wrap">
+    <span class="kicker reveal">How it works</span>
+    <h2 class="reveal">Live in two weeks. No tech headache.</h2>
+    <p class="section-lead reveal">You run your business. We handle everything on a screen.</p>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-n">Discover</div>
+        <h3>A 30-minute chat</h3>
+        <p>We learn your trade, your best jobs and what's getting in the way. No hard sell — just a straight conversation.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-n">Build</div>
+        <h3>We do the work</h3>
+        <p>We design and build your site and booking system, then show you everything before it goes anywhere near live.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-n">Grow</div>
+        <h3>More jobs, less admin</h3>
+        <p>You go live, the AI starts catching enquiries, and the work comes in while you get your evenings back.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section id="work">
+  <div class="wrap">
+    <span class="kicker reveal">Recent work</span>
+    <h2 class="reveal">Real sites, live for real UK businesses</h2>
+    <div class="work-grid">
+      <a class="work reveal" href="https://www.onpointpainting.uk/" target="_blank" rel="noopener noreferrer">
+        <div class="work-vis" style="background:linear-gradient(150deg,#11243f,#0c4a73)"><span class="mono">OnPoint</span></div>
+        <div class="work-body">
+          <div>
+            <div class="work-tag">Painting & decorating · Brighton</div>
+            <h3>OnPoint Painting</h3>
+            <p>A clean, mobile-first site with a quote enquiry flow and project gallery.</p>
+          </div>
+          <span class="work-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M8 7h9v9"/></svg></span>
+        </div>
+      </a>
+      <a class="work reveal" href="https://www.legentax.co.uk/" target="_blank" rel="noopener noreferrer">
+        <div class="work-vis" style="background:linear-gradient(150deg,#0c1622,#143047)"><span class="mono">Legentax</span></div>
+        <div class="work-body">
+          <div>
+            <div class="work-tag">Accountancy · Brighton</div>
+            <h3>Legentax Accountants</h3>
+            <p>A modern, professional site with a local SEO foundation and lead capture.</p>
+          </div>
+          <span class="work-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M8 7h9v9"/></svg></span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- OFFER -->
+<section id="offer">
+  <div class="glow"></div>
+  <div class="wrap">
+    <div class="offer-inner">
+      <span class="offer-badge reveal">Limited — 5 founding spots</span>
+      <h2 class="reveal">Be one of our first 5 trades clients</h2>
+      <p class="section-lead reveal">We're building our trades portfolio. So we're giving five UK trades businesses a complete digital setup at a heavily reduced rate — in exchange for an honest review and a case study.</p>
+      <div class="spots reveal">
+        <div class="spot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0"/></svg>Open</div>
+        <div class="spot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0"/></svg>Open</div>
+        <div class="spot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0"/></svg>Open</div>
+        <div class="spot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0"/></svg>Open</div>
+        <div class="spot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0"/></svg>Open</div>
+      </div>
+      <div class="offer-card reveal">
+        <div class="offer-card-h">What founding clients get</div>
+        <div class="offer-list">
+          <div class="oi"><span class="oic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></svg></span><div><strong>Professional website</strong><span>Custom, mobile-first, built to rank</span></div></div>
+          <div class="oi"><span class="oic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V4h6v3M8 17h8"/></svg></span><div><strong>AI booking system</strong><span>Answers and books jobs 24/7</span></div></div>
+          <div class="oi"><span class="oic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-7-10a7 7 0 0 1 14 0c0 5.5-7 10-7 10z"/><circle cx="12" cy="11" r="2.5"/></svg></span><div><strong>Google Business setup</strong><span>So local customers find you first</span></div></div>
+          <div class="oi"><span class="oic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg></span><div><strong>Photo direction</strong><span>Exactly what to shoot, and how</span></div></div>
+          <div class="oi"><span class="oic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-7h11L19 16M5 16h14M5 16l-1 4M19 16l1 4M9 9V6a3 3 0 0 1 6 0v3"/></svg></span><div><strong>Live in 2 weeks</strong><span>Guaranteed from final sign-off</span></div></div>
+          <div class="oi"><span class="oic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 0 0-9 9v4a2 2 0 0 0 2 2h2v-6H5"/><path d="M21 16v-4a9 9 0 0 0-9-9M21 16a2 2 0 0 1-2 2h-2v-6h4"/></svg></span><div><strong>3 months free support</strong><span>Tweaks and questions included</span></div></div>
+        </div>
+        <div class="offer-trade">In return, all we ask for is <strong>an honest review</strong> and permission to feature your results. That's the whole deal.</div>
+      </div>
+      <a href="mailto:hello@afamedia.co.uk?subject=Founding%20spot%20enquiry" class="btn btn-primary reveal">
+        Claim your founding spot
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <p class="offer-fine reveal">No commitment until we've spoken. Takes two minutes.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap faq-grid">
+    <div>
+      <span class="kicker reveal">FAQ</span>
+      <h2 class="reveal">Straight answers</h2>
+      <p class="section-lead reveal">Still wondering something? Email <a href="mailto:hello@afamedia.co.uk" style="color:var(--text);text-decoration:underline;text-underline-offset:3px">hello@afamedia.co.uk</a>.</p>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item reveal"><button class="faq-q" aria-expanded="false">I'm not tech-minded at all. Will I cope?<span class="faq-ic"></span></button><div class="faq-a"><div class="faq-a-in">Completely. The AI handles enquiries on its own, and any change you want on the site, we do for you. You'll never touch a line of anything technical.</div></div></div>
+      <div class="faq-item reveal"><button class="faq-q" aria-expanded="false">Which trades do you work with?<span class="faq-ic"></span></button><div class="faq-a"><div class="faq-a-in">All of them — plumbers, electricians, painters, builders, roofers, landscapers, plasterers, joiners, cleaners and more. If you work with your hands and want more work, we can help.</div></div></div>
+      <div class="faq-item reveal"><button class="faq-q" aria-expanded="false">What does it cost after the founding offer?<span class="faq-ic"></span></button><div class="faq-a"><div class="faq-a-in">It depends what you need — we'll give you a clear, no-hidden-fees quote after a quick chat. Founding clients lock in a heavily reduced rate for good.</div></div></div>
+      <div class="faq-item reveal"><button class="faq-q" aria-expanded="false">I already have a website. Can you use it?<span class="faq-ic"></span></button><div class="faq-a"><div class="faq-a-in">Yes. We can rebuild it, or add our AI booking layer on top of what you've got. After a look we'll tell you honestly which makes more sense.</div></div></div>
+      <div class="faq-item reveal"><button class="faq-q" aria-expanded="false">Am I tied into a long contract?<span class="faq-ic"></span></button><div class="faq-a"><div class="faq-a-in">No long contracts. The website is yours. The AI system has a small monthly running cost, and we're upfront about every penny before you commit.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section id="final">
+  <div class="final-inner">
+    <span class="kicker reveal" style="justify-content:center">Ready when you are</span>
+    <h2 class="reveal">Let's get you fully booked.</h2>
+    <p class="section-lead reveal" style="margin:0 auto 36px;text-align:center">Five spots, one honest conversation. See if it's a fit — no pressure either way.</p>
+    <a href="mailto:hello@afamedia.co.uk?subject=Founding%20spot%20enquiry" class="btn btn-primary reveal">
+      Start the conversation
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-top">
+    <div class="foot-about">
+      <a href="#hero" class="brand"><span class="dot"></span>AFA Media</a>
+      <p>Websites and AI booking systems for UK trades. More jobs, less admin — all handled.</p>
+    </div>
+    <div class="foot-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="#services">Websites</a></li>
+        <li><a href="#services">AI booking</a></li>
+        <li><a href="#services">Getting found</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#work">Work</a></li>
+        <li><a href="#offer">Founding spots</a></li>
+        <li><a href="mailto:hello@afamedia.co.uk">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bot">
+    <span>© 2026 AFA Media — Brighton, UK</span>
+    <span><a href="mailto:hello@afamedia.co.uk" style="color:inherit">hello@afamedia.co.uk</a></span>
+  </div>
+</footer>
+
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ════════════ LIQUID GLASS HERO (custom GLSL) ════════════ */
+(function(){
+  const canvas = document.getElementById('glass');
+  const hero = document.getElementById('hero');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:false, powerPreference:'high-performance' });
+  renderer.setClearColor(0x08080a, 1);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+  const scene = new THREE.Scene();
+  // Fullscreen plane via orthographic camera mapped to clip space
+  const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+
+  const uniforms = {
+    uTime:  { value: 0 },
+    uRes:   { value: new THREE.Vector2(1,1) },
+    uMouse: { value: new THREE.Vector2(0.5,0.5) },
+    uMouseV:{ value: 0 }
+  };
+
+  const material = new THREE.ShaderMaterial({
+    uniforms,
+    vertexShader: `
+      varying vec2 vUv;
+      void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }
+    `,
+    fragmentShader: `
+      precision highp float;
+      varying vec2 vUv;
+      uniform float uTime;
+      uniform vec2  uRes;
+      uniform vec2  uMouse;
+      uniform float uMouseV;
+
+      // ---- value noise + fbm ----
+      float hash(vec2 p){ p=fract(p*vec2(123.34,456.21)); p+=dot(p,p+45.32); return fract(p.x*p.y); }
+      float vnoise(vec2 p){
+        vec2 i=floor(p), f=fract(p);
+        float a=hash(i), b=hash(i+vec2(1.0,0.0)), c=hash(i+vec2(0.0,1.0)), d=hash(i+vec2(1.0,1.0));
+        vec2 u=f*f*(3.0-2.0*f);
+        return mix(a,b,u.x)+(c-a)*u.y*(1.0-u.x)+(d-b)*u.x*u.y;
+      }
+      const mat2 M = mat2(1.62,1.2,-1.2,1.62);
+      float fbm(vec2 p){
+        float s=0.0, a=0.55;
+        for(int i=0;i<6;i++){ s+=a*vnoise(p); p=M*p; a*=0.5; }
+        return s;
+      }
+      // domain-warped height field -> the flowing liquid folds
+      float height(vec2 p){
+        float t = uTime*0.06;
+        vec2 q = vec2(fbm(p + vec2(0.0,0.0) + t), fbm(p + vec2(5.2,1.3) - t*0.8));
+        vec2 r = vec2(fbm(p + 3.4*q + vec2(1.7,9.2) + t*1.1), fbm(p + 3.4*q + vec2(8.3,2.8) - t*0.6));
+        return fbm(p + 3.6*r);
+      }
+      // procedural studio environment that the glass reflects/refracts
+      vec3 env(vec3 dir){
+        float y = dir.y*0.5+0.5;
+        vec3 lo = vec3(0.02,0.025,0.035);
+        vec3 hi = vec3(0.55,0.62,0.74);
+        vec3 base = mix(lo, hi, pow(y,1.3));
+        // soft light bands -> the metallic streaks
+        float band = smoothstep(0.62,0.66,y) - smoothstep(0.70,0.80,y);
+        base += band*vec3(0.9,0.92,1.0)*0.7;
+        float band2 = smoothstep(0.40,0.43,y) - smoothstep(0.46,0.54,y);
+        base += band2*vec3(0.7,0.74,0.85)*0.35;
+        return base;
+      }
+
+      void main(){
+        vec2 uv = vUv;
+        float aspect = uRes.x/uRes.y;
+        vec2 p = (uv-0.5)*vec2(aspect,1.0)*2.6;
+
+        // mouse warp
+        vec2 m = (uMouse-0.5)*vec2(aspect,1.0)*2.6;
+        float md = length(p-m);
+        p += normalize(p-m+1e-4) * (0.18+uMouseV*0.5) * exp(-md*1.1);
+
+        // height + analytic-ish normal via finite differences
+        float e = 0.0014*length(uRes)/600.0 + 0.0016;
+        float h  = height(p);
+        float hx = height(p+vec2(e,0.0));
+        float hy = height(p+vec2(0.0,e));
+        vec3 n = normalize(vec3((hx-h), (hy-h), e*2.2));
+
+        vec3 viewDir = vec3(0.0,0.0,1.0);
+        float fres = pow(1.0 - max(dot(n, viewDir),0.0), 2.6);
+
+        // chromatic dispersion: refract each channel slightly differently
+        vec3 refl = reflect(-viewDir, n);
+        float disp = 0.05 + fres*0.10;
+        vec3 rr = refract(-viewDir, n, 1.0/(1.45));
+        vec3 rg = refract(-viewDir, n, 1.0/(1.47));
+        vec3 rb = refract(-viewDir, n, 1.0/(1.49));
+        vec3 refr = vec3(
+          env(rr).r,
+          env(rg).g,
+          env(rb).b
+        );
+        vec3 reflection = env(refl);
+
+        vec3 col = mix(refr, reflection, clamp(fres+0.12,0.0,1.0));
+
+        // thin-film iridescence — kept cool & subtle (silver/blue/violet)
+        float band = h*5.0 + fres*3.0 + dot(n.xy,vec2(2.0));
+        vec3 irid = 0.5+0.5*cos(6.2831*(vec3(0.0,0.25,0.5)+band*0.16));
+        irid = mix(vec3(0.5,0.55,0.62), irid, 0.5); // desaturate toward steel
+        col += irid * fres * 0.32;
+
+        // specular glints on the crests
+        float spec = pow(max(refl.z,0.0), 22.0);
+        col += spec * vec3(1.0,0.98,0.95) * 0.6;
+
+        // gentle warm rim that ties to brand accent, very low
+        col += vec3(1.0,0.35,0.12) * pow(fres,3.0) * 0.05;
+
+        // contrast + tone
+        col = pow(col, vec3(0.92));
+        col *= 1.04;
+
+        // vignette so hero text stays readable (helps Liquid Glass contrast weakness)
+        float vig = smoothstep(1.25,0.35,length((uv-0.5)*vec2(aspect,1.0)));
+        col *= mix(0.72,1.0,vig);
+
+        gl_FragColor = vec4(col,1.0);
+      }
+    `
+  });
+
+  const quad = new THREE.Mesh(new THREE.PlaneGeometry(2,2), material);
+  scene.add(quad);
+
+  function resize(){
+    const w = hero.clientWidth, h = hero.clientHeight;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+    renderer.setSize(w,h,false);
+    uniforms.uRes.value.set(w*Math.min(window.devicePixelRatio,2), h*Math.min(window.devicePixelRatio,2));
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // pointer
+  const target = new THREE.Vector2(0.5,0.5);
+  let lastX=0.5,lastY=0.5;
+  window.addEventListener('pointermove', e=>{
+    const r = hero.getBoundingClientRect();
+    target.x = (e.clientX-r.left)/r.width;
+    target.y = 1.0-(e.clientY-r.top)/r.height;
+  }, {passive:true});
+
+  const clock = new THREE.Clock();
+  let raf;
+  function loop(){
+    raf = requestAnimationFrame(loop);
+    uniforms.uTime.value = clock.getElapsedTime();
+    // ease mouse
+    uniforms.uMouse.value.x += (target.x-uniforms.uMouse.value.x)*0.06;
+    uniforms.uMouse.value.y += (target.y-uniforms.uMouse.value.y)*0.06;
+    const vx = uniforms.uMouse.value.x-lastX, vy=uniforms.uMouse.value.y-lastY;
+    uniforms.uMouseV.value += (Math.min(Math.hypot(vx,vy)*8.0,1.0)-uniforms.uMouseV.value)*0.1;
+    lastX=uniforms.uMouse.value.x; lastY=uniforms.uMouse.value.y;
+    renderer.render(scene,camera);
+  }
+
+  if(reduceMotion){
+    // render a single static frame, no animation loop
+    uniforms.uTime.value = 12.0;
+    resize();
+    renderer.render(scene,camera);
+  } else {
+    loop();
+    // pause when hero off-screen (perf)
+    const io = new IntersectionObserver(es=>{
+      es.forEach(en=>{
+        if(en.isIntersecting && !raf) loop();
+        else if(!en.isIntersecting && raf){ cancelAnimationFrame(raf); raf=null; }
+      });
+    },{threshold:0.02});
+    io.observe(hero);
+  }
+})();
+
+/* ════════════ HERO TEXT INTRO + SCROLL REVEALS (GSAP) ════════════ */
+import('https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js').then(({gsap})=>{
+  import('https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js').then(({ScrollTrigger})=>{
+    gsap.registerPlugin(ScrollTrigger);
+
+    if(!reduceMotion){
+      // hero headline mask reveal
+      const tl = gsap.timeline({defaults:{ease:'power3.out'}});
+      tl.to('h1 .ln > span',{y:'0%',duration:1.0,stagger:0.12,delay:0.15})
+        .to('#eyebrow',{opacity:1,y:0,duration:0.7},0.1)
+        .to('#sub',{opacity:1,y:0,duration:0.8},'-=0.6')
+        .to('#cta',{opacity:1,y:0,duration:0.8},'-=0.6');
+
+      // generic reveals
+      gsap.utils.toArray('.reveal').forEach(el=>{
+        gsap.to(el,{opacity:1,y:0,duration:0.85,ease:'power3.out',
+          scrollTrigger:{trigger:el,start:'top 88%',once:true}});
+      });
+    }
+  });
+});
+
+/* ════════════ NAV STATE ════════════ */
+const nav=document.getElementById('nav');
+addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>40),{passive:true});
+
+/* ════════════ TRUST MARQUEE ════════════ */
+(function(){
+  const items=[
+    ['Plumbers','M12 22a7 7 0 0 0 7-7c0-4-7-12-7-12S5 11 5 15a7 7 0 0 0 7 7z'],
+    ['Electricians','M13 2L4 14h7l-1 8 9-12h-7l1-8z'],
+    ['Painters & decorators','M3 11l18-7-7 18-2.5-7.5L3 11z'],
+    ['Builders','M2 20h20M5 20V9l7-5 7 5v11M9 20v-6h6v6'],
+    ['Roofers','M3 12L12 4l9 8M6 11v9h12v-9'],
+    ['Landscapers','M12 22V8M12 8C9 8 7 6 7 3c3 0 5 2 5 5zM12 8c3 0 5-2 5-5-3 0-5 2-5 5z'],
+    ['Joiners','M14 4l6 6-10 10H4v-6L14 4z'],
+    ['Plasterers','M3 7h18v4H3zM7 11v10M17 11v10']
+  ];
+  const make=()=>items.map(([t,d])=>`<span class="trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>${t}</span>`).join('');
+  document.getElementById('marquee').innerHTML = make()+make();
+})();
+
+/* ════════════ FAQ ACCORDION ════════════ */
+document.querySelectorAll('.faq-q').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const item=btn.closest('.faq-item');
+    const open=item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i=>{i.classList.remove('open');i.querySelector('.faq-q').setAttribute('aria-expanded','false');});
+    if(!open){item.classList.add('open');btn.setAttribute('aria-expanded','true');}
+  });
+});
+</script>
+</body>
+</html>

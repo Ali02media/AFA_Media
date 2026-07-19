@@ -1,0 +1,196 @@
+'use client';
+
+import { useRef, useState, useCallback, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+import MacbookScene, { SCREEN_W } from "@/components/MacbookScene";
+import { ServicesSection } from "@/components/sections/services-section";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
+
+export function MacbookShowcase() {
+  const sectionRef  = useRef<HTMLElement>(null);
+  const stickyRef   = useRef<HTMLDivElement>(null);
+  const overlayRef  = useRef<HTMLDivElement>(null);
+  const progressRef = useRef(0);
+  const triggerRef  = useRef<ScrollTrigger | null>(null);
+  const invalidateRef = useRef<(() => void) | null>(null);
+
+  const [screenEl, setScreenEl] = useState<HTMLDivElement | null>(null);
+  const [pinned, setPinned] = useState(true);
+
+  const handleZoomProgress = useCallback((rawZoom: number) => {
+    if (!overlayRef.current) return;
+    overlayRef.current.style.opacity = String(Math.max(0, 1 - rawZoom / 0.7));
+  }, []);
+
+  useGSAP(() => {
+    const mm = gsap.matchMedia();
+
+    mm.add('(min-width: 1024px)', () => {
+      setPinned(true);
+      const st = ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: 'top top',
+        end: () => '+=' + window.innerHeight * 4,
+        // NO anticipatePin and NO invalidateOnRefresh here — both were bandaids for this same
+        // one-frame swap bounce and neither eliminated it. anticipatePin engages the pin early
+        // (scaled by scroll velocity): at the boundary GSAP first offsets the now-fixed element
+        // to compensate, then releases that offset exactly at the start — a one-frame position
+        // shift of its own that, on real wheel/trackpad input, IS the visible bounce. Removing
+        // it lets the relative→fixed swap land on the boundary with nothing to unwind.
+        // invalidateOnRefresh only re-records associated TWEEN start values on refresh; this is
+        // a pin-only trigger (no tween), so it was inert — the function-based `end` already
+        // re-evaluates on every refresh regardless. Dropped to shrink the recompute surface.
+        // Instant scrub: progress tracks scroll position directly. The visible glide comes
+        // from MacbookScene's own per-render-frame smoothing (see `displayedP`), which
+        // interpolates every frame regardless of how coarsely scroll events arrive — that's
+        // what keeps the motion fluid. (A numeric scrub eased inside GSAP's own update loop
+        // instead, which rendered blocky/stepped, so it's reverted.)
+        scrub: true,
+        pin: stickyRef.current,
+        // The per-tick invalidateRef() is deliberately KEPT (not removed): on scroll-BACK,
+        // onEnterBack sets pinned=true but React commits it — and with it frameloop "always" —
+        // a frame or two later. Until then the canvas is still "demand", so these calls are
+        // what redraw the scene at the new progress; without them the backward transition
+        // shows 1–2 stale frames (a glitch already fixed once). On forward scroll it's a
+        // harmless no-op (frameloop is already always), so it adds nothing to the pin-engage
+        // frame where the bounce actually lives.
+        onUpdate: (self) => { progressRef.current = self.progress; invalidateRef.current?.(); },
+        // Plain (batched) setPinned, NOT flushSync. flushSync forced the heavy services-DOM
+        // reparent to run synchronously inside this scroll callback, compounding with GSAP's
+        // own synchronous pin/unpin layout into a single ~36ms frame — the "stutter then
+        // snap" at the re-pin. Batching lets React commit the reparent on its own frame, so
+        // the work spreads instead of spiking. The 1-frame state lag flushSync used to hide
+        // is now invisible: the content is pixel-matched on both sides of the boundary
+        // (same size/position), and frameloop="always" (while active) keeps the scene's
+        // opacity/tracking current every frame rather than only on the next scroll tick.
+        onLeave: () => { setPinned(false); invalidateRef.current?.(); },
+        onEnterBack: () => { setPinned(true); invalidateRef.current?.(); },
+      });
+      triggerRef.current = st;
+      return () => { st.kill(); triggerRef.current = null; };
+    });
+
+    mm.add('(max-width: 1023.98px)', () => {
+      progressRef.current = 0.38;
+      setPinned(false);
+    });
+
+    return () => mm.revert();
+  }, { scope: sectionRef });
+
+  // The FIRST time the pin releases, the SAME ServicesSection node re-parents from the
+  // (fixed-size) 3D screen container into this now-auto-height box — GSAP's pin-spacer
+  // still holds the height it reserved at setup, so it needs one re-measure to match the
+  // real content height. Content dimensions don't change across any LATER pin/unpin cycle,
+  // so a single correction, ever, is all that's needed.
+  //
+  // refresh() re-measures this trigger's start/end from the current DOM — if anything else
+  // on the page (e.g. other WebGL-driven sections) is still settling its own layout at that
+  // moment, a refresh can pick up a slightly different position and shift what the current
+  // scroll offset maps to, which reads as a jump. Calling it once, rather than on every
+  // pin/unpin flip, minimizes that exposure to a single unavoidable correction instead of a
+  // standing risk on every crossing.
+  const hasRefreshedOnUnpin = useRef(false);
+  useEffect(() => {
+    if (pinned || hasRefreshedOnUnpin.current) return;
+    hasRefreshedOnUnpin.current = true;
+    const id = setTimeout(() => triggerRef.current?.refresh(), 200);
+    return () => clearTimeout(id);
+  }, [pinned]);
+
+  // Refresh pin start/end once fonts settle so they reflect final metrics — but ONLY when the
+  // pin isn't currently engaged. Refreshing while the user is inside the pinned range recomputes
+  // start/end under them, shifting what the current scroll maps to (a mid-scroll jump). The `?.`
+  // guards `.then` too (not just `.ready`), so a missing document.fonts can't throw.
+  useEffect(() => {
+    document.fonts?.ready?.then(() => {
+      const t = triggerRef.current;
+      if (!t || t.isActive) return;
+      t.refresh();
+    }).catch(() => {});
+  }, []);
+
+  // ONE ServicesSection instance whose portal target just changes: the 3D screen while
+  // pinned, then this very box (stickyRef) once unpinned. Because the content returns INTO
+  // the box that was pinned — not a separate slot after it — there's no leftover empty
+  // panel between "3D scene ends" and "real section begins" (which read as a white gap where
+  // the content vanished then reappeared). Same node = no remount, no re-animate, no repeat.
+  const portalTarget = pinned ? screenEl : stickyRef.current;
+
+  return (
+    <section ref={sectionRef} className="relative">
+      <div
+        ref={stickyRef}
+        className={pinned ? "relative h-screen w-full overflow-hidden bg-white" : "relative w-full"}
+        // Explicit, immutable box on the element GSAP actually pins. GSAP overwrites
+        // width/height with measured px when it pins anyway; setting them explicitly upfront
+        // removes any sub-pixel disagreement at the relative→fixed swap.
+        // NO willChange:"transform" here — it promotes this layer to the GPU compositor,
+        // which updates async (one frame behind main-thread layout). When GSAP flips
+        // position:relative→fixed, the compositor layer sits at the wrong offset for one
+        // frame before catching up — that IS the one-frame vertical jerk on first downward
+        // engage. Without it the swap paints synchronously on the main thread: no lag, no jerk.
+        style={pinned ? { height: "100vh", width: "100%" } : undefined}
+      >
+        <MacbookScene
+          // Keep the canvas viewport-height in BOTH states. When unpinned this element sits
+          // inside the now-tall flow box; the old `inset-0 h-full` stretched the canvas to
+          // that box's full (~1440px) height, so R3F recorded size.height≈1440. drei's
+          // <Html transform> scales content by size.height/2, so on scroll-back the re-pinned
+          // content rendered ~1.44x too large (768→1116px) until R3F's size caught up — the
+          // backward-transition "frame mismatch". `h-screen` in both states means the canvas
+          // never resizes across the pin boundary, so R3F's size (and drei's scale) stay correct.
+          className={pinned ? "h-screen w-full" : "absolute top-0 left-0 h-screen w-full pointer-events-none"}
+          progressRef={progressRef}
+          onZoomProgress={handleZoomProgress}
+          onScreenContainerRef={setScreenEl}
+          invalidateRef={invalidateRef}
+          active={pinned}
+        />
+
+        {pinned && (
+          /* Corner instrument-panel text */
+          <div
+            ref={overlayRef}
+            className="pointer-events-none absolute inset-0 flex flex-col justify-between px-10 py-10 lg:px-14 lg:py-12"
+          >
+            <div className="flex justify-end">
+              <span
+                className="font-mono uppercase text-neutral-500 leading-none"
+                style={{ fontSize: '13px', letterSpacing: '0.22em' }}
+              >
+                Where urgency
+              </span>
+            </div>
+
+            <div className="flex flex-col items-start" style={{ gap: '10px' }}>
+              <span
+                className="font-mono uppercase text-neutral-500 leading-none"
+                style={{ fontSize: '13px', letterSpacing: '0.22em' }}
+              >
+                Meets opportunity
+              </span>
+              <span
+                className="font-mono uppercase text-neutral-400 leading-none"
+                style={{ fontSize: '10px', letterSpacing: '0.18em' }}
+              >
+                scroll to find out what we do
+              </span>
+            </div>
+          </div>
+        )}
+
+        {portalTarget && createPortal(
+          <div style={pinned ? { width: SCREEN_W, pointerEvents: 'none' } : undefined}>
+            <ServicesSection forceVisible cardsInteractive={!pinned} />
+          </div>,
+          portalTarget,
+        )}
+      </div>
+    </section>
+  );
+}
