@@ -3,7 +3,7 @@ import { ShieldCheck } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Container } from "@/components/ui/section";
 import { Reveal } from "@/components/reveal";
-import { PricingCards } from "@/components/pricing-cards";
+import { PricingComparison } from "@/components/ui/pricing-comparison";
 import { FAQ } from "@/components/sections/faq";
 import { CTA } from "@/components/sections/cta";
 import { oneOffProjects } from "@/lib/site";
@@ -32,7 +32,7 @@ export default function PricingPage() {
       <section className="pb-20">
         <Container>
           <Reveal>
-            <PricingCards />
+            <PricingComparison />
           </Reveal>
         </Container>
       </section>
@@ -52,7 +52,7 @@ export default function PricingPage() {
             </div>
           </Reveal>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
+          <div className="mt-10 grid gap-6 md:grid-cols-2">
             {oneOffProjects.map((project, i) => (
               <Reveal key={project.name} delay={i * 0.06}>
                 <div className="group h-full rounded-2xl border border-line bg-ink-2 p-8 transition-all duration-300 hover:-translate-y-1 hover:border-brand-blue/25 hover:bg-ink-3">
@@ -77,11 +77,11 @@ export default function PricingPage() {
               </div>
               <div>
                 <p className="font-display text-xl font-semibold text-foreground">
-                  14-day delivery, guaranteed.
+                  14 & 20-day delivery, guaranteed.
                 </p>
                 <p className="mt-1 text-mist">
-                  If your system isn&apos;t live within 14
-                  days, you don&apos;t pay for the setup. Simple as that.
+                  Growth is live in 14 days, Mastery in 20 — if we&apos;re
+                  late, you don&apos;t pay for the setup. Simple as that.
                 </p>
               </div>
             </div>

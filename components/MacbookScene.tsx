@@ -440,7 +440,19 @@ function MacbookCore({
           // doesn't hop vertically now that the endpoint size changed.
           const screenHcss  = (SCREEN_W * (trueH / trueW)) / ZOOM_END_PULLBACK;
           const worldPerPx  = (2 * dist * Math.tan(halfVFov)) / viewportHpx;
-          vNudgeWorld = (viewportHpx / 2 - screenHcss / 2 - 10) * worldPerPx;
+          // TOP_ALIGN_PX sets where the 3D content's TOP edge lands below the viewport top.
+          // Working the projection: the <Html center> div is centred on the panel centroid,
+          // which the camera aims at, so panning by vNudgeWorld puts the div's top at exactly
+          // this many px. The flat CTA is transform-pinned to render at top 0, so for the two
+          // to coincide this wants to be 0 — but `screenHcss` (derived from the mesh aspect
+          // ratio ÷ ZOOM_END_PULLBACK rather than measured from the DOM) under-estimates the
+          // wrapper's true rendered height, and half that error shifts the top up by ~6px.
+          // So 6 lands the measured top at 0. Was an undocumented `10`, which measured +4.
+          // NOTE: the 6 corrects a HEIGHT-derived error, so it isn't guaranteed to be a pure
+          // constant across viewport heights — if Δtop drifts at a very different window
+          // height, replace screenHcss with the wrapper's measured getBoundingClientRect().
+          const TOP_ALIGN_PX = 6;
+          vNudgeWorld = (viewportHpx / 2 - screenHcss / 2 - TOP_ALIGN_PX) * worldPerPx;
 
           // Panel's actual visual center (not the mesh's arbitrary local origin).
           centroidLocalRef.current.copy(p0)
@@ -526,16 +538,22 @@ function MacbookCore({
       );
     }
 
-    // Zoom completes just BEFORE the scroll seam: ÷0.8 ⇒ rawZoom reaches 1 at dp 1.8 (≈ scroll
-    // progress 0.9), so by the time the scroll-driven handoff fires at progress ≈1 the 3D is
-    // already fully zoomed and size-matched (ZOOM_END_PULLBACK) to the flat section — the swap
-    // is invisible. This is what lets the handoff be POSITION-driven without a teleport: the
-    // pin→flow swap is triggered by raw scroll in macbook-showcase (so it lands exactly at the
-    // calibrated seam), and this dwell guarantees the zoom is visually done at that scroll
-    // point even though `displayedP` itself still eases (kept — it's what makes the zoom feel
-    // smooth). The chassis keeps fading through this last stretch, so it reads as breaking
-    // THROUGH the screen rather than stalling.
-    const rawZoom = THREE.MathUtils.clamp(dp - 1, 0, 1);
+    // Tiny dwell so the camera is provably AT the zoom endpoint before the handoff fires.
+    // (The previous comment here described a ÷0.8 dwell that the code never actually had —
+    // stale from a reverted attempt. Undivided, rawZoom only reached 1 at dp 2.0 = progress
+    // 1.0, i.e. AFTER both handoff thresholds, so `e` was still <1 when the swap happened and
+    // the camera was short of `zoomCamPos`. The vNudge/ZOOM_END_PULLBACK alignment is derived
+    // for e === 1 exactly, so it simply didn't hold at the moment of the swap — the residual
+    // mismatch, and its direction-dependent size.)
+    //
+    // ÷0.97 ⇒ rawZoom clamps to 1 at dp 1.97 ≈ progress 0.985, before the 0.995/0.999
+    // thresholds AND before p=0.99 where the flow slot becomes viewport-anchored — so across
+    // that whole window the camera sits exactly at the endpoint and the two representations
+    // coincide. Chosen over ÷0.99 (which would clamp at exactly 0.995, leaving zero margin for
+    // displayedP's easing lag); ÷0.97 tolerates ~32px of lag. This is a ~48px dwell — nothing
+    // like the ÷0.8 (~320px) that was correctly rejected as a visible stall. The chassis keeps
+    // fading through it, so it still reads as breaking THROUGH the screen rather than stopping.
+    const rawZoom = THREE.MathUtils.clamp((dp - 1) / 0.97, 0, 1);
     onZoomProgress?.(rawZoom);
 
     if (zoomReady.current) {

@@ -7,24 +7,38 @@ import { Container, SectionHeading } from "@/components/ui/section";
 import { faqs } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
-export function FAQ() {
+export function FAQ({
+  limit,
+  id = "faq",
+  eyebrow = "Questions",
+  title,
+}: {
+  /** Show only the first N questions (e.g. a short pre-CTA teaser). Omit for all. */
+  limit?: number;
+  id?: string;
+  eyebrow?: string;
+  title?: React.ReactNode;
+} = {}) {
   const [open, setOpen] = useState<number | null>(0);
+  const items = limit ? faqs.slice(0, limit) : faqs;
 
   return (
-    <section id="faq" className="relative py-28 sm:py-36">
+    <section id={id} className="relative py-28 sm:py-36">
       <Container className="max-w-3xl">
         <SectionHeading
-          eyebrow="Questions"
+          eyebrow={eyebrow}
           title={
-            <>
-              Everything you might be{" "}
-              <span className="text-gradient">wondering.</span>
-            </>
+            title ?? (
+              <>
+                Everything you might be{" "}
+                <span className="text-gradient">wondering.</span>
+              </>
+            )
           }
         />
 
         <div className="mt-14 divide-y divide-line">
-          {faqs.map((faq, i) => {
+          {items.map((faq, i) => {
             const isOpen = open === i;
             return (
               <div key={faq.q}>

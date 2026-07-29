@@ -4,18 +4,31 @@ import { Reveal } from "@/components/reveal";
 import { CalButton } from "@/components/cal";
 import { site } from "@/lib/site";
 
-export function CTA() {
+export function CTA({
+  forceVisible = false,
+  decorations = true,
+}: {
+  forceVisible?: boolean;
+  /** Ambient orbs + grid overlay. Set false when this renders INSIDE the 3D MacBook screen:
+   *  the orbs are 80px-blurred AND animated, so under a per-frame-animating transform the
+   *  browser re-rasterizes both blur filters every single frame, which tanks the framerate. */
+  decorations?: boolean;
+}) {
   return (
     <section className="relative overflow-hidden py-28 sm:py-36">
-      {/* Ambient orbs */}
-      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <div className="orb orb-blue absolute left-1/3 top-1/4 h-[500px] w-[500px] opacity-35" />
-        <div className="orb orb-teal absolute right-1/4 bottom-0 h-[400px] w-[400px] opacity-25" />
-      </div>
-      <div className="absolute inset-0 -z-10 bg-grid bg-grid-fade opacity-40" />
+      {decorations && (
+        <>
+          {/* Ambient orbs */}
+          <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+            <div className="orb orb-blue absolute left-1/3 top-1/4 h-[500px] w-[500px] opacity-35" />
+            <div className="orb orb-teal absolute right-1/4 bottom-0 h-[400px] w-[400px] opacity-25" />
+          </div>
+          <div className="absolute inset-0 -z-10 bg-grid bg-grid-fade opacity-40" />
+        </>
+      )}
 
       <Container>
-        <Reveal direction="scale">
+        <Reveal direction="scale" forceVisible={forceVisible}>
           <div className="border-gradient mx-auto flex max-w-4xl flex-col items-center gap-7 overflow-hidden rounded-[2rem] bg-ink-2 px-6 py-16 text-center backdrop-blur-sm shadow-[0_0_80px_-24px_rgba(44,135,208,0.3)] sm:px-16">
             {/* Urgency badge */}
             <span className="inline-flex items-center gap-2.5 rounded-full border border-line bg-ink-3 px-4 py-1.5 text-xs font-medium text-mist backdrop-blur-sm">

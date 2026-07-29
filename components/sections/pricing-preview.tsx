@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Container, SectionHeading } from "@/components/ui/section";
 import { Reveal } from "@/components/reveal";
-import { PricingCards } from "@/components/pricing-cards";
+import { PricingComparison } from "@/components/ui/pricing-comparison";
 
 export function PricingPreview() {
   return (
@@ -24,7 +24,7 @@ export function PricingPreview() {
 
         <div className="mt-16">
           <Reveal>
-            <PricingCards />
+            <PricingComparison />
           </Reveal>
         </div>
 

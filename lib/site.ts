@@ -129,64 +129,52 @@ export type Plan = {
   monthly: number;
   onboarding: number;
   blurb: string;
-  features: string[];
+  deliveryDays: number;
   featured?: boolean;
 };
 
 export const plans: Plan[] = [
   {
-    id: "foundation",
-    name: "Foundation",
-    monthly: 797,
-    onboarding: 297,
-    blurb: "Everything a growing service business needs to look the part and capture every lead.",
-    features: [
-      "High-converting website",
-      "24/7 AI chatbot assistant",
-      "Automated booking system",
-      "Monthly performance report",
-      "Email support",
-    ],
-  },
-  {
     id: "growth",
     name: "Growth",
-    monthly: 1497,
-    onboarding: 497,
-    blurb: "Add paid ads and email so new leads come in while existing ones come back.",
-    featured: true,
-    features: [
-      "Everything in Foundation",
-      "Paid ads on 1 channel (Google or Meta)",
-      "1 email campaign / month",
-      "Advanced lead qualification",
-      "Monthly strategy call",
-      "Priority support",
-    ],
+    monthly: 90,
+    onboarding: 600,
+    blurb: "Everything a growing service business needs to look the part and capture every lead.",
+    deliveryDays: 14,
   },
   {
-    id: "scale",
-    name: "Scale",
-    monthly: 2497,
-    onboarding: 797,
-    blurb: "The full automated growth engine for businesses ready to dominate their area.",
-    features: [
-      "Everything in Growth",
-      "Paid ads on both channels",
-      "Email automation & flows",
-      "WhatsApp AI integration",
-      "Bi-weekly strategy calls",
-      "VIP direct support",
-    ],
+    id: "mastery",
+    name: "Mastery",
+    monthly: 120,
+    onboarding: 750,
+    blurb: "The full AI-powered growth engine — smarter chatbot, sharper site, deeper SEO.",
+    deliveryDays: 20,
+    featured: true,
   },
 ];
 
+// Feature comparison matrix for the pricing table. `growth`/`mastery` are either a boolean
+// (rendered as a check or an X) or a string (rendered as text — e.g. page count, delivery days).
+export type PricingFeatureRow = {
+  label: string;
+  growth: boolean | string;
+  mastery: boolean | string;
+};
+
+export const pricingFeatures: PricingFeatureRow[] = [
+  { label: "Website", growth: "4 pages", mastery: "Up to 7 pages" },
+  { label: "24/7 AI chatbot with calendar booking", growth: true, mastery: true },
+  { label: "Full business-knowledge FAQ handling & smart CTA direction", growth: false, mastery: true },
+  { label: "Page-aware chat prompts", growth: false, mastery: true },
+  { label: "WhatsApp CTA integration", growth: true, mastery: true },
+  { label: "AI-managed Google Ads — you keep 100% of revenue", growth: true, mastery: true },
+  { label: "Standard on-page SEO", growth: true, mastery: true },
+  { label: "Advanced SEO package", growth: false, mastery: true },
+  { label: "3D elements & advanced animations", growth: false, mastery: true },
+  { label: "Delivery", growth: "14 days", mastery: "20 days" },
+];
+
 export const oneOffProjects = [
-  {
-    name: "Website Build",
-    price: "£1,500 – £3,500",
-    blurb: "A one-time, high-converting website without the monthly retainer.",
-  },
   {
     name: "AI Chatbot Setup",
     price: "£750 + £80/mo",
