@@ -274,6 +274,9 @@ export const LaserFlow = ({
   const mountRef = useRef(null);
   const rendererRef = useRef(null);
   const uniformsRef = useRef(null);
+  // Bug D: the source of truth for uColor, re-applied to the uniform every frame inside
+  // animate() — see the long comment in the prop-sync effect below for why.
+  const colorRGBRef = useRef(new THREE.Vector3(1, 1, 1));
   const hasFadedRef = useRef(false);
   const rectRef = useRef(null);
   const baseDprRef = useRef(1);
@@ -520,6 +523,9 @@ export const LaserFlow = ({
       const alpha = 1 - Math.exp(-cdt / tau);
       mouseSmooth.lerp(mouseTarget, alpha);
       uniforms.iMouse.value.set(mouseSmooth.x, mouseSmooth.y, 0, 0);
+      // Bug D: re-applied every frame — see the prop-sync effect's comment for why this
+      // couldn't just be set once there.
+      uniforms.uColor.value.copy(colorRGBRef.current);
 
       renderer.render(scene, camera);
 
@@ -568,8 +574,19 @@ export const LaserFlow = ({
     uniforms.uFalloffStart.value = falloffStart;
     uniforms.uFogFallSpeed.value = fogFallSpeed;
 
+    // Bug D (real root cause): setting uniforms.uColor.value.set(r,g,b) HERE never reached the
+    // GPU. Verified empirically: uFogIntensity/uWispDensity/etc — plain-number uniforms set the
+    // exact same way in this exact effect — DID show up correctly on the live WebGL program
+    // (read back via gl.getUniform), and uFlowTime/uFogTime (mutated every frame inside the
+    // animate() loop below) also stayed live. Only uColor, mutated once here via .set() on a
+    // persistent Vector3, never appeared — confirmed via a direct GPU uniform readback on a
+    // clean reload, immediately and after 500ms of continuous rendering. Whatever Three.js
+    // internal reason (a one-shot upload gate, a merge/clone specific to vec3 uniforms — the
+    // exact mechanism wasn't pinned down), the fix that IS proven to work is applying it every
+    // frame inside animate(), the same path uFlowTime already uses successfully. Store the
+    // parsed RGB here; animate() re-applies it each frame from colorRGBRef.
     const { r, g, b } = hexToRGB(color || '#FFFFFF');
-    uniforms.uColor.value.set(r, g, b);
+    colorRGBRef.current.set(r, g, b);
   }, [
     wispDensity,
     mouseTiltStrength,
