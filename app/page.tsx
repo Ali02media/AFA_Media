@@ -7,7 +7,6 @@ import { PricingPreview } from "@/components/sections/pricing-preview";
 import { CTA } from "@/components/sections/cta";
 import { ProcessSection } from "@/components/sections/process-section";
 import { FAQ } from "@/components/sections/faq";
-import { MacbookShowcase } from "@/components/sections/macbook-showcase";
 import { site, faqs } from "@/lib/site";
 
 const jsonLd = {
@@ -55,8 +54,11 @@ export default function Home() {
           7. CTA #1             — first booking ask (no animation), catches ready buyers
           8. Process            — how it works / our AI edge / timeline
           9. FAQ (short)        — knock down the last few objections
-         10. MacBook + CTA #2   — cinematic zoom that lands on the booking ask
-         11. FAQ (full)         — everything else, for the thorough reader
+         10. FAQ (full)         — everything else, for the thorough reader
+
+          The MacBook showcase used to sit between the short and full FAQ. Removed: under
+          reduced motion (and on mobile) it fell back to a bare, unheaded Cal calendar
+          dropped mid-page, and the booking ask is already covered by CTA #1 above.
       ──────────────────────────────────────────────────────────────────────── */}
       <Hero />
       <TrustBar />
@@ -76,7 +78,6 @@ export default function Home() {
           </>
         }
       />
-      <MacbookShowcase />
       <FAQ />
     </>
   );

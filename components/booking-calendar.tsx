@@ -24,6 +24,15 @@ export function BookingCalendar({
     // `ui` could restyle and re-measure the embed after load, feeding straight into the
     // ScrollTrigger desync (Bug 4). CalProvider is now the sole owner of bootstrap + `ui`;
     // this component only asks for its own inline instance, via the shared namespace/link.
+    // Guard against re-entry. StrictMode double-mounts in dev, and any re-render that
+    // remounts this effect calls `inline` again on an element Cal has already claimed —
+    // which logged "Inline embed already exists. Ignoring this call" four times per load.
+    // Harmless in itself, but it buries real warnings. Keyed on the element so a genuine
+    // remount into a fresh node still initialises.
+    const el = document.getElementById(EMBED_EL_ID);
+    if (!el || el.dataset.calInit === "1") return;
+    el.dataset.calInit = "1";
+
     const Cal = getCal();
     Cal.ns[site.cal.namespace]("inline", {
       elementOrSelector: "#" + EMBED_EL_ID,

@@ -223,7 +223,16 @@ void mainImage(out vec4 fc,in vec2 frag){
     float LF=L+fog;
     float dith=(h21(frag)-0.5)*(DITHER_STRENGTH/255.0);
     float tone=g(LF+w);
-    vec3 col=tone*uColor+dith;
+    // Hue-preserving highlight rolloff (Bug D). tone is an sRGB transfer with no upper
+    // clamp, so in the beam core LF+w pushes it well above 1. uColor #42b5cf is
+    // rgb(0.259,0.710,0.812), so once tone exceeds 1/0.259 ~= 3.86 every channel clips to
+    // 1.0 independently and the core renders pure WHITE — the blue surviving only in the
+    // dimmer falloff. Scaling the whole colour by its own max keeps the channel ratios
+    // intact, so the core stays saturated #42b5cf instead of blowing out.
+    // Branchless: max(1.0, m) is a no-op below 1 and normalises above it.
+    vec3 col=tone*uColor;
+    col/=max(1.0,max(col.r,max(col.g,col.b)));
+    col+=dith;
     float alpha=clamp(g(L+w*0.6)+dith*0.6,0.0,1.0);
     float nxE=abs((frag.x-C.x)*invW),xF=pow(clamp(1.0-smoothstep(EDGE_X0,EDGE_X1,nxE),0.0,1.0),EDGE_X_GAMMA);
     float scene=LF+max(0.0,w)*0.5,hi=smoothstep(EDGE_LUMA_T0,EDGE_LUMA_T1,scene);

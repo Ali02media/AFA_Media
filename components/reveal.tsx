@@ -39,8 +39,13 @@ export function Reveal({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  /* Render static on server + first paint to avoid hydration mismatch */
-  if (!mounted || forceVisible) {
+  /* Render static on server + first paint to avoid hydration mismatch.
+     Reduced motion renders static too (Bug A audit): the transition was already `duration: 0`,
+     so there was no motion to lose — but that path still left the content at `opacity: 0`
+     until IntersectionObserver fired. Anything that stops the observer firing (an offscreen
+     or non-compositing tab, a browser that throttles it) would strand the whole page blank.
+     A reduced-motion visitor gains nothing from a reveal, so skip the mechanism entirely. */
+  if (!mounted || forceVisible || prefersReduced) {
     return <div className={cn(className)}>{children}</div>;
   }
 

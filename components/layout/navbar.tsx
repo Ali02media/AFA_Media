@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X, ArrowUpRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { nav } from "@/lib/site";
 import { CalButton } from "@/components/cal";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,12 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const overDarkHero = pathname === "/" && !scrolled;
+  // Bug A: with `prefers-reduced-motion: reduce`, Framer Motion does not run the entrance
+  // animation — so the header stayed permanently at its `initial` values: opacity 0 and
+  // translated 64px off the top, i.e. the site's entire navigation was invisible while still
+  // sitting in the hit-testing tree (pointer-events: auto). An entrance animation must
+  // degrade to its FINAL state, never its initial one.
+  const prefersReduced = useReducedMotion();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -35,9 +41,14 @@ export function Navbar() {
           "fixed inset-x-0 top-0 z-50 transition-[background,border-color] duration-500",
           scrolled ? "glass-nav" : "border-b border-transparent bg-transparent"
         )}
-        initial={{ y: -64, opacity: 0 }}
+        // `initial={false}` mounts straight at the `animate` values — no offset, no fade.
+        initial={prefersReduced ? false : { y: -64, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 80, damping: 20, delay: 0.1 }}
+        transition={
+          prefersReduced
+            ? { duration: 0 }
+            : { type: "spring", stiffness: 80, damping: 20, delay: 0.1 }
+        }
       >
         <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
           {/* Logo */}
@@ -111,10 +122,12 @@ export function Navbar() {
         {open && (
           <motion.div
             className="fixed inset-0 z-40 flex flex-col bg-ink/96 px-6 pt-24 backdrop-blur-2xl md:hidden"
-            initial={{ opacity: 0, y: -20 }}
+            // Same Bug A hazard as the header: without this the whole mobile menu opens at
+            // opacity 0 for reduced-motion visitors — present and clickable, but unreadable.
+            initial={prefersReduced ? false : { opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ type: "spring", stiffness: 90, damping: 22 }}
+            exit={prefersReduced ? { opacity: 0 } : { opacity: 0, y: -20 }}
+            transition={prefersReduced ? { duration: 0 } : { type: "spring", stiffness: 90, damping: 22 }}
           >
             {/* Ambient orb in mobile menu */}
             <div className="orb orb-blue pointer-events-none absolute -right-32 top-20 h-72 w-72 opacity-40" />
@@ -125,9 +138,13 @@ export function Navbar() {
                 return (
                   <motion.div
                     key={item.href}
-                    initial={{ opacity: 0, x: -24 }}
+                    initial={prefersReduced ? false : { opacity: 0, x: -24 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ type: "spring", stiffness: 80, damping: 18, delay: i * 0.06 }}
+                    transition={
+                      prefersReduced
+                        ? { duration: 0 }
+                        : { type: "spring", stiffness: 80, damping: 18, delay: i * 0.06 }
+                    }
                   >
                     <Link
                       href={item.href}
@@ -146,9 +163,13 @@ export function Navbar() {
 
             <motion.div
               className="mt-8"
-              initial={{ opacity: 0, y: 16 }}
+              initial={prefersReduced ? false : { opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.28, type: "spring", stiffness: 80, damping: 20 }}
+              transition={
+                prefersReduced
+                  ? { duration: 0 }
+                  : { delay: 0.28, type: "spring", stiffness: 80, damping: 20 }
+              }
             >
               <CalButton className="bg-gradient-brand glow-cta inline-flex h-14 w-full items-center justify-center gap-2 rounded-full text-base font-semibold text-white">
                 Book a Free Discovery Call

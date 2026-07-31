@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Container, SectionHeading } from "@/components/ui/section";
 import { faqs } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,9 @@ export function FAQ({
   title?: React.ReactNode;
 } = {}) {
   const [open, setOpen] = useState<number | null>(0);
+  // Bug A audit: an accordion panel whose `initial` is `height: 0, opacity: 0`
+  // strands closed if the animation never runs. Instant, but still correct.
+  const prefersReduced = useReducedMotion();
   const items = limit ? faqs.slice(0, limit) : faqs;
 
   return (
@@ -61,7 +64,7 @@ export function FAQ({
                         : "border-line bg-ink-3 text-mist-dim"
                     )}
                     animate={{ rotate: isOpen ? 45 : 0 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                    transition={prefersReduced ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 24 }}
                   >
                     <Plus className="h-4 w-4" />
                   </motion.span>
@@ -74,7 +77,7 @@ export function FAQ({
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ type: "spring", stiffness: 120, damping: 20 }}
+                      transition={prefersReduced ? { duration: 0 } : { type: "spring", stiffness: 120, damping: 20 }}
                       className="overflow-hidden"
                     >
                       <p className="pb-6 pr-12 text-[15px] leading-relaxed text-mist">

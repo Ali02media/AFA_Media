@@ -4,7 +4,8 @@ import { process } from "@/lib/site";
 
 export function ProcessSection() {
   return (
-    <section className="relative border-y border-line bg-ink-2/20 py-28 sm:py-36">
+    // id: anchor target for the hero's "See the Process" button (Bug E).
+    <section id="process" className="relative border-y border-line bg-ink-2/20 py-28 sm:py-36">
       <Container>
         <Reveal>
           <SectionHeading

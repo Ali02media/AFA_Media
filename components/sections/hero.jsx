@@ -134,7 +134,20 @@ export function Hero() {
           AI chatbots that capture every lead, ads that only target buyers ready to book paired with a beautiful site, not a digital brochure. — if it isn&apos;t setup within less than 30 days, you don&apos;t pay.
         </p>
         <div style={{ marginTop: '2rem' }}>
-          <ShinyButton>See the Process</ShinyButton>
+          {/* Bug E: this rendered with no onClick, so the hero's only CTA did nothing.
+              Scrolls to the "From first call to live in 14 days" section, matching the label.
+              `scroll-padding-top: 4rem` in globals.css keeps the heading clear of the fixed
+              64px navbar; `behavior` respects the visitor's motion preference. */}
+          <ShinyButton
+            onClick={() => {
+              const el = document.getElementById('process');
+              if (!el) return;
+              const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+              el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+            }}
+          >
+            See the Process
+          </ShinyButton>
         </div>
       </div>
 
