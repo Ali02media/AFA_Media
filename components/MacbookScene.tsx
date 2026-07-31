@@ -1,43 +1,67 @@
 'use client';
 
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
-const MODEL_URL   = '/models/tabletop_macbook_iphone.glb';
+// Perf 4.1: 11.80 MB → 1.49 MB (−87%). The original was 94% textures (36 images, 34 of them
+// PNG, the largest a single 2.99 MB PNG) and shipped an iPhone model that the loader threw
+// away at runtime. Rebuilt with gltf-transform: iPhone subtree removed at the source, vendor
+// WEBGI_* extensions dropped, textures capped at 1024px and converted to WebP
+// (EXT_texture_webp, natively supported by three's GLTFLoader). Draco geometry compression is
+// preserved. Renamed since it no longer contains an iPhone.
+const MODEL_URL   = '/models/macbook.glb';
 const CLOSED_QUAT = new THREE.Quaternion(0, 0, 0, 1);
 const OPEN_QUAT   = new THREE.Quaternion(-0.7833269096274834, 0, 0, 0.6216099682706644);
 
-// CSS px box size for the tracked screen container — ties directly into the
-// distanceFactor math below. Matches the parent's real content width (no extra CSS
-// `scale()` step) so there's only ONE geometric transform (this component's own,
-// via drei's distanceFactor) between the DOM and the screen — stacking a second,
-// inner CSS scale on top made text blurry (browsers rasterize a transformed layer
-// at its own scale, then just resample that bitmap for outer transforms, instead of
-// re-rendering crisp text at the final size).
-export const SCREEN_W = 1280;
+// ── Framing constants ───────────────────────────────────────────────────────────────────
+// These are deliberate composition choices for the dissolve, NOT calibration against any
+// other element. (They replace a pixel-matching system that existed to line the 3D screen up
+// with a flat DOM copy during the old pin→flow handoff. There is no handoff and no flat copy:
+// the MacBook simply zooms in and fades out to reveal the calendar behind it, so the only
+// question these answer is "where should the laptop sit, and how close do we push in".)
 
-// Content is PRESENT on the screen almost from the start of the lid opening — it fades in
-// while the lid is still at a shallow/oblique angle (screen barely lifted) and tracks the
-// screen's fold the whole way up, so the section is already visible "inside" the screen at
-// low angles rather than only appearing once the lid is near-open. Only hidden in the very
-// first sliver of opening, where the screen still faces down against the keyboard.
-const DP_REVEAL_START = 0.12;
-const DP_REVEAL_END   = 0.3;
+/** Height of the fixed site navbar, in CSS px (`h-16` in navbar.tsx). The zoom endpoint
+ *  centres the laptop screen in the space BELOW it — the same box the revealed calendar
+ *  centres itself in — so the two agree by construction at any viewport height. */
+const NAV_H = 64;
 
-// Pull the zoom endpoint back so the 3D content lands at the SAME on-screen size as the flat
-// ServicesSection it hands off to — when they match, the pin→flow swap has zero size change
-// and is invisible (a smooth, effortless "through the screen" entry, no bounce). The pure
-// 1:1 calibration (1.0) landed a touch too BIG (content shrank at the swap); 1.12 landed a
-// touch too SMALL (content grew); 1.06 splits the difference so they match. >1 = further
-// back / smaller. Purely an endpoint value (camera distance + the vertical-anchor math below
-// derive from it) — it moves where the smooth zoom LANDS, not how it animates, so no jitter.
-// If the content still visibly GROWS at the handoff, nudge DOWN (1.04); if it SHRINKS, nudge UP.
-const ZOOM_END_PULLBACK = 0.991;
+/** At full zoom the screen panel spans this fraction of the viewport width… */
+const ZOOM_FILL_W = 0.92;
+/** …and at most this fraction of the usable height (viewport minus navbar). The endpoint
+ *  takes whichever constraint is tighter, so the panel stays fully in frame on wide-and-short
+ *  windows instead of overflowing (it is framed on the vertical FOV alone otherwise). */
+const ZOOM_FILL_H = 0.92;
+
+// ── Canvas props, hoisted to module scope (Bug 11) ──────────────────────────────────────
+// These were inline object/array literals, so every render of MacbookScene created fresh
+// identities. MacbookScene re-renders whenever `active` flips — which now tracks an
+// IntersectionObserver, so it flips during ordinary scrolling. R3F re-applies changed camera
+// props via applyProps, and a new `camera` identity can reset camera.position back to this
+// default, discarding the framing computed at load; under frameloop="demand" there may be no
+// subsequent frame to correct it. Stable identities mean R3F sees nothing to re-apply.
+const CANVAS_GL     = { antialias: true, alpha: false };
+const CANVAS_CAMERA = { fov: 32, near: 0.1, far: 100, position: [0, 1.3, 3.4] as [number, number, number] };
+const CANVAS_STYLE  = { width: '100%', height: '100%', display: 'block' } as const;
+// Perf 4.4: was [1.5, 2] — a 1.5x MINIMUM meant 2.25x the pixels on a standard display, on
+// top of MSAA (antialias above). That is belt-and-braces: MSAA already resolves the geometry
+// edges, and the supersampling was added for specular shimmer on the rotating metal chassis.
+// [1, 2] renders 1:1 on standard displays and still gives Retina panels their native detail.
+const CANVAS_DPR    = [1, 2] as [number, number];
+
+function onCanvasCreated({ gl }: { gl: THREE.WebGLRenderer }) {
+  gl.outputColorSpace = THREE.SRGBColorSpace;
+  gl.toneMapping = THREE.ACESFilmicToneMapping;
+  gl.toneMappingExposure = 1.15;
+  // The dissolve is a CSS opacity fade on the canvas element itself (see chassisFade in
+  // MacbookCore), not WebGL alpha blending — so alpha:true was never needed for it. Opaque
+  // avoids the compositor alpha-blending a large canvas every frame; the clear colour matches
+  // the page background (--color-ink is #ffffff) so there is no visual seam.
+  gl.setClearColor(0xffffff, 1);
+}
 
 // Fully release a loaded model subtree: geometries, every material, and every texture the
 // materials reference. Without this, each dev-mode Strict-Mode remount (mount→unmount→
@@ -61,111 +85,17 @@ function disposeObjectTree(root: THREE.Object3D) {
   });
 }
 
-function ScreenFollower({
-  displayMeshRef,
-  dpRef,
-  distanceFactor,
-  screenH,
-  normalCorrectionRef,
-  centroidLocalRef,
-  onContainerRef,
-  active,
-}: {
-  displayMeshRef: RefObject<THREE.Mesh | null>;
-  dpRef: RefObject<number>;
-  /** Whether the 3D screen is the thing currently on-screen (i.e. still pinned). This
-   *  component stays mounted permanently (see MacbookScene) to avoid reloading the GLTF
-   *  every time the user scrolls back across the pin boundary — but its container is a
-   *  full-bleed, opaque-white div, and its own reveal-opacity is driven purely by scroll
-   *  progress (dp), which stays maxed out forever once you've scrolled past. Without this
-   *  flag, that leftover container silently sat on top of the real page content once
-   *  unpinned, since nothing ever told it to go away. */
-  active: boolean;
-  /** The mesh's local origin (what matrixWorld's translation gives you) is wherever the
-   *  modeler placed it — not necessarily the screen panel's visual center. Track this
-   *  precomputed local centroid instead, transformed through the live world matrix each
-   *  frame, so the overlay is centered on the actual panel rather than an arbitrary point. */
-  centroidLocalRef: RefObject<THREE.Vector3>;
-  /** In `transform` mode, drei's Html sizes content by a constant `distanceFactor/400`
-   *  world-units-per-CSS-pixel multiplier (see node_modules/@react-three/drei/web/Html.js).
-   *  A plain `scale` prop is NOT recognized by Html — it silently spreads onto Html's own
-   *  internal tracking group as an actual Three.js scale, compounding incorrectly. */
-  distanceFactor: number;
-  screenH: number;
-  /** <Html transform> always lays its div flat in the tracked group's local XY plane
-   *  (local Z = the div's outward "page normal"). This mesh's own geometric normal is
-   *  its local Y axis, not Z — so without this correction the div ends up oriented
-   *  edge-on to the camera no matter how the camera is aimed. */
-  normalCorrectionRef: RefObject<THREE.Quaternion>;
-  /** Fires with the tracked container div so the parent can portal real page content
-   *  into it — MacbookScene only owns the 3D tracking, not what's displayed. */
-  onContainerRef: (el: HTMLDivElement | null) => void;
-}) {
-  const groupRef = useRef<THREE.Group>(null!);
-  const wrapRef  = useRef<HTMLDivElement>(null);
-  const _pos   = useRef(new THREE.Vector3());
-  const _quat  = useRef(new THREE.Quaternion());
-  const _scale = useRef(new THREE.Vector3());
-
-  useFrame(() => {
-    const mesh  = displayMeshRef.current;
-    const group = groupRef.current;
-    if (mesh && group) {
-      mesh.updateWorldMatrix(true, false);
-      mesh.matrixWorld.decompose(_pos.current, _quat.current, _scale.current);
-      group.position.copy(centroidLocalRef.current).applyMatrix4(mesh.matrixWorld);
-      group.quaternion.copy(_quat.current).multiply(normalCorrectionRef.current);
-      group.scale.set(1, 1, 1);
-    }
-
-    if (wrapRef.current) {
-      if (!active) {
-        wrapRef.current.style.opacity = '0';
-        wrapRef.current.style.pointerEvents = 'none';
-      } else {
-        const dp = dpRef.current ?? 0;
-        const reveal = THREE.MathUtils.clamp((dp - DP_REVEAL_START) / (DP_REVEAL_END - DP_REVEAL_START), 0, 1);
-        const smooth = reveal * reveal * (3 - 2 * reveal);
-        wrapRef.current.style.opacity = String(smooth);
-        wrapRef.current.style.pointerEvents = '';
-      }
-    }
-  });
-
-  return (
-    <group ref={groupRef}>
-      <Html transform distanceFactor={distanceFactor} center zIndexRange={[1, 2]}>
-        <div
-          ref={(el) => { (wrapRef as React.MutableRefObject<HTMLDivElement | null>).current = el; onContainerRef(el); }}
-          style={{
-            width: SCREEN_W,
-            height: screenH,
-            overflow: 'hidden',
-            borderRadius: 3,
-            background: '#ffffff',
-            boxShadow: 'inset 0 0 16px rgba(0,0,0,0.12)',
-          }}
-        />
-      </Html>
-    </group>
-  );
-}
-
 function MacbookCore({
   progressRef,
   onZoomProgress,
-  onScreenContainerRef,
   invalidateRef,
-  active,
 }: {
   progressRef: RefObject<number>;
   onZoomProgress?: (v: number) => void;
-  onScreenContainerRef: (el: HTMLDivElement | null) => void;
   /** Exposes R3F's `invalidate` (frameloop="demand" means nothing renders unless
    *  something calls this) to the parent, so GSAP's onUpdate — which lives outside the
    *  R3F tree — can kick off a render whenever scroll actually changes. */
   invalidateRef: RefObject<(() => void) | null>;
-  active: boolean;
 }) {
   const { gl, camera, scene, invalidate } = useThree();
 
@@ -176,18 +106,67 @@ function MacbookCore({
 
   const screenNodeRef  = useRef<THREE.Object3D | null>(null);
   const displayMeshRef = useRef<THREE.Mesh | null>(null);
-  const normalCorrectionRef = useRef(new THREE.Quaternion());
-  const centroidLocalRef = useRef(new THREE.Vector3());
   const initialCamPos  = useRef(new THREE.Vector3());
   const initialLookAt  = useRef(new THREE.Vector3());
   const zoomCamPos     = useRef(new THREE.Vector3());
   const zoomLookAt     = useRef(new THREE.Vector3());
   const zoomReady      = useRef(false);
   const displayedP     = useRef(0);
-  const dpRef          = useRef(0);
-  const [modelReady, setModelReady] = useState(false);
-  const [distanceFactor, setDistanceFactor] = useState(10);
-  const [screenH, setScreenH] = useState(300);
+
+  /** Everything about the loaded model that camera framing depends on. Captured once at load;
+   *  the framing itself is derived from it on every viewport change (see applyFraming). */
+  const geomRef = useRef<{
+    topWorldY: number; midY: number; halfW: number;
+    lidCenter: THREE.Vector3; worldNormal: THREE.Vector3;
+    trueW: number; trueH: number;
+  } | null>(null);
+
+  /** Derive BOTH camera endpoints from the CURRENT viewport.
+   *
+   *  Bug 10: these used to be computed once inside the GLTF callback from a `viewportHpx`
+   *  captured at load time, in an effect keyed on [gl, camera, scene] (all stable in R3F) —
+   *  so it never re-ran. Meanwhile the scroll range IS live (`end: () => innerHeight * 4`,
+   *  re-evaluated on every ScrollTrigger.refresh), so any resize, browser-zoom change or
+   *  mobile URL-bar movement left the camera endpoint permanently desynced from the scroll
+   *  range for the rest of the session. Now nothing viewport-derived outlives its viewport. */
+  const applyFraming = useCallback(() => {
+    const g = geomRef.current;
+    if (!g) return;
+    const pc   = camera as THREE.PerspectiveCamera;
+    const vw   = gl.domElement.clientWidth  || window.innerWidth;
+    const vh   = gl.domElement.clientHeight || window.innerHeight;
+    const tanV = Math.tan(THREE.MathUtils.degToRad(pc.fov / 2));
+    const tanH = tanV * (vw / vh);
+
+    // ── Zoom START: the whole laptop in frame, sitting slightly above centre.
+    // Bug 13: this framed purely against the vertical FOV, so on a wide-but-short window the
+    // model could overflow horizontally. Fit both axes and take whichever needs more room.
+    const reqDist = Math.max((g.topWorldY / 2) / tanV, g.halfW / tanH) * 1.25;
+    initialCamPos.current.set(0, g.midY + g.topWorldY * 0.12, reqDist);
+    initialLookAt.current.set(0, g.midY, 0);
+
+    // ── Zoom END: the screen panel filling the frame, just before it dissolves.
+    // Perspective projects a world span `w` at distance `d` to  w * vh / (2·d·tanV)  px.
+    // Solve that for the `d` hitting each fill target and take the further one, so whichever
+    // axis is the tighter constraint is the one that ends up satisfied.
+    const dist = Math.max(
+      (g.trueW * vh) / (2 * (ZOOM_FILL_W * vw) * tanV),
+      (g.trueH * vh) / (2 * (ZOOM_FILL_H * Math.max(1, vh - NAV_H)) * tanV),
+    );
+
+    // Centre the panel in the space BELOW the navbar rather than in the raw viewport — the
+    // same box the revealed calendar centres itself in, so the two agree at any height with
+    // no magic constant. Raising camera and aim together moves the subject DOWN on screen.
+    const vNudgeWorld = (NAV_H / 2) * ((2 * dist * tanV) / vh);
+
+    zoomCamPos.current.copy(g.lidCenter).addScaledVector(g.worldNormal, dist);
+    zoomLookAt.current.copy(g.lidCenter);
+    zoomCamPos.current.y += vNudgeWorld;
+    zoomLookAt.current.y += vNudgeWorld;
+
+    pc.updateProjectionMatrix();
+    invalidate();
+  }, [camera, gl, invalidate]);
 
   useEffect(() => {
     let disposed = false;
@@ -210,10 +189,20 @@ function MacbookCore({
     const shadowMesh = new THREE.Mesh(new THREE.PlaneGeometry(3, 3), shadowMat);
     shadowMesh.rotation.x = -Math.PI / 2;
     shadowMesh.position.y = -0.01;
+    // Bug 17: added to the SCENE, deliberately — not to the model group. The group carries a
+    // model-dependent `normalizeScale` and a 180° Y rotation; parenting the shadow to it would
+    // scale this fixed 3×3 plane by an arbitrary factor. The model is normalised to ~3.1 world
+    // units and centred on the origin with its base at y=0, so a 3×3 plane at y=-0.01 in scene
+    // space sits correctly beneath it by construction, independent of viewport size.
     scene.add(shadowMesh);
 
     const draco = new DRACOLoader();
-    draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.5/');
+    // Perf 4.6: self-hosted (copied from three/examples/jsm/libs/draco/gltf at install time)
+    // rather than fetched from gstatic. The CDN added a third-party round-trip before decoding
+    // could even start, and made the model a hard dependency on a host we don't control — if
+    // gstatic is slow or blocked, the MacBook never appears at all. Same origin = no extra
+    // DNS/TLS, cacheable with the rest of the site, and version-locked to our three build.
+    draco.setDecoderPath('/draco/');
     const loader = new GLTFLoader();
     loader.setDRACOLoader(draco);
 
@@ -222,12 +211,21 @@ function MacbookCore({
 
       const root    = gltf.scene;
       const macbook = root.getObjectByName('macbook');
-      const iphone  = root.getObjectByName('iphone');
-      if (iphone) iphone.removeFromParent();
-      if (!macbook) return;
+      // (The runtime `iphone.removeFromParent()` that used to sit here is gone — the iPhone is
+      // no longer IN the GLB, so it is no longer downloaded and decoded just to be discarded.)
+      // Bug 12: these node names are hardcoded against the GLB's authoring. If the model is
+      // ever re-exported with different names the callback silently bailed — no model, no
+      // camera animation, and nothing logged (onError only fires for transport failures, not
+      // for a file that loads fine but is named differently). Say so instead.
+      if (!macbook) {
+        console.error('[MacbookScene] node "macbook" not found in', MODEL_URL,
+          '— available:', root.children.map((c) => c.name));
+        return;
+      }
 
       const screenNode = macbook.getObjectByName('Bevels_2') as THREE.Object3D | null;
       if (screenNode) screenNodeRef.current = screenNode;
+      else console.error('[MacbookScene] screen node "Bevels_2" not found — lid will not open.');
 
       const maxAniso = Math.min(4, gl.capabilities.getMaxAnisotropy());
       macbook.traverse((obj) => {
@@ -242,8 +240,7 @@ function MacbookCore({
         }
       });
 
-      // Remove glare on lid assembly, and give the screen mesh a plain light surface —
-      // the real content is provided by the live <Html> overlay, not this mesh's texture.
+      // Remove glare on the lid assembly.
       if (screenNode) {
         screenNode.traverse((obj) => {
           const mesh = obj as THREE.Mesh;
@@ -255,6 +252,14 @@ function MacbookCore({
         });
       }
 
+      // The screen panel is deliberately left as a plain near-white surface (Bug 14).
+      // It used to be blanked to make room for DOM content composited over it; that content
+      // is gone, and blank is still the right answer here — the canvas clear colour is white
+      // and the page behind is white, so zooming into a near-white panel that then fades out
+      // reads as a clean WHITEOUT dissolving straight into the booking calendar. Restoring
+      // the GLB's baked texture would put a generic off-brand wallpaper in the middle of the
+      // shot; a calendar screenshot would have to be a Three.js texture (never DOM) to avoid
+      // reintroducing the overlay bug that caused all the jitter.
       const displayMesh = screenNode?.getObjectByName('Object_7') as THREE.Mesh | null;
       if (displayMesh) {
         displayMeshRef.current = displayMesh;
@@ -268,6 +273,9 @@ function MacbookCore({
           m.metalness = 0;
           m.needsUpdate = true;
         }
+      } else if (screenNode) {
+        console.error('[MacbookScene] display mesh "Object_7" not found — zoom framing will ' +
+          'fall back to an approximate panel size.');
       }
 
       root.updateMatrixWorld(true);
@@ -297,28 +305,19 @@ function MacbookCore({
       scene.add(group);
       scene.updateMatrixWorld(true);
 
-      const pc        = camera as THREE.PerspectiveCamera;
       const topWorldY = (unionBox.max.y - closedBox.min.y) * normalizeScale;
       const midY      = topWorldY / 2;
-      const halfVFov  = THREE.MathUtils.degToRad(pc.fov / 2);
-      const reqDist   = (topWorldY / 2 / Math.tan(halfVFov)) * 1.25;
-      camera.position.set(0, midY + topWorldY * 0.12, reqDist);
-      pc.lookAt(0, midY, 0);
-      pc.updateProjectionMatrix();
-      initialCamPos.current.copy(camera.position);
-      initialLookAt.current.set(0, midY, 0);
+      const halfW     = (unionSize.x * normalizeScale) / 2;
 
       if (screenNode) {
         screenNode.quaternion.copy(OPEN_QUAT);
         scene.updateMatrixWorld(true);
         const lidBox    = new THREE.Box3().setFromObject(screenNode);
         const lidCenter = lidBox.getCenter(new THREE.Vector3());
-        // Fallback framing if the mesh basis (and thus trueW) can't be derived below; the
-        // real value is recomputed from trueW so the zoom ends at 1:1 (see note near trueW).
-        let dist        = (topWorldY * 0.30 / Math.tan(halfVFov)) * 1.2;
-        // Vertical pan applied to the zoom endpoint so the (viewport-centred) 3D screen
-        // content lands at the same height as the top-anchored flow content — set below.
-        let vNudgeWorld = 0;
+        // Fallbacks if the mesh basis can't be derived below (screen mesh missing or
+        // untextured): a rough panel size, so the zoom still lands somewhere sensible.
+        let trueW = topWorldY * 0.6;
+        let trueH = topWorldY * 0.4;
 
         // Derive the screen's tangent/bitangent/normal DIRECTLY from the mesh's own
         // UV mapping (the same data used to paint its original baked-in texture) instead
@@ -385,10 +384,6 @@ function MacbookCore({
           if (orthoBitangent.dot(bitangent) < 0) orthoBitangent.negate();
           bitangent = orthoBitangent;
 
-          normalCorrectionRef.current.setFromRotationMatrix(
-            new THREE.Matrix4().makeBasis(tangent, bitangent, localNormal)
-          );
-
           const worldQuat = mesh.getWorldQuaternion(new THREE.Quaternion());
           worldNormal = localNormal.clone().applyQuaternion(worldQuat).normalize();
           if (worldNormal.z < 0) worldNormal.negate();
@@ -408,64 +403,14 @@ function MacbookCore({
 
           const worldScale = new THREE.Vector3();
           mesh.matrixWorld.decompose(new THREE.Vector3(), new THREE.Quaternion(), worldScale);
-          const trueW = (maxT - minT) * worldScale.x;
-          const trueH = (maxB - minB) * worldScale.y;
-          setDistanceFactor(400 * trueW / SCREEN_W);
-          setScreenH(Math.max(1, Math.round(SCREEN_W * (trueH / trueW))));
-
-          // Frame the zoom endpoint so that at full zoom the screen content renders at 1:1
-          // with its own CSS size (the SCREEN_W-wide content occupying exactly SCREEN_W
-          // on-screen pixels) — i.e. pixel-identical to the SAME ServicesSection once it
-          // sits in normal page flow after the pin releases. Previously the 3D screen
-          // magnified the content ~1.4x at full zoom, so the pin→flow handoff snapped it
-          // back down to natural size: a visible size jump / "zoom in and out" every time
-          // the boundary was crossed. Because content fills trueW (via distanceFactor), the
-          // screen itself must project to SCREEN_W px. Perspective projects a world span w
-          // at distance d to  w * viewportHpx / (2 d tan(halfVFov))  on-screen pixels; solve
-          // that for the d which maps trueW → SCREEN_W. Viewport-height based, so the match
-          // holds at any window size (the flow heading is a fixed CSS width).
-          const viewportHpx = gl.domElement.clientHeight || window.innerHeight;
-          dist = (trueW * viewportHpx) / (2 * SCREEN_W * Math.tan(halfVFov)) * ZOOM_END_PULLBACK;
-
-          // The 3D screen content is vertically CENTRED in the viewport (drei Html `center`
-          // on the panel centroid, which the camera aims at), but the same section in normal
-          // page flow is TOP-anchored. At the pin handoff those two heights differ, so the
-          // content hops vertically even though its size now matches. Pan the zoom endpoint
-          // down by the gap between "centre of a screenH-tall box in this viewport" and the
-          // flow content's top position, so the centred content sits where the flow content
-          // will. worldPerPx converts that on-screen gap into a world-space camera pan.
-          // On-screen height of the content AFTER the pullback (the CSS height projects
-          // smaller by exactly ZOOM_END_PULLBACK once the camera is further back). Use this,
-          // not the raw CSS height, so the top-anchor pan stays correct and the handoff
-          // doesn't hop vertically now that the endpoint size changed.
-          const screenHcss  = (SCREEN_W * (trueH / trueW)) / ZOOM_END_PULLBACK;
-          const worldPerPx  = (2 * dist * Math.tan(halfVFov)) / viewportHpx;
-          // TOP_ALIGN_PX sets where the 3D content's TOP edge lands below the viewport top.
-          // Working the projection: the <Html center> div is centred on the panel centroid,
-          // which the camera aims at, so panning by vNudgeWorld puts the div's top at exactly
-          // this many px. The flat CTA is transform-pinned to render at top 0, so for the two
-          // to coincide this wants to be 0 — but `screenHcss` (derived from the mesh aspect
-          // ratio ÷ ZOOM_END_PULLBACK rather than measured from the DOM) under-estimates the
-          // wrapper's true rendered height, and half that error shifts the top up by ~6px.
-          // So 6 lands the measured top at 0. Was an undocumented `10`, which measured +4.
-          // NOTE: the 6 corrects a HEIGHT-derived error, so it isn't guaranteed to be a pure
-          // constant across viewport heights — if Δtop drifts at a very different window
-          // height, replace screenHcss with the wrapper's measured getBoundingClientRect().
-          const TOP_ALIGN_PX = 6;
-          vNudgeWorld = (viewportHpx / 2 - screenHcss / 2 - TOP_ALIGN_PX) * worldPerPx;
-
-          // Panel's actual visual center (not the mesh's arbitrary local origin).
-          centroidLocalRef.current.copy(p0)
-            .addScaledVector(tangent, (minT + maxT) / 2)
-            .addScaledVector(bitangent, (minB + maxB) / 2);
+          trueW = (maxT - minT) * worldScale.x;
+          trueH = (maxB - minB) * worldScale.y;
         }
 
-        zoomCamPos.current.copy(lidCenter).addScaledVector(worldNormal, dist);
-        zoomLookAt.current.copy(lidCenter);
-        // Pan camera + aim together (no tilt) so the screen content shifts up on-screen to
-        // meet the flow content's height. Panning the camera DOWN moves content UP on screen.
-        zoomCamPos.current.y -= vNudgeWorld;
-        zoomLookAt.current.y -= vNudgeWorld;
+        // Hand the model-derived geometry to applyFraming, which turns it into camera
+        // endpoints against whatever the viewport happens to be — now and after any resize.
+        geomRef.current = { topWorldY, midY, halfW, lidCenter, worldNormal, trueW, trueH };
+        applyFraming();
 
         screenNode.quaternion.copy(CLOSED_QUAT);
         scene.updateMatrixWorld(true);
@@ -477,7 +422,9 @@ function MacbookCore({
       // already scrolled into the lid-open range while it was still decoding, snaps the
       // model open in one lurch — the one-time "bounce").
       displayedP.current = (progressRef.current ?? 0) * 2;
-      setModelReady(true);
+      // Under frameloop="demand" nothing renders unless something asks. Request a frame so
+      // the just-loaded model appears immediately rather than waiting for the next scroll.
+      invalidate();
     }, undefined, (err) => console.error('[MacbookScene] load failed:', err));
 
     return () => {
@@ -499,8 +446,18 @@ function MacbookCore({
       }
       draco.dispose();
       scene.environment = null;
+      geomRef.current = null;
     };
-  }, [gl, camera, scene]);
+  }, [gl, camera, scene, applyFraming]);
+
+  // Bug 10: re-derive the framing whenever the viewport changes. Debounced so a drag-resize
+  // recomputes once it settles rather than on every intermediate pixel.
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout>;
+    const onResize = () => { clearTimeout(t); t = setTimeout(applyFraming, 150); };
+    window.addEventListener('resize', onResize);
+    return () => { clearTimeout(t); window.removeEventListener('resize', onResize); };
+  }, [applyFraming]);
 
   useFrame((_, delta) => {
     const raw = progressRef.current ?? 0;
@@ -519,15 +476,12 @@ function MacbookCore({
     const dt     = Math.min(0.025, delta);
     displayedP.current += (target - displayedP.current) * (1 - Math.pow(0.000001, dt));
     const dp = displayedP.current;
-    dpRef.current = dp;
 
-    // Fade out just the 3D chassis (canvas) gradually over the second HALF of the zoom
-    // phase (dp 1.4→2.0 — roughly 1080px of scroll, not a narrow last-7% window), so
-    // nothing is still visibly changing right as the pin hands off. Driven by the
-    // already-smoothed `dp` (not raw scroll position) so it inherits the same gentle
-    // inertia as the lid/zoom motion instead of tracking the wheel 1:1. The tracked
-    // ServicesSection content lives in a separate DOM overlay (drei's Html), not the
-    // canvas raster, so it stays fully visible throughout regardless of this fade.
+    // THE DISSOLVE. Fade the whole canvas out over the second half of the zoom (dp 1.4→2.0,
+    // roughly 1080px of scroll) to reveal the flat booking calendar sitting behind it.
+    // Driven by the already-smoothed `dp` rather than raw scroll, so it inherits the same
+    // gentle inertia as the lid/zoom motion instead of tracking the wheel 1:1.
+    // Nothing else renders over the canvas, so this fade is the complete reveal.
     const chassisFade = THREE.MathUtils.clamp((dp - 1.4) / 0.6, 0, 1);
     gl.domElement.style.opacity = String(1 - chassisFade);
 
@@ -538,21 +492,16 @@ function MacbookCore({
       );
     }
 
-    // Tiny dwell so the camera is provably AT the zoom endpoint before the handoff fires.
-    // (The previous comment here described a ÷0.8 dwell that the code never actually had —
-    // stale from a reverted attempt. Undivided, rawZoom only reached 1 at dp 2.0 = progress
-    // 1.0, i.e. AFTER both handoff thresholds, so `e` was still <1 when the swap happened and
-    // the camera was short of `zoomCamPos`. The vNudge/ZOOM_END_PULLBACK alignment is derived
-    // for e === 1 exactly, so it simply didn't hold at the moment of the swap — the residual
-    // mismatch, and its direction-dependent size.)
+    // KEEP-AS-IS, for a NEW reason. This dwell originally existed to park the camera before
+    // the old pin→flow handoff fired. There is no handoff now — but ÷0.97 still earns its
+    // place: it makes the zoom reach its endpoint at dp≈1.97 (progress ≈0.985) and HOLD for
+    // the last ~48px, so the final stretch of the dissolve happens with the camera already
+    // still. A moving camera under a fading canvas reads as a smear; a settled one reads as a
+    // clean cross-fade into the calendar. Small enough (~48px) never to feel like a stall —
+    // unlike the ÷0.8 (~320px) that was correctly rejected earlier as a visible stop.
     //
-    // ÷0.97 ⇒ rawZoom clamps to 1 at dp 1.97 ≈ progress 0.985, before the 0.995/0.999
-    // thresholds AND before p=0.99 where the flow slot becomes viewport-anchored — so across
-    // that whole window the camera sits exactly at the endpoint and the two representations
-    // coincide. Chosen over ÷0.99 (which would clamp at exactly 0.995, leaving zero margin for
-    // displayedP's easing lag); ÷0.97 tolerates ~32px of lag. This is a ~48px dwell — nothing
-    // like the ÷0.8 (~320px) that was correctly rejected as a visible stall. The chassis keeps
-    // fading through it, so it still reads as breaking THROUGH the screen rather than stopping.
+    // (Historical note: this block used to justify itself via the old handoff thresholds —
+    // 0.995/0.999, and a flow slot becoming viewport-anchored at p=0.99. None of those exist.)
     const rawZoom = THREE.MathUtils.clamp((dp - 1) / 0.97, 0, 1);
     onZoomProgress?.(rawZoom);
 
@@ -581,18 +530,6 @@ function MacbookCore({
       <directionalLight position={[3, 5, 2]} intensity={1.7} />
       <directionalLight position={[-3, 2, -2]} intensity={0.4} color={0x369aac} />
       <directionalLight position={[-2, 1.5, 3]} intensity={0.5} />
-      {modelReady && (
-        <ScreenFollower
-          displayMeshRef={displayMeshRef}
-          dpRef={dpRef}
-          distanceFactor={distanceFactor}
-          screenH={screenH}
-          normalCorrectionRef={normalCorrectionRef}
-          centroidLocalRef={centroidLocalRef}
-          onContainerRef={onScreenContainerRef}
-          active={active}
-        />
-      )}
     </>
   );
 }
@@ -602,7 +539,6 @@ export default function MacbookScene({
   style,
   progressRef,
   onZoomProgress,
-  onScreenContainerRef,
   invalidateRef,
   active,
 }: {
@@ -610,17 +546,12 @@ export default function MacbookScene({
   style?: React.CSSProperties;
   progressRef: RefObject<number>;
   onZoomProgress?: (progress: number) => void;
-  /** Fires with the DOM node inside the 3D-tracked screen once mounted (and null on
-   *  unmount) — the parent portals real page content into this node. */
-  onScreenContainerRef: (el: HTMLDivElement | null) => void;
   /** With frameloop="demand", nothing renders unless invalidated. The parent's GSAP
    *  onUpdate lives outside the R3F tree, so it calls this (once populated) to kick off
    *  a render whenever scroll actually moves. */
   invalidateRef: RefObject<(() => void) | null>;
-  /** Whether this is the pinned/active instance. The scene stays mounted permanently
-   *  (never unmounts) to avoid reloading the GLTF on every scroll-back, so the tracked
-   *  screen container must be explicitly hidden when inactive instead of relying on
-   *  scroll-progress-based opacity, which stays maxed out once scrolled past. */
+  /** Whether the section is on screen. Drives frameloop only: render every frame while
+   *  the user is scrolling through the section, idle at zero GPU cost once past it. */
   active: boolean;
 }) {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -641,48 +572,21 @@ export default function MacbookScene({
     <div ref={mountRef} className={className} style={style}>
       {shouldLoad && (
         <Canvas
-          gl={{ antialias: true, alpha: false }}
-          camera={{ fov: 32, near: 0.1, far: 100, position: [0, 1.3, 3.4] }}
-          style={{ width: '100%', height: '100%', display: 'block' }}
-          // Render at device DPR (capped at 2). At DPR 1 on a HiDPI screen the chassis was
-          // undersampled, so on SLOW scroll its crisp silver edges crawled/shimmered across
-          // pixels — a rendering artifact, not motion (the animation values are perfectly
-          // monotonic). Full device resolution + MSAA (antialias:true above) resolves those
-          // edges so slow motion is clean. Affordable now that the real cost drivers are
-          // Render at a MINIMUM of 1.5x, up to 2x. On a 1x display this is supersampling
-          // (render hi-res, downscale) — the look-neutral cure for the shading/specular
-          // aliasing that makes the metal chassis shimmer as it ROTATES. MSAA only smooths
-          // geometry edges, not the per-pixel specular response of shiny metal under moving
-          // light, so edge AA alone didn't stop it; supersampling averages that down. Capped
-          // at 2 so a true Retina panel doesn't over-render. Affordable now the real cost
-          // drivers (duplicate GLTF instances, missing disposal, backdrop-blur) are gone.
-          dpr={[1.5, 2]}
-          // Render every frame WHILE the macbook is the active/pinned element, and idle
-          // (demand) once scrolled away. Pure "demand" left drei's <Html> transform frozen
-          // on a stale camera matrix at the re-pin boundary (scrolling back UP), so the
-          // portaled content snapped in from a wrong size/position across several frames.
-          // Continuous rendering while active keeps that transform current every frame, so
-          // the backward transition is as smooth as the forward one; going idle when
-          // inactive preserves the framerate on the rest of the page.
+          gl={CANVAS_GL}
+          camera={CANVAS_CAMERA}
+          style={CANVAS_STYLE}
+          dpr={CANVAS_DPR}
+          // Render every frame while the section is on screen; idle (demand) once scrolled
+          // away, so the 3D costs nothing on the rest of the page. `invalidate()` is called
+          // from the parent's scroll handler and from the ease loop, so demand mode still
+          // catches up correctly.
           frameloop={active ? 'always' : 'demand'}
-          onCreated={({ gl }) => {
-            gl.outputColorSpace = THREE.SRGBColorSpace;
-            gl.toneMapping = THREE.ACESFilmicToneMapping;
-            gl.toneMappingExposure = 1.15;
-            // The chassis fade-out is a CSS opacity fade on the canvas element itself
-            // (see chassisFade in MacbookCore), not WebGL alpha blending — so alpha:true
-            // was never actually needed for that effect. Opaque avoids the compositor
-            // having to alpha-blend a large canvas every frame; match the white page
-            // background explicitly so there's no visual change.
-            gl.setClearColor(0xffffff, 1);
-          }}
+          onCreated={onCanvasCreated}
         >
           <MacbookCore
             progressRef={progressRef}
             onZoomProgress={onZoomProgress}
-            onScreenContainerRef={onScreenContainerRef}
             invalidateRef={invalidateRef}
-            active={active}
           />
         </Canvas>
       )}

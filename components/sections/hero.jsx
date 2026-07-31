@@ -5,48 +5,67 @@ import Plasma from '../Plasma';
 import { ShinyButton } from '../ui/shiny-button';
 import { useEffect, useRef, useState } from 'react';
 
-// NOTE: You can also adjust the variables in the shader for super detailed customization
-
-// Image Example Interactive Reveal Effect
-function LaserFlowBoxExample() {
+// Homepage hero: a LaserFlow beam over an optional Plasma backdrop, with a spotlight that
+// reveals a node graph image where the cursor is.
+export function Hero() {
   const revealImgRef = useRef(null);
-  const [showPlasma, setShowPlasma] = useState(false);
+  // Desktop-only WebGL. Perf 4.3: LaserFlow had NO gate at all, so every phone ran a full
+  // shader — while Plasma right beside it was deliberately excluded from mobile for exactly
+  // that cost. Both are now behind the same check.
+  const [desktopGfx, setDesktopGfx] = useState(false);
+  // rAF coalescing for the reveal spotlight (perf 4.2). Mousemove fires up to ~120x/sec and
+  // each write invalidated a FULL-VIEWPORT layer that is both radial-masked and
+  // mix-blend-mode: lighten — so the compositor had to read back the backdrop and
+  // re-rasterise the mask on every event, on top of the WebGL canvases already rendering in
+  // the same hero. Storing the latest position and writing once per frame collapses that to
+  // at most one repaint per frame.
+  const pendingRef = useRef(null);
+  const rafRef = useRef(0);
 
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 1024px)');
-    setShowPlasma(mq.matches);
-    const onChange = (e) => setShowPlasma(e.matches);
+    setDesktopGfx(mq.matches);
+    const onChange = (e) => setDesktopGfx(e.matches);
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
   }, []);
 
+  useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
+
+  const flush = () => {
+    rafRef.current = 0;
+    const el = revealImgRef.current;
+    const p = pendingRef.current;
+    if (!el || !p) return;
+    el.style.setProperty('--mx', `${p.x}px`);
+    el.style.setProperty('--my', `${p.y}px`);
+  };
+
+  const queue = (x, y) => {
+    pendingRef.current = { x, y };
+    if (!rafRef.current) rafRef.current = requestAnimationFrame(flush);
+  };
+
   return (
     <div
       style={{
-        height: '100vh',
+        // svh, not vh (Bug 29): on mobile the URL bar collapses as you scroll, which changes
+        // 100vh mid-scroll — the hero resized under the reader and shifted every section
+        // below it, a layout shift on the LCP element. 100svh is the stable small-viewport
+        // height. (No vh fallback: duplicate keys in a style object don't cascade, the last
+        // one simply wins. svh is baseline — Safari 15.4+, Chrome 108+, Firefox 101+.)
+        height: '100svh',
         position: 'relative',
         overflow: 'hidden',
-        backgroundColor: '#120F17'
+        backgroundColor: 'var(--color-hero-bg)'
       }}
       onMouseMove={(e) => {
         const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const el = revealImgRef.current;
-        if (el) {
-          el.style.setProperty('--mx', `${x}px`);
-          el.style.setProperty('--my', `${y}px`);
-        }
+        queue(e.clientX - rect.left, e.clientY - rect.top);
       }}
-      onMouseLeave={() => {
-        const el = revealImgRef.current;
-        if (el) {
-          el.style.setProperty('--mx', '-9999px');
-          el.style.setProperty('--my', '-9999px');
-        }
-      }}
+      onMouseLeave={() => queue(-9999, -9999)}
     >
-      {showPlasma && (
+      {desktopGfx && (
         <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
           <Plasma
             color="#298e99"
@@ -61,7 +80,11 @@ function LaserFlowBoxExample() {
 
       <LaserFlow
         style={{ position: 'relative', zIndex: 2 }}
-        dpr={1}
+        // Perf 4.3: LaserFlow IS the hero's identity, so it stays on mobile rather than being
+        // cut like Plasma — but at a reduced tier. This is a full-viewport fragment shader, so
+        // cost scales directly with pixel count; 0.6 dpr is ~36% of the fragments. Change to
+        // `{desktopGfx && <LaserFlow …>}` if you'd rather drop it entirely on phones.
+        dpr={desktopGfx ? 1 : 0.6}
         horizontalBeamOffset={0.14}
         verticalBeamOffset={-0.5}
         color="#42b5cf"
@@ -94,7 +117,7 @@ function LaserFlowBoxExample() {
           fontSize: 'clamp(2.5rem, 5vw, 4rem)',
           fontWeight: 700,
           lineHeight: 1.1,
-          color: '#ffffff',
+          color: 'var(--color-hero-fg)',
           maxWidth: '20ch',
           margin: 0
         }}>
@@ -104,7 +127,7 @@ function LaserFlowBoxExample() {
           fontFamily: 'var(--font-sans)',
           fontSize: '1.125rem',
           lineHeight: 1.6,
-          color: '#c4c8d8',
+          color: 'var(--color-hero-muted)',
           maxWidth: '42ch',
           marginTop: '1.5rem'
         }}>
@@ -117,8 +140,14 @@ function LaserFlowBoxExample() {
 
       <img
         ref={revealImgRef}
-        src="/node-image-full.png"
-        alt="Reveal effect"
+        // Perf 4.7: WebP, 175KB → 51KB (same 1521x722, alpha preserved). Kept as a plain
+        // <img> rather than next/image because the ref drives the reveal mask and the layer
+        // is mix-blend-mode composited — next/image's wrapper markup would change both.
+        src="/node-image-full.webp"
+        // Bug 30: purely decorative (pointer-events:none, a blend-mode overlay), so it must
+        // not be announced. Was alt="Reveal effect".
+        alt=""
+        aria-hidden="true"
         style={{
           position: 'absolute',
           width: '100%',
@@ -142,4 +171,3 @@ function LaserFlowBoxExample() {
   );
 }
 
-export { LaserFlowBoxExample as Hero };

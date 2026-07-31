@@ -19,7 +19,7 @@ const details = [
 
 export default function ContactPage() {
   return (
-    <main className="relative min-h-screen pb-24 pt-32 sm:pt-40">
+    <main className="relative min-h-[100svh] pb-24 pt-32 sm:pt-40">
       {/* Ambient */}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <div className="orb orb-blue absolute left-1/4 top-1/4 h-[500px] w-[500px] opacity-20" />

@@ -236,6 +236,15 @@ export const Plasma = ({
       try {
         containerEl?.removeChild(canvas);
       } catch {}
+      // Perf 4.8: removing the canvas from the DOM does NOT release its WebGL context — the
+      // browser only reclaims it whenever GC happens to run, and contexts are a hard-capped
+      // resource (~8-16 per page). This hero already runs two contexts alongside the
+      // MacBook's, so leaking one per client-side navigation would eventually evict a live
+      // one. LaserFlow.jsx already calls renderer.dispose(); OGL has no equivalent, so ask
+      // for the context to be dropped explicitly.
+      try {
+        gl.getExtension('WEBGL_lose_context')?.loseContext();
+      } catch {}
     };
   }, [color, speed, direction, scale, opacity, mouseInteractive]);
 

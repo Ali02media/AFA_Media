@@ -21,6 +21,13 @@
   --color-mist:     #4c5468;     /* secondary text */
   --color-mist-dim: #838aa0;     /* tertiary text */
 
+  /* ── Hero (the one DARK surface on the site — it sits above the white paper scale) ──
+     Bug 31: these were hardcoded hex values inline in hero.jsx, so the hero could not be
+     restyled from the token set like every other section. */
+  --color-hero-bg:    #120f17;   /* hero backdrop behind the WebGL layers */
+  --color-hero-fg:    #ffffff;   /* hero headline on that backdrop */
+  --color-hero-muted: #c4c8d8;   /* hero subhead */
+
   /* ── Fonts ── */
   --font-display: var(--font-slabo), Georgia, serif;
   --font-sans:    var(--font-inter), system-ui, sans-serif;
@@ -39,16 +46,19 @@
 * { border-color: var(--color-line); }
 
 html {
-  /* NO `scroll-behavior: smooth` here. It is the documented cause of the one-frame
-     "bounce" when GSAP ScrollTrigger's pin first engages: at first downward engage GSAP
-     inserts the pin-spacer, which shifts document height at the current offset, so GSAP
-     issues a scroll-position correction to hold the view steady. `scroll-behavior: smooth`
-     makes the browser ANIMATE that instant correction, so the pinned MacBook visibly slides
-     for one frame before settling. It's first-downward-only (on re-pin the spacer already
-     exists → no correction to animate), which is exactly the reported symptom, and it
-     survives anticipatePin / overflow-x:clip because neither touches the scroll setter.
-     If smooth anchor navigation is ever needed, do it with GSAP's ScrollToPlugin, not CSS. */
+  /* NO `scroll-behavior: smooth` here. Scroll-driven animation (the MacBook's ScrollTrigger)
+     reads the scroll position every frame; letting the browser ANIMATE programmatic scroll
+     jumps on top of that means the animation is driven by a position that is itself still
+     moving, which shows up as drift and overshoot. Anchor jumps also stop being instant.
+     If smooth anchor navigation is ever wanted, do it with GSAP's ScrollToPlugin, not CSS.
+     (The original note here justified this via GSAP's pin-spacer insertion. There is no
+     GSAP pin anywhere in this codebase — the MacBook stage uses native CSS sticky — but the
+     rule is still correct on the grounds above, so it stays.) */
   background: var(--background);
+
+  /* Bug 24: the navbar is `fixed` and 64px tall, so without this an in-page anchor scrolls
+     its target to y=0 — underneath the navbar. Matters for #pricing and #faq-quick. */
+  scroll-padding-top: 4rem;
 }
 
 body {
@@ -58,11 +68,12 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   /* `clip`, NOT `hidden`: `overflow-x: hidden` forces the computed overflow-y to `auto`,
-     turning <body> into its own scroll container. GSAP ScrollTrigger pins with
-     position:fixed (viewport-relative), so a body-scroller makes the pinned MacBook's
-     fixed coords disagree with the scroll offset for one frame at first pin-engage — the
-     one-frame "bounce" scrolling down (smooth on re-pin). `clip` blocks horizontal scroll
-     without establishing a scroll container, so <html> stays the scroller. */
+     turning <body> into its own scroll container. That breaks `position: sticky` on the
+     MacBook stage (it would stick to the body scroller rather than the viewport) and makes
+     ScrollTrigger measure against the wrong scroller. `clip` blocks horizontal scroll
+     without establishing a scroll container, so <html> stays the scroller.
+     (The original note justified this via GSAP's position:fixed pinning. There is no GSAP
+     pin here — but the rule is load-bearing for native sticky, so it stays.) */
   overflow-x: clip;
 }
 
@@ -70,6 +81,10 @@ body {
   html { scroll-behavior: auto; }
   * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
+/* NOTE: the block above only reaches CSS animation/transition. JavaScript-driven motion has
+   to honour the preference itself — see the `reduceMotion` matchMedia check in
+   macbook-showcase.tsx, which routes reduced-motion visitors to the static calendar instead
+   of the 400vh scroll-driven 3D zoom (Bug 19). */
 
 /* ──────────────────────────────────────── Gradients ── */
 

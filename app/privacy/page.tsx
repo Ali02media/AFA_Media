@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <main className="relative min-h-screen pb-24 pt-32 sm:pt-40">
+    <main className="relative min-h-[100svh] pb-24 pt-32 sm:pt-40">
       <Container className="max-w-3xl">
         <h1 className="font-display text-4xl font-semibold text-foreground sm:text-5xl">
           Privacy Policy

@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
+import { getCal } from "@/components/cal";
+import { site } from "@/lib/site";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// Cal.com INLINE embed (the booking calendar rendered directly on the page, not a popup).
-// This is the snippet you provided, adapted to React: the same namespace ("30-min-meeting"),
-// calLink and brand colour. It must render as ORDINARY, flat document flow — never inside the
-// 3D MacBook transform — so clicks/scroll work and there's nothing for the handoff to bounce.
+// Cal.com INLINE embed — the booking calendar rendered directly on the page.
+// Renders as ORDINARY, flat document flow, never inside the 3D MacBook transform, so clicks
+// and scrolling work normally and there is nothing for the dissolve to disturb.
 const EMBED_EL_ID = "afa-cal-inline";
 
 export function BookingCalendar({
@@ -18,50 +17,18 @@ export function BookingCalendar({
   style?: React.CSSProperties;
 }) {
   useEffect(() => {
-    // Official Cal bootstrap.
-    (function (C: any, A: string, L: string) {
-      const p = (a: any, ar: any) => a.q.push(ar);
-      const d = C.document;
-      C.Cal =
-        C.Cal ||
-        function (...ar: any[]) {
-          const cal = C.Cal;
-          if (!cal.loaded) {
-            cal.ns = {};
-            cal.q = cal.q || [];
-            d.head.appendChild(d.createElement("script")).src = A;
-            cal.loaded = true;
-          }
-          if (ar[0] === L) {
-            const api: any = function (...a: any[]) {
-              p(api, a);
-            };
-            const namespace = ar[1];
-            api.q = api.q || [];
-            if (typeof namespace === "string") {
-              cal.ns[namespace] = cal.ns[namespace] || api;
-              p(cal.ns[namespace], ar);
-              p(cal, ["initNamespace", namespace]);
-            } else p(cal, ar);
-            return;
-          }
-          p(cal, ar);
-        };
-    })(window, "https://app.cal.com/embed/embed.js", "init");
-
-    const Cal = (window as any).Cal;
-    Cal("init", "30-min-meeting", { origin: "https://app.cal.com" });
-    Cal.config = Cal.config || {};
-    Cal.config.forwardQueryParams = true;
-    Cal.ns["30-min-meeting"]("inline", {
+    // Bugs 21 + 23: this used to carry its own verbatim copy of the Cal bootstrap AND call
+    // `init` + `ui` on the same namespace CalProvider had already configured, with a
+    // conflicting brand colour (#00ccbd vs #2c87d0) and without resetting CalProvider's
+    // theme. Last write won, so the brand colour depended on execution order — and the second
+    // `ui` could restyle and re-measure the embed after load, feeding straight into the
+    // ScrollTrigger desync (Bug 4). CalProvider is now the sole owner of bootstrap + `ui`;
+    // this component only asks for its own inline instance, via the shared namespace/link.
+    const Cal = getCal();
+    Cal.ns[site.cal.namespace]("inline", {
       elementOrSelector: "#" + EMBED_EL_ID,
       config: { layout: "month_view", useSlotsViewOnSmallScreen: "true" },
-      calLink: "ali-ahmed-lwiikf/30-min-meeting",
-    });
-    Cal.ns["30-min-meeting"]("ui", {
-      cssVarsPerTheme: { light: { "cal-brand": "#00ccbd" } },
-      hideEventTypeDetails: false,
-      layout: "month_view",
+      calLink: site.cal.link,
     });
   }, []);
 
@@ -69,7 +36,12 @@ export function BookingCalendar({
     <div
       id={EMBED_EL_ID}
       className={className}
-      style={{ width: "100%", height: "100%", overflow: "auto", ...style }}
+      // Bug 5: `overflow: auto` made this its own scroll container, sitting under the cursor
+      // at exactly the moment the reveal completes — so wheel events scrolled the calendar
+      // first and only chained to the page once it hit its end, which reads as the page
+      // "sticking". Cal sizes its own iframe to its content, so no scrollbar is needed here;
+      // `hidden` also stops it ever becoming a scroll container again.
+      style={{ width: "100%", height: "100%", overflow: "hidden", ...style }}
     />
   );
 }

@@ -6,6 +6,9 @@ import { site } from "@/lib/site";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 // Official Cal.com embed bootstrap (from the embed snippet), typed loosely.
+// EXPORTED (as getCal) because it must run exactly once per page: a second verbatim copy in
+// booking-calendar.tsx was what allowed the same namespace to be initialised and configured
+// twice with conflicting values (Bugs 21 + 23). One copy, one owner.
 function bootstrapCal() {
   const C = window as any;
   const A = "https://app.cal.com/embed/embed.js";
@@ -40,11 +43,20 @@ function bootstrapCal() {
   return C.Cal;
 }
 
-/** Mount once near the root. Loads Cal, inits the namespace, sets dark UI. */
+/** Bootstrap Cal and ensure the shared namespace exists. Safe to call from any component —
+ *  the bootstrap is idempotent (`C.Cal || function…`) and `init` on an existing namespace is
+ *  a no-op. Consumers use this to get at `Cal.ns[...]` WITHOUT re-configuring it: `ui` is
+ *  owned solely by CalProvider (Bug 21). */
+export function getCal() {
+  const Cal = bootstrapCal();
+  Cal("init", site.cal.namespace, { origin: "https://app.cal.com" });
+  return Cal;
+}
+
+/** Mount once near the root. The single owner of Cal's bootstrap and `ui` configuration. */
 export function CalProvider() {
   useEffect(() => {
-    const Cal = bootstrapCal();
-    Cal("init", site.cal.namespace, { origin: "https://app.cal.com" });
+    const Cal = getCal();
     Cal.ns[site.cal.namespace]("ui", {
       hideEventTypeDetails: false,
       layout: "month_view",
@@ -52,7 +64,11 @@ export function CalProvider() {
         light: { "cal-brand": "#2c87d0" },
         dark: { "cal-brand": "#2c87d0" },
       },
-      theme: "dark",
+      // Bug 22: was "dark", but --color-ink is #ffffff — the site is white. That put a dark
+      // calendar inside a white card on a white page, on both the homepage and /contact.
+      // The dark theme is a leftover from an earlier dark design (the `ink`/`mist` token
+      // names are from the same era).
+      theme: "light",
     });
   }, []);
   return null;
@@ -85,17 +101,13 @@ export function CalButton({
 /** Inline Cal embed for the contact page. */
 export function CalInline() {
   useEffect(() => {
-    const Cal = bootstrapCal();
-    Cal("init", site.cal.namespace, { origin: "https://app.cal.com" });
+    // Only the inline instance — no second `init`/`ui` pass. This previously set theme "dark"
+    // twice more on a white page (Bug 22) and re-applied `ui` after CalProvider had (Bug 21).
+    const Cal = getCal();
     Cal.ns[site.cal.namespace]("inline", {
       elementOrSelector: "#cal-inline",
-      config: { layout: "month_view", theme: "dark" },
+      config: { layout: "month_view" },
       calLink: site.cal.link,
-    });
-    Cal.ns[site.cal.namespace]("ui", {
-      hideEventTypeDetails: false,
-      layout: "month_view",
-      theme: "dark",
     });
   }, []);
   return (
