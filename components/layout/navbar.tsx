@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X, ArrowUpRight } from "lucide-react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion, useAnimationControls } from "framer-motion";
 import { nav } from "@/lib/site";
 import { CalButton } from "@/components/cal";
 import { cn } from "@/lib/utils";
@@ -15,12 +15,32 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const overDarkHero = pathname === "/" && !scrolled;
-  // Bug A: with `prefers-reduced-motion: reduce`, Framer Motion does not run the entrance
-  // animation — so the header stayed permanently at its `initial` values: opacity 0 and
-  // translated 64px off the top, i.e. the site's entire navigation was invisible while still
-  // sitting in the hit-testing tree (pointer-events: auto). An entrance animation must
-  // degrade to its FINAL state, never its initial one.
+  // Bug A: the header used to animate in from initial={{y:-64,opacity:0}}. Under
+  // `prefers-reduced-motion: reduce` that entrance could strand the header at those values —
+  // invisible and translated off-screen, but still `pointer-events: auto` in the hit-test tree.
+  //
+  // First attempt branched `initial`/`transition` directly on `useReducedMotion()`. That
+  // broke SSR: useReducedMotion() resolves synchronously off `matchMedia`, which doesn't
+  // exist on the server (always reads as non-reduced there) but reads the REAL value during
+  // the client's very first render pass — before hydration even reconciles. Server ships
+  // opacity:0/translateY(-64px); a reduced-motion client hydrates straight to opacity:1/none;
+  // React logs a hydration mismatch on that exact style attribute.
+  //
+  // Fix: keep the SSR-relevant props IDENTICAL always (initial={false} — mounts directly at
+  // the final, visible state, matching on server and client with zero possible divergence),
+  // and drive the entrance flourish as a pure client-side enhancement, imperatively, in a
+  // layout effect that only ever runs after hydration has already committed.
   const prefersReduced = useReducedMotion();
+  const headerControls = useAnimationControls();
+
+  useLayoutEffect(() => {
+    if (prefersReduced) return; // Stay at the initial={false} final state. Nothing to animate.
+    headerControls.set({ y: -64, opacity: 0 });
+    headerControls.start({
+      y: 0, opacity: 1,
+      transition: { type: "spring", stiffness: 80, damping: 20, delay: 0.1 },
+    });
+  }, [prefersReduced, headerControls]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -41,14 +61,10 @@ export function Navbar() {
           "fixed inset-x-0 top-0 z-50 transition-[background,border-color] duration-500",
           scrolled ? "glass-nav" : "border-b border-transparent bg-transparent"
         )}
-        // `initial={false}` mounts straight at the `animate` values — no offset, no fade.
-        initial={prefersReduced ? false : { y: -64, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={
-          prefersReduced
-            ? { duration: 0 }
-            : { type: "spring", stiffness: 80, damping: 20, delay: 0.1 }
-        }
+        // Always the SAME on server and first client paint (see comment above) — the
+        // entrance is applied afterward, client-only, via headerControls.
+        initial={false}
+        animate={headerControls}
       >
         <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
           {/* Logo */}
