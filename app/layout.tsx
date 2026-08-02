@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Nunito } from "next/font/google";
+import { Nunito, Montserrat } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { Navbar } from "@/components/layout/navbar";
@@ -17,6 +17,16 @@ import { ViewTransitions } from "next-view-transitions";
 // services/page.tsx uses it.
 const nunito = Nunito({
   variable: "--font-nunito",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+// Montserrat carries the headings, the hero headline and the CTAs — a geometric sans with
+// much more structure than Nunito's rounded body face, so the two give real typographic
+// contrast without going back to a serif. Variable (100–900), same self-hosting rationale.
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
   subsets: ["latin"],
   style: ["normal", "italic"],
   display: "swap",
@@ -78,7 +88,7 @@ export default function RootLayout({
     <ViewTransitions>
       <html
         lang="en-GB"
-        className={`${nunito.variable} h-full antialiased`}
+        className={`${nunito.variable} ${montserrat.variable} h-full antialiased`}
       >
         <body className="flex min-h-full flex-col bg-ink text-foreground">
           <CalProvider />

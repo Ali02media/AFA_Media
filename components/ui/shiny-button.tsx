@@ -57,7 +57,7 @@ export function ShinyButton({ children, onClick, className = "" }: ShinyButtonPr
           cursor: pointer;
           outline-offset: 4px;
           padding: 1.25rem 2.5rem;
-          font-family: var(--font-sans);
+          font-family: var(--font-display);
           font-size: 1.125rem;
           line-height: 1.2;
           font-weight: 500;

@@ -58,7 +58,7 @@ export function CTA({
 
               <a
                 href={site.phoneHref}
-                className="inline-flex h-14 items-center justify-center gap-2 rounded-full border border-line bg-ink-3 px-8 text-base font-medium text-foreground backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-blue/40 hover:bg-ink-4"
+                className="cta-type inline-flex h-14 items-center justify-center gap-2 rounded-full border border-line bg-ink-3 px-8 text-base font-medium text-foreground backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-blue/40 hover:bg-ink-4"
               >
                 <Phone className="h-5 w-5 text-brand-teal" />
                 {site.phone}

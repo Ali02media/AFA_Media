@@ -6,6 +6,7 @@ import { Reveal } from "@/components/reveal";
 import { GlowCard } from "@/components/ui/spotlight-card";
 import { CTA } from "@/components/sections/cta";
 import { services } from "@/lib/site";
+import { Link } from "next-view-transitions";
 
 export const metadata: Metadata = {
   title: "Services",
@@ -121,13 +122,16 @@ export default function ServicesPage() {
               <p className="font-display text-2xl font-semibold text-foreground">
                 Most clients combine all four — that&apos;s why we built packages.
               </p>
-              <a
+              {/* Link, not <a>: a raw anchor to an internal route does a FULL PAGE RELOAD,
+                  which bypasses the view transition entirely (and throws away the client
+                  cache). This was the only internal navigation still doing that. */}
+              <Link
                 href="/pricing"
-                className="group inline-flex items-center gap-2 text-sm font-medium text-brand-blue-light transition-colors hover:text-brand-blue"
+                className="cta-type group inline-flex items-center gap-2 text-sm font-medium text-brand-blue-light transition-colors hover:text-brand-blue"
               >
                 See pricing
                 <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </a>
+              </Link>
             </div>
           </Reveal>
         </Container>

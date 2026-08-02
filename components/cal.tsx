@@ -92,7 +92,8 @@ export function CalButton({
   className?: string;
 }) {
   return (
-    <button type="button" className={className} {...calAttrs}>
+    // cta-type: CTAs use the heading face (Montserrat), not the body face.
+    <button type="button" className={`cta-type ${className ?? ""}`} {...calAttrs}>
       {children}
     </button>
   );

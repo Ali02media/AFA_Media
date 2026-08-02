@@ -29,12 +29,13 @@
   --color-hero-muted: #c4c8d8;   /* hero subhead */
 
   /* ── Fonts ──
-     Nunito throughout, for headings and body alike (it replaced Slabo 27px as the display
-     face and Inter as the body face). Both tokens are kept as separate names so type can
-     still be re-split later by changing one line here rather than touching ~50 call sites.
-     Hierarchy now comes from WEIGHT and size rather than from a serif/sans contrast —
-     Nunito is variable across 200–1000, so headings have plenty of range to sit heavier. */
-  --font-display: var(--font-nunito), ui-rounded, system-ui, sans-serif;
+     Two faces, split by job:
+       --font-display : Montserrat — every heading, the hero headline, and the CTAs. Geometric
+                        and structured, so it holds authority at large sizes.
+       --font-sans    : Nunito — body copy. Rounded and friendly at reading sizes.
+     `font-display` is applied via the Tailwind `font-display` class (~50 call sites) and via
+     var(--font-display) in hero.jsx; CTAs pick it up through the .cta-type utility below. */
+  --font-display: var(--font-montserrat), system-ui, sans-serif;
   --font-sans:    var(--font-nunito), ui-rounded, system-ui, sans-serif;
 
   /* ── Motion ── */
@@ -94,6 +95,17 @@ body {
    to honour the preference itself — see the `reduceMotion` matchMedia check in
    macbook-showcase.tsx, which routes reduced-motion visitors to the static calendar instead
    of the 400vh scroll-driven 3D zoom (Bug 19). */
+
+/* ──────────────────────────────────────── CTA typography ── */
+
+/* Buttons and calls-to-action share the heading face (Montserrat) rather than the body face,
+   so an action always reads as an action. Applied by the button components (CalButton,
+   Button, ShinyButton) and by standalone CTA anchors — one utility so the CTA face can be
+   changed in a single place instead of across every button file. */
+.cta-type {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
 
 /* ──────────────────────────────────────── Gradients ── */
 
