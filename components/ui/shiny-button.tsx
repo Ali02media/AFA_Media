@@ -1,14 +1,28 @@
 "use client"
 
 import type React from "react"
+import { useTransitionRouter } from "next-view-transitions"
 
 interface ShinyButtonProps {
   children: React.ReactNode
   onClick?: () => void
+  /** Render as a link to an internal route instead of a button, so navigating gets the site's
+   *  page transition. */
+  href?: string
   className?: string
 }
 
-export function ShinyButton({ children, onClick, className = "" }: ShinyButtonProps) {
+export function ShinyButton({ children, onClick, href, className = "" }: ShinyButtonProps) {
+  // A PLAIN <a>, not next-view-transitions' <Link>, deliberately. styled-jsx scopes the rules
+  // below by appending a generated `jsx-<hash>` class to the elements it can see — and it only
+  // does that for real DOM elements, never for custom components. Rendering <Link> here made
+  // every style below silently dead (measured: borderRadius 0, padding 0, no background,
+  // display:inline — it came out as bare link text). A real anchor also keeps right-click,
+  // middle-click, "open in new tab" and keyboard activation working.
+  //
+  // useTransitionRouter is next-view-transitions' router: push() runs through
+  // document.startViewTransition(), which is what <Link> would have done internally.
+  const router = useTransitionRouter()
   return (
     <>
       <style jsx>{`
@@ -51,6 +65,10 @@ export function ShinyButton({ children, onClick, className = "" }: ShinyButtonPr
           --shadow-size: 2px;
           --transition: 800ms cubic-bezier(0.25, 1, 0.5, 1);
 
+          /* Explicit: a <button> defaults to inline-block but an <a> defaults to inline,
+             which would drop the vertical padding out of layout. Set it so the button and
+             link renderings are identical. */
+          display: inline-block;
           isolation: isolate;
           position: relative;
           overflow: hidden;
@@ -195,9 +213,26 @@ export function ShinyButton({ children, onClick, className = "" }: ShinyButtonPr
         }
       `}</style>
 
-      <button className={`shiny-cta ${className}`} onClick={onClick}>
-        <span>{children}</span>
-      </button>
+      {href ? (
+        <a
+          href={href}
+          className={`shiny-cta ${className}`}
+          onClick={(e) => {
+            // Let modified clicks fall through to the browser so "open in new tab/window"
+            // still works; only intercept a plain left click.
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+            e.preventDefault()
+            onClick?.()
+            router.push(href)
+          }}
+        >
+          <span>{children}</span>
+        </a>
+      ) : (
+        <button className={`shiny-cta ${className}`} onClick={onClick}>
+          <span>{children}</span>
+        </button>
+      )}
     </>
   )
 }
