@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Slabo_27px, Inter } from "next/font/google";
+import { Nunito } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { Navbar } from "@/components/layout/navbar";
@@ -7,16 +7,18 @@ import { Footer } from "@/components/layout/footer";
 import { CalProvider } from "@/components/cal";
 import { ViewTransitions } from "next-view-transitions";
 
-const slabo = Slabo_27px({
-  variable: "--font-slabo",
+// Nunito, self-hosted by next/font (NOT the <link> embed from Google Fonts): Next downloads
+// the file at build time and serves it from our own origin, so there's no third-party
+// request, no extra DNS/TLS round-trip before text can render, and no layout shift — it also
+// generates the @font-face and a matched size-adjust fallback automatically.
+//
+// Variable font: one file covers the whole 200–1000 weight range, so no `weight` is declared
+// (that would pin it to static instances and lose the range). Italic is included because
+// services/page.tsx uses it.
+const nunito = Nunito({
+  variable: "--font-nunito",
   subsets: ["latin"],
-  weight: "400",
-  display: "swap",
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -76,7 +78,7 @@ export default function RootLayout({
     <ViewTransitions>
       <html
         lang="en-GB"
-        className={`${slabo.variable} ${inter.variable} h-full antialiased`}
+        className={`${nunito.variable} h-full antialiased`}
       >
         <body className="flex min-h-full flex-col bg-ink text-foreground">
           <CalProvider />

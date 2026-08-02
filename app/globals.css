@@ -28,9 +28,14 @@
   --color-hero-fg:    #ffffff;   /* hero headline on that backdrop */
   --color-hero-muted: #c4c8d8;   /* hero subhead */
 
-  /* ── Fonts ── */
-  --font-display: var(--font-slabo), Georgia, serif;
-  --font-sans:    var(--font-inter), system-ui, sans-serif;
+  /* ── Fonts ──
+     Nunito throughout, for headings and body alike (it replaced Slabo 27px as the display
+     face and Inter as the body face). Both tokens are kept as separate names so type can
+     still be re-split later by changing one line here rather than touching ~50 call sites.
+     Hierarchy now comes from WEIGHT and size rather than from a serif/sans contrast —
+     Nunito is variable across 200–1000, so headings have plenty of range to sit heavier. */
+  --font-display: var(--font-nunito), ui-rounded, system-ui, sans-serif;
+  --font-sans:    var(--font-nunito), ui-rounded, system-ui, sans-serif;
 
   /* ── Motion ── */
   --ease-expo:   cubic-bezier(0.16, 1, 0.3, 1);
@@ -65,6 +70,10 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  /* From Google's Nunito snippet. Nunito's variable axes are wght + ital only (no `opsz`),
+     so this is inert today — kept because it costs nothing and takes effect automatically
+     if an optical-size axis is ever added upstream. */
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   /* `clip`, NOT `hidden`: `overflow-x: hidden` forces the computed overflow-y to `auto`,
