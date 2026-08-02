@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useLayoutEffect } from "react";
-import Link from "next/link";
+import { Link } from "next-view-transitions";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X, ArrowUpRight } from "lucide-react";

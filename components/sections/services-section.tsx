@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "next-view-transitions";
 import { Globe, Bot, Mail, Target, ArrowUpRight, Check } from "lucide-react";
 import { Container, SectionHeading } from "@/components/ui/section";
 import { Reveal } from "@/components/reveal";

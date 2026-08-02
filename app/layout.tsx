@@ -5,6 +5,7 @@ import { site } from "@/lib/site";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { CalProvider } from "@/components/cal";
+import { ViewTransitions } from "next-view-transitions";
 
 const slabo = Slabo_27px({
   variable: "--font-slabo",
@@ -68,18 +69,24 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en-GB"
-      className={`${slabo.variable} ${inter.variable} h-full antialiased`}
-    >
-      <body className="flex min-h-full flex-col bg-ink text-foreground">
-        <CalProvider />
-        <Navbar />
-        <main className="relative z-10 flex-1">{children}</main>
-        <div className="relative z-10">
-          <Footer />
-        </div>
-      </body>
-    </html>
+    // ViewTransitions wires up the browser's View Transitions API: the `Link` from
+    // next-view-transitions routes navigations through document.startViewTransition(), and the
+    // actual animation is defined in CSS (see ::view-transition-new(root) in globals.css).
+    // Feature-detected internally — browsers without the API just navigate normally.
+    <ViewTransitions>
+      <html
+        lang="en-GB"
+        className={`${slabo.variable} ${inter.variable} h-full antialiased`}
+      >
+        <body className="flex min-h-full flex-col bg-ink text-foreground">
+          <CalProvider />
+          <Navbar />
+          <main className="relative z-10 flex-1">{children}</main>
+          <div className="relative z-10">
+            <Footer />
+          </div>
+        </body>
+      </html>
+    </ViewTransitions>
   );
 }

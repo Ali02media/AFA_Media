@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "next-view-transitions";
 import { ArrowUpRight } from "lucide-react";
 import { Container, SectionHeading } from "@/components/ui/section";
 import { Reveal } from "@/components/reveal";

@@ -245,3 +245,65 @@ body {
 ::-webkit-scrollbar-track  { background: var(--color-ink-2); }
 ::-webkit-scrollbar-thumb  { background: var(--color-mist-dim); border-radius: 8px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-brand-blue); }
+
+/* ──────────────────────────────────────── Page transition ── */
+/* Center clip-reveal, driven by the browser's View Transitions API.
+   The OUTGOING page holds still underneath while the INCOMING page opens from a small rounded
+   rectangle in the middle of the screen, scaling down from 1.4 as it expands to fill — so it
+   reads as the new page "opening up" over the old one rather than anything sliding.
+
+   Wiring: app/layout.tsx wraps everything in <ViewTransitions>, and internal links import
+   `Link` from "next-view-transitions" so navigations run through document.startViewTransition().
+   No JS animation library involved — this is all the CSS below. Browsers without the API
+   (the package feature-detects) simply navigate with no transition.
+
+   ── SWITCHING TO THE MINIMAL VERSION ──────────────────────────────────────────────────────
+   A motion-safe cross-fade is defined below but commented out. To use it INSTEAD of the clip
+   reveal, comment out the `center-clip-reveal` animation line and uncomment the `soft-fade`
+   one. To give it only to reduced-motion visitors, uncomment the media query at the bottom. */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) { z-index: 1; }
+
+::view-transition-new(root) {
+  z-index: 2;
+  animation: center-clip-reveal 1.2s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+  /* MINIMAL ALTERNATIVE — swap the line above for this one:
+  animation: soft-fade 0.35s ease-out forwards; */
+}
+
+@keyframes center-clip-reveal {
+  0% {
+    clip-path: inset(50% 50% 50% 50% round 2vw);
+    transform: scale(1.4);
+  }
+  78% {
+    clip-path: inset(0% 0% 0% 0% round 2vw);
+    transform: scale(1);
+  }
+  100% {
+    clip-path: inset(0% 0% 0% 0% round 0);
+    transform: scale(1);
+  }
+}
+
+/* Motion-safe variant: opacity only, no movement or scaling — nothing that triggers the
+   vestibular issues `prefers-reduced-motion` exists to guard against. Ready to switch to. */
+@keyframes soft-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* REDUCED-MOTION OPT-OUT (currently OFF — the clip reveal plays for everyone, by choice).
+   Uncomment this block to give reduced-motion visitors the motion-safe fade instead.
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-new(root) {
+    animation: soft-fade 0.35s ease-out forwards;
+  }
+}
+*/
