@@ -74,7 +74,10 @@ export function CalProvider() {
   return null;
 }
 
-const calAttrs = {
+/** Data attributes that make any element open the Cal popup (embed.js binds them globally).
+ *  Exported so non-CalButton CTAs — e.g. the hero ShinyButton — can open the same booking
+ *  modal without duplicating the config. */
+export const calAttrs = {
   "data-cal-link": site.cal.link,
   "data-cal-namespace": site.cal.namespace,
   "data-cal-config": JSON.stringify({

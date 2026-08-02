@@ -9,10 +9,23 @@ interface ShinyButtonProps {
   /** Render as a link to an internal route instead of a button, so navigating gets the site's
    *  page transition. */
   href?: string
+  /** "dark" (default) is the black pill with the blue shine. "light" is the inverted pair —
+   *  white surface, dark text — for a secondary CTA sitting beside the primary one. */
+  variant?: "dark" | "light"
   className?: string
+  /** Passed through to the rendered element — used to spread Cal's data-cal-* attributes so
+   *  a ShinyButton can open the booking modal. */
+  [key: `data-${string}`]: unknown
 }
 
-export function ShinyButton({ children, onClick, href, className = "" }: ShinyButtonProps) {
+export function ShinyButton({
+  children,
+  onClick,
+  href,
+  variant = "dark",
+  className = "",
+  ...rest
+}: ShinyButtonProps) {
   // A PLAIN <a>, not next-view-transitions' <Link>, deliberately. styled-jsx scopes the rules
   // below by appending a generated `jsx-<hash>` class to the elements it can see — and it only
   // does that for real DOM elements, never for custom components. Rendering <Link> here made
@@ -94,6 +107,31 @@ export function ShinyButton({ children, onClick, href, className = "" }: ShinyBu
           box-shadow: inset 0 0 0 1px var(--shiny-cta-bg-subtle);
           transition: var(--transition);
           transition-property: --gradient-angle-offset, --gradient-percent, --gradient-shine;
+        }
+
+        /* Declared AFTER the base .shiny-cta rule on purpose: same specificity, so source order
+           decides. Placed before it, the base values would win and the variant would do nothing.
+           The light variant only overrides the four colour custom properties — every derived
+           layer (dot pattern, shimmer, inner glow, border gradient) reads from these, so the
+           whole button recolours without duplicating any of the effect CSS. */
+        .shiny-cta--light {
+          --shiny-cta-bg: #ffffff;
+          --shiny-cta-bg-subtle: #e8ecf3;
+          --shiny-cta-fg: #0a0d16;
+          --shiny-cta-highlight: #2c87d0;
+          --shiny-cta-highlight-subtle: #19b0a1;
+        }
+
+        /* The dot pattern is white-on-black by default; invert it on the light surface or it
+           disappears against the white fill. */
+        .shiny-cta--light::before {
+          background: radial-gradient(
+            circle at var(--position) var(--position),
+            rgba(10, 13, 22, 0.55) calc(var(--position) / 4),
+            transparent 0
+          ) padding-box;
+          background-size: var(--space) var(--space);
+          background-repeat: space;
         }
 
         .shiny-cta::before,
@@ -216,7 +254,7 @@ export function ShinyButton({ children, onClick, href, className = "" }: ShinyBu
       {href ? (
         <a
           href={href}
-          className={`shiny-cta ${className}`}
+          className={`shiny-cta ${variant === "light" ? "shiny-cta--light" : ""} ${className}`}
           onClick={(e) => {
             // Let modified clicks fall through to the browser so "open in new tab/window"
             // still works; only intercept a plain left click.
@@ -225,11 +263,16 @@ export function ShinyButton({ children, onClick, href, className = "" }: ShinyBu
             onClick?.()
             router.push(href)
           }}
+          {...rest}
         >
           <span>{children}</span>
         </a>
       ) : (
-        <button className={`shiny-cta ${className}`} onClick={onClick}>
+        <button
+          className={`shiny-cta ${variant === "light" ? "shiny-cta--light" : ""} ${className}`}
+          onClick={onClick}
+          {...rest}
+        >
           <span>{children}</span>
         </button>
       )}

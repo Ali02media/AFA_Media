@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Nunito, Montserrat } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
-import { Navbar } from "@/components/layout/navbar";
+import { NavMenu } from "@/components/layout/nav-menu";
 import { Footer } from "@/components/layout/footer";
 import { CalProvider } from "@/components/cal";
 import { ViewTransitions } from "next-view-transitions";
@@ -92,7 +92,7 @@ export default function RootLayout({
       >
         <body className="flex min-h-full flex-col bg-ink text-foreground">
           <CalProvider />
-          <Navbar />
+          <NavMenu />
           <main className="relative z-10 flex-1">{children}</main>
           <div className="relative z-10">
             <Footer />

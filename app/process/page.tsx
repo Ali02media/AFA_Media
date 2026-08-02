@@ -5,12 +5,13 @@ import { Container } from "@/components/ui/section";
 import { Reveal } from "@/components/reveal";
 import { Proof } from "@/components/sections/proof";
 import { CTA } from "@/components/sections/cta";
+import { ProcessSection } from "@/components/sections/process-section";
 
 export const metadata: Metadata = {
-  title: "About",
+  title: "The Process",
   description:
-    "AFA Media is a UK marketing agency built to give service businesses an unfair advantage — combining AI tools with real human strategy.",
-  alternates: { canonical: "/about" },
+    "How AFA Media works: three clear steps from first call to live in 14 days — plus who we are and why UK service businesses choose us.",
+  alternates: { canonical: "/process" },
 };
 
 const differences = [
@@ -36,18 +37,22 @@ const differences = [
   },
 ];
 
-export default function AboutPage() {
+export default function ProcessPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Who we are"
+        eyebrow="How we work"
         title={
           <>
-            Built to give UK service businesses an{" "}
-            <span className="text-gradient">unfair advantage.</span>
+            From first call to live in{" "}
+            <span className="text-gradient">14 days.</span>
           </>
         }
       />
+
+      {/* The three steps — this is what the page is named for. Same component the homepage
+          uses, so the steps stay in one place and can't drift between the two. */}
+      <ProcessSection />
 
       {/* Founder story */}
       <section className="pb-20">
