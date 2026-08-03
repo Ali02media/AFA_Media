@@ -100,7 +100,10 @@ export function NavMenu() {
   };
 
   return (
-    <header ref={root} className="fixed inset-x-0 top-0 z-50 bg-ink">
+    <header
+      ref={root}
+      className={`fixed inset-x-0 top-0 z-50 glass-nav ${open ? "glass-nav--open" : ""}`}
+    >
       <div className="relative flex items-center justify-center px-5 py-4 sm:px-8">
         {/* Logo — left */}
         <Link href="/" className="absolute left-5 flex items-center sm:left-8" aria-label={`${site.name} home`}>

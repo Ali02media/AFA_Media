@@ -123,20 +123,70 @@ body {
 
 /* ──────────────────────────────────────── Glassmorphism ── */
 
+/* IMPORTANT: write ONLY the standard `backdrop-filter` property in this file — do NOT also
+   hand-write a `-webkit-backdrop-filter` line next to it. Turbopack's Lightning CSS pass
+   auto-generates the -webkit- fallback itself from browserslist targets (confirmed in the
+   compiled output), which is exactly what you want. But if you hand-author both properties
+   yourself, Turbopack's pass silently DROPS the standard `backdrop-filter` and keeps only
+   your `-webkit-` one — every rule in this block had that bug for some time (verified via
+   the compiled .next output; a standalone `@tailwindcss/cli` build of the same source does
+   NOT reproduce it, so this is specific to Next's Turbopack dev/build pipeline, not Tailwind
+   or Lightning CSS in general). Net effect was silent: `backdrop-filter` computed to `none`
+   everywhere blur was supposedly applied, with no error. If you ever see backdrop blur not
+   rendering on this site, check here first. */
+
 /* Standard glass card — use on elevated surfaces */
 .glass {
   background: rgba(255, 255, 255, 0.65);
   backdrop-filter: blur(16px) saturate(1.4);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
   border: 1px solid rgba(10, 13, 22, 0.07);
 }
 
-/* Lighter glass for navbar */
+/* Lighter glass for navbar. Used by nav-menu.tsx's <header> — was defined but unreferenced
+   until that navbar's rewrite left it orphaned; re-attached here rather than duplicating the
+   recipe inline.
+   NO `position` declared here deliberately: the ::before highlight below needs this element
+   positioned (to anchor its `position: absolute` to), but the header already gets that from
+   Tailwind's `fixed` utility class in nav-menu.tsx. Adding `position: relative` here too was
+   tried and caused a real regression — `.glass-nav` and Tailwind's `.fixed` rule have equal
+   specificity (one class each), and `.glass-nav` sits later in the compiled stylesheet, so
+   its `position: relative` silently overrode `.fixed`'s `position: fixed` and the header
+   stopped being fixed entirely (scrolled away with the page). Never duplicate a `position`
+   Tailwind is already setting via a utility class on the same element. */
 .glass-nav {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px) saturate(1.6);
-  -webkit-backdrop-filter: blur(20px) saturate(1.6);
   border-bottom: 1px solid rgba(10, 13, 22, 0.06);
+}
+
+/* Top-edge highlight — the detail that reads as "glass" rather than just "translucent panel".
+   A soft bright line fading in from the centre, not a hard edge-to-edge rule (a uniform 1px
+   border there would look like a second border, not a light catch on a glass surface).
+   ::before rather than a box-shadow: backdrop-filter+box-shadow can composite oddly across
+   engines, and this needs to sit ABOVE the blur layer, which ::before (a real stacking
+   child) guarantees more reliably than an inset shadow on the element itself. */
+.glass-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.9) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* Menu-open state: same blur, stronger tint. The big uppercase links (up to 5vw) sit right
+   over whatever's scrolled behind the header — often the hero's laser/plasma canvases — so
+   the closed-state 0.8 opacity that reads as "subtle glass" over ordinary content isn't quite
+   enough contrast once the panel is full of large text over a busy background. Bumped rather
+   than swapping to opaque, so it still reads as the same glass surface, just less porous. */
+.glass-nav--open {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(24px) saturate(1.6);
 }
 
 /* Card surface — no blur, just subtle depth */
