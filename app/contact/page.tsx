@@ -29,11 +29,7 @@ export default function ContactPage() {
       <Container>
         {/* Header */}
         <div className="mx-auto max-w-2xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-line bg-ink-3 px-4 py-1.5 text-xs font-medium text-mist">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand-teal" />
-            30 minutes, no obligation
-          </span>
-          <h1 className="mt-6 font-display text-4xl font-semibold leading-tight tracking-tight text-foreground sm:text-5xl">
+          <h1 className="font-display text-4xl font-semibold leading-tight tracking-tight text-foreground sm:text-5xl">
             Let&apos;s talk about{" "}
             <span className="text-gradient">your growth.</span>
           </h1>

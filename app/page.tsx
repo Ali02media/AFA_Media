@@ -1,5 +1,4 @@
 import { Hero } from "@/components/sections/hero";
-import { TrustBar } from "@/components/sections/trust-bar";
 import { Problem } from "@/components/sections/problem";
 import { ServicesSection } from "@/components/sections/services-section";
 import { Proof } from "@/components/sections/proof";
@@ -46,22 +45,23 @@ export default function Home() {
 
       {/* ── Homepage funnel order (restructured) ──────────────────────────────
           1. Hero               — hook
-          2. TrustBar           — benefits / guarantees under the hero
-          3. Problem            — name the pain (problem → solution)
-          4. Services           — "does this actually fix MY problem?" (flat, early)
-          5. Proof              — persuasion / testimonials
-          6. Pricing            — the offer
-          7. CTA #1             — first booking ask (no animation), catches ready buyers
-          8. Process            — how it works / our AI edge / timeline
-          9. FAQ (short)        — knock down the last few objections
-         10. FAQ (full)         — everything else, for the thorough reader
+          2. Problem            — name the pain (problem → solution)
+          3. Services           — "does this actually fix MY problem?" (flat, early)
+          4. Proof              — persuasion / testimonials
+          5. Pricing            — the offer
+          6. CTA #1             — first booking ask (no animation), catches ready buyers
+          7. Process            — how it works / our AI edge / timeline
+          8. FAQ (short)        — knock down the last few objections
+          9. FAQ (full)         — everything else, for the thorough reader
+
+          TrustBar (the auto-scrolling "14-Day Delivery • No Long Contracts..." marquee that
+          used to sit here, right after the hero) was removed at the owner's request.
 
           The MacBook showcase used to sit between the short and full FAQ. Removed: under
           reduced motion (and on mobile) it fell back to a bare, unheaded Cal calendar
           dropped mid-page, and the booking ask is already covered by CTA #1 above.
       ──────────────────────────────────────────────────────────────────────── */}
       <Hero />
-      <TrustBar />
       <Problem />
       <ServicesSection />
       <Proof />
@@ -71,7 +71,6 @@ export default function Home() {
       <FAQ
         limit={4}
         id="faq-quick"
-        eyebrow="Before you book"
         title={
           <>
             A few quick <span className="text-gradient">answers.</span>

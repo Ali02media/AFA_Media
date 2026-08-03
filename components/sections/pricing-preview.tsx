@@ -11,7 +11,6 @@ export function PricingPreview() {
       <Container>
         <Reveal>
           <SectionHeading
-            eyebrow="Pricing"
             title={
               <>
                 Simple, honest pricing.{" "}

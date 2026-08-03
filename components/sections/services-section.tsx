@@ -30,7 +30,6 @@ export function ServicesSection({
       <Container>
         <Reveal forceVisible={forceVisible}>
           <SectionHeading
-            eyebrow="What we do"
             title={
               <>
                 Everything you need to grow,{" "}

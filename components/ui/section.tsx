@@ -14,23 +14,12 @@ export function Container({
   );
 }
 
-export function Eyebrow({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-line bg-ink-3/60 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-mist">
-      <span className="h-1.5 w-1.5 rounded-full bg-gradient-brand" />
-      {children}
-    </span>
-  );
-}
-
 export function SectionHeading({
-  eyebrow,
   title,
   lead,
   align = "center",
   className,
 }: {
-  eyebrow?: string;
   title: React.ReactNode;
   lead?: React.ReactNode;
   align?: "center" | "left";
@@ -44,7 +33,6 @@ export function SectionHeading({
         className
       )}
     >
-      {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
       <h2 className="max-w-3xl font-display text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl">
         {title}
       </h2>

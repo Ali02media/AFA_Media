@@ -41,7 +41,6 @@ export default function ProcessPage() {
   return (
     <>
       <PageHeader
-        eyebrow="How we work"
         title={
           <>
             From first call to live in{" "}

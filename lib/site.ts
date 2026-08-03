@@ -17,19 +17,11 @@ export const site = {
 } as const;
 
 export const nav = [
+  { label: "Home", href: "/" },
   { label: "Services", href: "/services" },
   { label: "Pricing", href: "/pricing" },
   { label: "Process", href: "/process" },
   { label: "Contact", href: "/contact" },
-] as const;
-
-export const trustPoints = [
-  "14-Day Delivery",
-  "No Long Contracts",
-  "UK-Based Team",
-  "GDPR Compliant",
-  "AI-Powered",
-  "Built to Convert",
 ] as const;
 
 export const services = [

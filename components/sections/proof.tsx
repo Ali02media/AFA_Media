@@ -9,7 +9,6 @@ export function Proof() {
       <Container>
         <Reveal>
           <SectionHeading
-            eyebrow="Real words, real clients"
             title={
               <>
                 Don&apos;t take our word for it.{" "}

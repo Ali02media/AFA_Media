@@ -19,7 +19,6 @@ export default function PricingPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Pricing"
         title={
           <>
             Simple, honest pricing.{" "}

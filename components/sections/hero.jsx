@@ -135,14 +135,15 @@ export function Hero() {
           AI chatbots that capture every lead, ads that only target buyers ready to book paired with a beautiful site, not a digital brochure. — if it isn&apos;t setup within less than 30 days, you don&apos;t pay.
         </p>
         {/* Primary + secondary CTA pair. `flexWrap` so they stack rather than overflow on
-            narrow screens. */}
+            narrow screens. White pill first (Book a Call), dark pill second (See Our Process). */}
         <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           {/* Primary: opens the Cal booking modal, same as every other "Book a Call" on the
               site — calAttrs are the data-cal-* attributes embed.js binds globally. */}
-          <ShinyButton {...calAttrs}>Book a Call</ShinyButton>
+          <ShinyButton variant="light" {...calAttrs}>Book a Call</ShinyButton>
 
-          {/* Secondary: white variant, navigates to /process so it gets the page transition. */}
-          <ShinyButton href="/process" variant="light">
+          {/* Secondary: default (dark) variant, navigates to /process so it gets the page
+              transition. */}
+          <ShinyButton href="/process">
             See Our Process
           </ShinyButton>
         </div>

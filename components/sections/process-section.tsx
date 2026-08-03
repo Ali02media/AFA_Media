@@ -9,7 +9,6 @@ export function ProcessSection() {
       <Container>
         <Reveal>
           <SectionHeading
-            eyebrow="How it works"
             title={
               <>
                 From first call to{" "}

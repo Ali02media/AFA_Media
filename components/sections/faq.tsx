@@ -10,13 +10,11 @@ import { cn } from "@/lib/utils";
 export function FAQ({
   limit,
   id = "faq",
-  eyebrow = "Questions",
   title,
 }: {
   /** Show only the first N questions (e.g. a short pre-CTA teaser). Omit for all. */
   limit?: number;
   id?: string;
-  eyebrow?: string;
   title?: React.ReactNode;
 } = {}) {
   const [open, setOpen] = useState<number | null>(0);
@@ -29,7 +27,6 @@ export function FAQ({
     <section id={id} className="relative py-28 sm:py-36">
       <Container className="max-w-3xl">
         <SectionHeading
-          eyebrow={eyebrow}
           title={
             title ?? (
               <>

@@ -35,7 +35,6 @@ export function Problem() {
       <Container>
         <Reveal>
           <SectionHeading
-            eyebrow="The silent killer"
             title={
               <>
                 You&apos;re great at the job. Your{" "}

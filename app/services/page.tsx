@@ -49,7 +49,6 @@ export default function ServicesPage() {
   return (
     <>
       <PageHeader
-        eyebrow="What we do"
         title={
           <>
             Everything you need to grow,{" "}

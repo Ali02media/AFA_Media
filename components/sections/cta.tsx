@@ -30,15 +30,6 @@ export function CTA({
       <Container>
         <Reveal direction="scale" forceVisible={forceVisible}>
           <div className="border-gradient mx-auto flex max-w-4xl flex-col items-center gap-7 overflow-hidden rounded-[2rem] bg-ink-2 px-6 py-16 text-center backdrop-blur-sm shadow-[0_0_80px_-24px_rgba(44,135,208,0.3)] sm:px-16">
-            {/* Urgency badge */}
-            <span className="inline-flex items-center gap-2.5 rounded-full border border-line bg-ink-3 px-4 py-1.5 text-xs font-medium text-mist backdrop-blur-sm">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-brand-teal opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-teal" />
-              </span>
-              Only a few onboarding spots left this month
-            </span>
-
             <h2 className="font-display text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
               Ready to get your{" "}
               <span className="text-gradient">phone ringing?</span>
