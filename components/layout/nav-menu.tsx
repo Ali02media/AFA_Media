@@ -102,7 +102,7 @@ export function NavMenu() {
   return (
     <header
       ref={root}
-      className={`fixed inset-x-0 top-0 z-50 glass-nav ${open ? "glass-nav--open" : ""}`}
+      className="fixed inset-x-0 top-0 z-50 border-b border-line bg-white"
     >
       <div className="relative flex items-center justify-center px-5 py-4 sm:px-8">
         {/* Logo — left */}
