@@ -4,10 +4,38 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "AFA Media privacy policy — how we collect, use, and protect your data in compliance with GDPR.",
+  description: "AFA Media privacy policy — what data we collect, why, how long we keep it, and your rights under UK GDPR.",
   alternates: { canonical: "/privacy" },
   robots: { index: false, follow: false },
 };
+
+/** Small helper so the data table stays readable in source. */
+const dataUses = [
+  {
+    what: "Name, email, phone number",
+    why: "To schedule and hold discovery calls, and to reply to your enquiry",
+    basis: "Legitimate interests / steps prior to a contract",
+    kept: "3 years after our last contact",
+  },
+  {
+    what: "Business name, website URL, and what you tell us about your business",
+    why: "To prepare a proposal and deliver services you engage us for",
+    basis: "Contract performance",
+    kept: "6 years after the engagement ends (tax and accounting records)",
+  },
+  {
+    what: "Chatbot conversation content",
+    why: "To answer your questions and pass enquiries to us",
+    basis: "Legitimate interests",
+    kept: "12 months",
+  },
+  {
+    what: "Analytics data — pages viewed, approximate location, device and browser",
+    why: "To understand how the site is used and improve it",
+    basis: "Consent",
+    kept: "14 months",
+  },
+];
 
 export default function PrivacyPage() {
   return (
@@ -16,52 +44,88 @@ export default function PrivacyPage() {
         <h1 className="font-display text-4xl font-semibold text-foreground sm:text-5xl">
           Privacy Policy
         </h1>
-        <p className="mt-4 text-sm text-mist-dim">Last updated: June 2025</p>
+        <p className="mt-4 text-sm text-mist-dim">Last updated: August 2026</p>
 
         <div className="prose-afa mt-12 space-y-10 text-[15px] leading-relaxed text-mist">
           <section>
             <h2 className="font-display text-xl font-semibold text-foreground">Who we are</h2>
             <p className="mt-3">
-              AFA Media (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is a digital
-              marketing agency based in Brighton, UK. We operate the website at{" "}
+              AFA Media (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is a digital marketing
+              agency based in Brighton, United Kingdom. We operate{" "}
               <a href={site.url} className="text-brand-blue-light hover:text-brand-blue transition-colors">
                 {site.url}
               </a>
-              . Our contact email is{" "}
+              .
+            </p>
+            <p className="mt-3">
+              We are the <strong className="text-foreground">data controller</strong> for the
+              personal data described here. For questions or to exercise any of your rights,
+              contact{" "}
               <a href={`mailto:${site.email}`} className="text-brand-blue-light hover:text-brand-blue transition-colors">
                 {site.email}
               </a>
               .
             </p>
+            <p className="mt-3">
+              Where we handle personal data belonging to a client&apos;s own customers — for
+              example leads captured through a website or chatbot we built — we act as a{" "}
+              <strong className="text-foreground">processor</strong> on that client&apos;s
+              instructions, and their privacy policy applies to that data.
+            </p>
           </section>
 
           <section>
-            <h2 className="font-display text-xl font-semibold text-foreground">What data we collect</h2>
-            <p className="mt-3">We may collect the following personal data when you interact with our website or book a call:</p>
-            <ul className="mt-3 space-y-2 pl-4">
-              {[
-                "Name and email address (when booking a discovery call via Cal.com)",
-                "Phone number (if you call or text us directly)",
-                "Business name and website URL (shared during onboarding conversations)",
-                "Technical data: IP address, browser type, pages visited (via analytics)",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2.5">
-                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-teal" />
-                  {item}
-                </li>
-              ))}
-            </ul>
+            <h2 className="font-display text-xl font-semibold text-foreground">
+              What we collect, why, and how long we keep it
+            </h2>
+            <p className="mt-3">
+              We only collect what we need. We do not buy personal data, and we do not sell or
+              rent yours to anyone.
+            </p>
+
+            <div className="mt-5 overflow-x-auto">
+              <table className="w-full min-w-[560px] border-collapse text-left text-sm">
+                <thead>
+                  <tr className="border-b border-line">
+                    <th className="py-3 pr-4 font-display font-semibold text-foreground">Data</th>
+                    <th className="py-3 pr-4 font-display font-semibold text-foreground">Why</th>
+                    <th className="py-3 pr-4 font-display font-semibold text-foreground">Lawful basis</th>
+                    <th className="py-3 font-display font-semibold text-foreground">Retention</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dataUses.map((row) => (
+                    <tr key={row.what} className="border-b border-line/60 align-top">
+                      <td className="py-3 pr-4">{row.what}</td>
+                      <td className="py-3 pr-4">{row.why}</td>
+                      <td className="py-3 pr-4">{row.basis}</td>
+                      <td className="py-3">{row.kept}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <p className="mt-4">
+              Where our lawful basis is{" "}
+              <strong className="text-foreground">legitimate interests</strong>, those interests
+              are responding to enquiries, running and growing our business, and keeping our
+              website secure and working. We have considered your rights and do not believe this
+              processing overrides them.
+            </p>
           </section>
 
           <section>
-            <h2 className="font-display text-xl font-semibold text-foreground">How we use your data</h2>
-            <p className="mt-3">We use your data to:</p>
+            <h2 className="font-display text-xl font-semibold text-foreground">Who we share it with</h2>
+            <p className="mt-3">
+              We share personal data only with service providers who help us operate, each bound
+              by a data-processing agreement:
+            </p>
             <ul className="mt-3 space-y-2 pl-4">
               {[
-                "Schedule and conduct discovery calls",
-                "Deliver services you have engaged us to provide",
-                "Send you relevant communications about our services (you can opt out at any time)",
-                "Improve our website and marketing",
+                "Cal.com — booking and scheduling for discovery calls",
+                "Google (Workspace and Analytics) — email, documents, and website analytics",
+                "Netlify — website hosting and delivery",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2.5">
                   <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-teal" />
@@ -70,86 +134,43 @@ export default function PrivacyPage() {
               ))}
             </ul>
             <p className="mt-4">
-              Our lawful basis for processing is <strong className="text-foreground">legitimate interests</strong> and,
-              where applicable, <strong className="text-foreground">consent</strong> or{" "}
-              <strong className="text-foreground">contract performance</strong>.
+              We may also disclose data where required by law, or to professional advisers such as
+              our accountant.
             </p>
           </section>
 
           <section>
-            <h2 className="font-display text-xl font-semibold text-foreground">Third-party services</h2>
+            <h2 className="font-display text-xl font-semibold text-foreground">
+              Transfers outside the UK
+            </h2>
             <p className="mt-3">
-              We use Cal.com to manage bookings. By booking a call you are also subject to{" "}
-              <a href="https://cal.com/privacy" className="text-brand-blue-light hover:text-brand-blue transition-colors" target="_blank" rel="noopener noreferrer">
-                Cal.com&apos;s Privacy Policy
-              </a>
-              . With your consent we use Google Analytics 4 to measure site usage — see the Cookies
-              section below — which may transfer data outside the UK under Google&apos;s standard
-              contractual clauses. We also use email tools (e.g. Google Workspace). These are
-              GDPR-compliant processors under appropriate data-processing agreements.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="font-display text-xl font-semibold text-foreground">Data retention</h2>
-            <p className="mt-3">
-              We retain your personal data only as long as necessary for the purposes above — typically no longer than
-              3 years after our last interaction, unless legal obligations require otherwise.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="font-display text-xl font-semibold text-foreground">Your rights (GDPR)</h2>
-            <p className="mt-3">Under UK GDPR you have the right to:</p>
-            <ul className="mt-3 space-y-2 pl-4">
-              {[
-                "Access the personal data we hold about you",
-                "Correct inaccurate data",
-                "Erase your data ('right to be forgotten')",
-                "Restrict or object to processing",
-                "Data portability",
-                "Withdraw consent at any time",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2.5">
-                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-teal" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-4">
-              To exercise any of these rights, email us at{" "}
-              <a href={`mailto:${site.email}`} className="text-brand-blue-light hover:text-brand-blue transition-colors">
-                {site.email}
-              </a>
-              . You also have the right to lodge a complaint with the{" "}
-              <a href="https://ico.org.uk" className="text-brand-blue-light hover:text-brand-blue transition-colors" target="_blank" rel="noopener noreferrer">
-                Information Commissioner&apos;s Office (ICO)
-              </a>
-              .
+              Some of these providers process data outside the UK, including in the United States.
+              Where that happens, transfers are protected by the UK International Data Transfer
+              Addendum or standard contractual clauses, or by an adequacy decision.
             </p>
           </section>
 
           <section>
             <h2 className="font-display text-xl font-semibold text-foreground">Cookies</h2>
             <p className="mt-3">
-              We use essential cookies (session state) which are required for the site to work, and
-              — only with your consent — analytics cookies from Google Analytics 4.
+              We use essential cookies (session state) which are required for the site to work,
+              and — only with your consent — analytics cookies from Google Analytics 4.
             </p>
             <p className="mt-4">
               Analytics cookies (<code className="text-mist-dim">_ga</code>,{" "}
-              <code className="text-mist-dim">_ga_*</code>) help us understand which pages people
-              visit and how they found us. They are <strong className="text-foreground">off by
-              default</strong>. Nothing is stored on your device unless you press
-              &quot;Accept&quot; on the cookie banner, and you can decline with one click.
+              <code className="text-mist-dim">_ga_*</code>) tell us which pages people visit and
+              how they found us. They are{" "}
+              <strong className="text-foreground">off by default</strong>. Nothing is stored on
+              your device unless you press &quot;Accept&quot; on the cookie banner, and declining
+              takes one click.
             </p>
             <p className="mt-4">
-              IP addresses are anonymised, and we do not use advertising, remarketing or
-              cross-site tracking cookies of any kind.
+              IP addresses are anonymised. We use no advertising, remarketing or cross-site
+              tracking cookies.
             </p>
             <p className="mt-4">
-              To change your mind later, clear this site&apos;s data in your browser settings —
-              the banner will then reappear and you can choose again. You can also opt out of
-              Google Analytics across all sites with Google&apos;s{" "}
+              To change your mind, clear this site&apos;s data in your browser and the banner will
+              reappear. You can also opt out of Google Analytics everywhere using Google&apos;s{" "}
               <a
                 href="https://tools.google.com/dlpage/gaoptout"
                 className="text-brand-blue-light hover:text-brand-blue transition-colors"
@@ -163,11 +184,78 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="font-display text-xl font-semibold text-foreground">Changes to this policy</h2>
+            <h2 className="font-display text-xl font-semibold text-foreground">Your rights</h2>
+            <p className="mt-3">Under UK GDPR you have the right to:</p>
+            <ul className="mt-3 space-y-2 pl-4">
+              {[
+                "Be informed about how we use your data — that's this page",
+                "Access a copy of the personal data we hold about you",
+                "Have inaccurate data corrected",
+                "Have your data erased (the 'right to be forgotten')",
+                "Restrict or object to how we process it",
+                "Receive your data in a portable format",
+                "Withdraw consent at any time, where consent is the basis we rely on",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2.5">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-teal" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4">
+              To exercise any of these, email{" "}
+              <a href={`mailto:${site.email}`} className="text-brand-blue-light hover:text-brand-blue transition-colors">
+                {site.email}
+              </a>
+              . We respond within one month, and it is free.
+            </p>
+            <p className="mt-4">
+              Providing your data is not a statutory requirement, but we cannot arrange a call or
+              deliver services without the basics such as your name and contact details.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display text-xl font-semibold text-foreground">
+              Automated decision-making
+            </h2>
             <p className="mt-3">
-              We may update this policy from time to time. The date at the top of this page shows when it
-              was last revised. Continued use of our site after changes constitutes acceptance of the
-              updated policy.
+              We do not make decisions with legal or similarly significant effects about you using
+              automated processing or profiling. Our AI chatbot answers questions and passes
+              enquiries to a human — it does not decide anything about you on its own.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display text-xl font-semibold text-foreground">Security</h2>
+            <p className="mt-3">
+              We use encryption in transit, access controls and multi-factor authentication on the
+              accounts holding personal data, and keep access limited to those who need it.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display text-xl font-semibold text-foreground">Complaints</h2>
+            <p className="mt-3">
+              If you are unhappy with how we have handled your data, please tell us first so we can
+              put it right. You also have the right to complain to the{" "}
+              <a
+                href="https://ico.org.uk/make-a-complaint/"
+                className="text-brand-blue-light hover:text-brand-blue transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Information Commissioner&apos;s Office (ICO)
+              </a>
+              , the UK supervisory authority, at any time.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display text-xl font-semibold text-foreground">Changes</h2>
+            <p className="mt-3">
+              We review this policy regularly and will update the date at the top when it changes.
+              If we start using your data in a materially new way, we will tell you before we do.
             </p>
           </section>
 
