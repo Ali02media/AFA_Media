@@ -8,8 +8,9 @@ import { CalProvider } from "@/components/cal";
 import { JsonLd } from "@/components/json-ld";
 import { globalGraph } from "@/lib/schema";
 import { ViewTransitions } from "next-view-transitions";
-// Vercel Analytics + Speed Insights (see components/analytics.tsx for why they're wrapped).
+// GA4 behind Consent Mode, plus the banner that grants/denies it.
 import { SiteAnalytics } from "@/components/analytics";
+import { CookieConsent } from "@/components/cookie-consent";
 
 // Nunito, self-hosted by next/font (NOT the <link> embed from Google Fonts): Next downloads
 // the file at build time and serves it from our own origin, so there's no third-party
@@ -106,6 +107,7 @@ export default function RootLayout({
             <Footer />
           </div>
           <SiteAnalytics />
+          <CookieConsent />
         </body>
       </html>
     </ViewTransitions>

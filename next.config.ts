@@ -19,11 +19,13 @@ const isDev = process.env.NODE_ENV === "development";
 
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://app.cal.com`,
+  // googletagmanager.com serves gtag.js (GA4). google-analytics.com is where the measurement
+  // beacons are POSTed — without it in connect-src every hit is silently blocked.
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://app.cal.com https://www.googletagmanager.com`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://app.cal.com",
+  "connect-src 'self' https://app.cal.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com",
   "frame-src https://app.cal.com https://cal.com",
   "object-src 'none'",
   "base-uri 'self'",

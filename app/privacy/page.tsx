@@ -83,8 +83,10 @@ export default function PrivacyPage() {
               <a href="https://cal.com/privacy" className="text-brand-blue-light hover:text-brand-blue transition-colors" target="_blank" rel="noopener noreferrer">
                 Cal.com&apos;s Privacy Policy
               </a>
-              . We may also use email tools (e.g. Gmail) and analytics tools; these are GDPR-compliant processors
-              under appropriate data-processing agreements.
+              . With your consent we use Google Analytics 4 to measure site usage — see the Cookies
+              section below — which may transfer data outside the UK under Google&apos;s standard
+              contractual clauses. We also use email tools (e.g. Google Workspace). These are
+              GDPR-compliant processors under appropriate data-processing agreements.
             </p>
           </section>
 
@@ -130,9 +132,33 @@ export default function PrivacyPage() {
           <section>
             <h2 className="font-display text-xl font-semibold text-foreground">Cookies</h2>
             <p className="mt-3">
-              Our website may use essential cookies only (session state). We do not use third-party
-              advertising cookies. If we add any in future we will update this policy and seek consent
-              where required.
+              We use essential cookies (session state) which are required for the site to work, and
+              — only with your consent — analytics cookies from Google Analytics 4.
+            </p>
+            <p className="mt-4">
+              Analytics cookies (<code className="text-mist-dim">_ga</code>,{" "}
+              <code className="text-mist-dim">_ga_*</code>) help us understand which pages people
+              visit and how they found us. They are <strong className="text-foreground">off by
+              default</strong>. Nothing is stored on your device unless you press
+              &quot;Accept&quot; on the cookie banner, and you can decline with one click.
+            </p>
+            <p className="mt-4">
+              IP addresses are anonymised, and we do not use advertising, remarketing or
+              cross-site tracking cookies of any kind.
+            </p>
+            <p className="mt-4">
+              To change your mind later, clear this site&apos;s data in your browser settings —
+              the banner will then reappear and you can choose again. You can also opt out of
+              Google Analytics across all sites with Google&apos;s{" "}
+              <a
+                href="https://tools.google.com/dlpage/gaoptout"
+                className="text-brand-blue-light hover:text-brand-blue transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                browser add-on
+              </a>
+              .
             </p>
           </section>
 
