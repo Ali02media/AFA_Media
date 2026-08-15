@@ -73,6 +73,17 @@ export function Problem() {
             </Reveal>
           ))}
         </div>
+
+        {/* Forward-pointing bridge — turns the corner from pain to hope and hands straight to
+            the Services section's "The fix" label below, so the reader never has to work out
+            how the offers map to these gaps. */}
+        <Reveal delay={0.1}>
+          <p className="mt-12 max-w-2xl text-lg leading-relaxed text-mist">
+            None of this means you&apos;re bad at your job. It means nothing&apos;s there to
+            catch the lead the moment it lands. That&apos;s a system problem —{" "}
+            <span className="text-foreground">and a system is exactly what we build.</span>
+          </p>
+        </Reveal>
       </Container>
     </section>
   );

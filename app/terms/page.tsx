@@ -3,7 +3,7 @@ import { Container } from "@/components/ui/section";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | AFA Media",
+  title: "Terms of Service",
   description: "AFA Media terms of service — the terms that govern your use of our website and services.",
   alternates: { canonical: "/terms" },
   robots: { index: false, follow: false },
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <main className="relative min-h-[100svh] pb-24 pt-32 sm:pt-40">
+    <div className="relative min-h-[100svh] pb-24 pt-32 sm:pt-40">
       <Container className="max-w-3xl">
         <h1 className="font-display text-4xl font-semibold text-foreground sm:text-5xl">
           Terms of Service
@@ -34,8 +34,8 @@ export default function TermsPage() {
           <section>
             <h2 className="font-display text-xl font-semibold text-foreground">2. Services</h2>
             <p className="mt-3">
-              AFA Media provides digital marketing services including website design, AI chatbot setup,
-              email marketing and paid advertising management. The scope, deliverables and fees for each
+              AFA Media provides digital marketing services including website design, AI chatbot setup
+              and paid advertising management. The scope, deliverables and fees for each
               engagement are agreed in a separate service agreement or proposal before work begins.
             </p>
           </section>
@@ -99,6 +99,6 @@ export default function TermsPage() {
           </section>
         </div>
       </Container>
-    </main>
+    </div>
   );
 }

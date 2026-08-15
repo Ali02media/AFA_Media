@@ -17,28 +17,38 @@ export function BookingCalendar({
   style?: React.CSSProperties;
 }) {
   useEffect(() => {
-    // Bugs 21 + 23: this used to carry its own verbatim copy of the Cal bootstrap AND call
-    // `init` + `ui` on the same namespace CalProvider had already configured, with a
-    // conflicting brand colour (#00ccbd vs #2c87d0) and without resetting CalProvider's
-    // theme. Last write won, so the brand colour depended on execution order — and the second
-    // `ui` could restyle and re-measure the embed after load, feeding straight into the
-    // ScrollTrigger desync (Bug 4). CalProvider is now the sole owner of bootstrap + `ui`;
-    // this component only asks for its own inline instance, via the shared namespace/link.
-    // Guard against re-entry. StrictMode double-mounts in dev, and any re-render that
-    // remounts this effect calls `inline` again on an element Cal has already claimed —
-    // which logged "Inline embed already exists. Ignoring this call" four times per load.
-    // Harmless in itself, but it buries real warnings. Keyed on the element so a genuine
-    // remount into a fresh node still initialises.
     const el = document.getElementById(EMBED_EL_ID);
     if (!el || el.dataset.calInit === "1") return;
-    el.dataset.calInit = "1";
 
-    const Cal = getCal();
-    Cal.ns[site.cal.namespace]("inline", {
-      elementOrSelector: "#" + EMBED_EL_ID,
-      config: { layout: "month_view", useSlotsViewOnSmallScreen: "true" },
-      calLink: site.cal.link,
-    });
+    // Lazy init: only load Cal's third-party iframe once the calendar scrolls within ~600px of
+    // the viewport, instead of on page load. The CTA (and this calendar) sits at the BOTTOM of
+    // 4 pages — loading a live cross-origin booking iframe immediately on every one of them is a
+    // heavy, wasted cost before anyone scrolls to it. The fixed-height container reserves the
+    // space so there's no layout shift when it fills in.
+    // (CalProvider owns bootstrap + `ui`; this only asks for the inline instance. The dataset
+    // guard also prevents StrictMode double-mount from re-initialising the same element.)
+    const init = () => {
+      if (el.dataset.calInit === "1") return;
+      el.dataset.calInit = "1";
+      const Cal = getCal();
+      Cal.ns[site.cal.namespace]("inline", {
+        elementOrSelector: "#" + EMBED_EL_ID,
+        config: { layout: "month_view", useSlotsViewOnSmallScreen: "true" },
+        calLink: site.cal.link,
+      });
+    };
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          init();
+          io.disconnect();
+        }
+      },
+      { rootMargin: "600px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
 
   return (

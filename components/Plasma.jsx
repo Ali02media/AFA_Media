@@ -178,8 +178,16 @@ export const Plasma = ({
     let isVisible = true;
     const t0 = performance.now();
 
+    // Cap to ~70fps to match LaserFlow — no-op on 60Hz, halves the work on high-refresh
+    // displays, with no visible change to the slow plasma drift.
+    const minFrameMs = 1000 / 75;
+    let lastRenderMs = 0;
+
     const loop = t => {
       if (contextLost || !isVisible) return;
+      raf = requestAnimationFrame(loop);
+      if (t - lastRenderMs < minFrameMs) return;
+      lastRenderMs = t;
       let timeValue = (t - t0) * 0.001;
       if (direction === 'pingpong') {
         const pingpongDuration = 10;
@@ -194,7 +202,6 @@ export const Plasma = ({
         program.uniforms.iTime.value = timeValue;
       }
       renderer.render({ scene: mesh });
-      raf = requestAnimationFrame(loop);
     };
 
     const handleContextLost = (e) => {

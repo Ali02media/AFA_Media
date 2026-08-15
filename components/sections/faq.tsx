@@ -43,9 +43,11 @@ export function FAQ({
             return (
               <div key={faq.q}>
                 <button
+                  id={`${id}-q-${i}`}
                   className="flex w-full items-center justify-between gap-4 py-6 text-left"
                   onClick={() => setOpen(isOpen ? null : i)}
                   aria-expanded={isOpen}
+                  aria-controls={`${id}-a-${i}`}
                 >
                   <span className={cn(
                     "font-display text-lg font-medium transition-colors duration-200",
@@ -71,6 +73,9 @@ export function FAQ({
                   {isOpen && (
                     <motion.div
                       key="answer"
+                      id={`${id}-a-${i}`}
+                      role="region"
+                      aria-labelledby={`${id}-q-${i}`}
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}

@@ -105,14 +105,35 @@ export function CalButton({
 /** Inline Cal embed for the contact page. */
 export function CalInline() {
   useEffect(() => {
-    // Only the inline instance — no second `init`/`ui` pass. This previously set theme "dark"
-    // twice more on a white page (Bug 22) and re-applied `ui` after CalProvider had (Bug 21).
-    const Cal = getCal();
-    Cal.ns[site.cal.namespace]("inline", {
-      elementOrSelector: "#cal-inline",
-      config: { layout: "month_view" },
-      calLink: site.cal.link,
-    });
+    const el = document.getElementById("cal-inline");
+    if (!el || el.dataset.calInit === "1") return;
+
+    // Lazy init (mirrors booking-calendar.tsx): only load Cal's third-party iframe once the
+    // embed scrolls within ~600px of the viewport, not on page load. The fixed-height container
+    // reserves the space so there's no layout shift. Only the inline instance — no second
+    // `init`/`ui` pass (CalProvider owns bootstrap + `ui`; Bugs 21 + 22).
+    const init = () => {
+      if (el.dataset.calInit === "1") return;
+      el.dataset.calInit = "1";
+      const Cal = getCal();
+      Cal.ns[site.cal.namespace]("inline", {
+        elementOrSelector: "#cal-inline",
+        config: { layout: "month_view" },
+        calLink: site.cal.link,
+      });
+    };
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          init();
+          io.disconnect();
+        }
+      },
+      { rootMargin: "600px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
   return (
     <div

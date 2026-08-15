@@ -12,7 +12,7 @@ export function ProcessSection() {
             title={
               <>
                 From first call to{" "}
-                <span className="text-gradient">live in 14 days.</span>
+                <span className="text-gradient">live in 20 days.</span>
               </>
             }
             lead="No drawn-out timelines or agency runaround. Three clear steps and your growth engine is switched on."

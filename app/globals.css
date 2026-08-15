@@ -208,33 +208,17 @@ body {
   border-radius: 9999px;
   filter: blur(80px);
   pointer-events: none;
-  will-change: transform;
 }
 
+/* Static glows (no drift). An 80px-blurred layer animating its transform forever is continuous
+   GPU compositing for a drift almost nobody notices — cheaper to composite the blur once and
+   leave it. The soft glow itself is unchanged. */
 .orb-blue {
   background: radial-gradient(circle, rgba(44, 135, 208, 0.22) 0%, transparent 70%);
-  animation: orb-drift-a 18s ease-in-out infinite;
 }
 
 .orb-teal {
   background: radial-gradient(circle, rgba(25, 176, 161, 0.18) 0%, transparent 70%);
-  animation: orb-drift-b 22s ease-in-out infinite;
-}
-
-@keyframes orb-drift-a {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33%       { transform: translate(60px, -40px) scale(1.08); }
-  66%       { transform: translate(-40px, 30px) scale(0.94); }
-}
-
-@keyframes orb-drift-b {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  40%       { transform: translate(-70px, 50px) scale(1.12); }
-  70%       { transform: translate(50px, -30px) scale(0.92); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .orb { animation: none !important; }
 }
 
 /* ──────────────────────────────────────── Marquee ── */
@@ -285,9 +269,10 @@ body {
 
 ::view-transition-new(root) {
   z-index: 2;
-  animation: center-clip-reveal 1.2s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+  /* 0.5s (was 1.2s): the long version read like a loading screen between pages. Snappy now. */
+  animation: center-clip-reveal 0.5s cubic-bezier(0.76, 0, 0.24, 1) forwards;
   /* MINIMAL ALTERNATIVE — swap the line above for this one:
-  animation: soft-fade 0.35s ease-out forwards; */
+  animation: soft-fade 0.3s ease-out forwards; */
 }
 
 @keyframes center-clip-reveal {
@@ -312,11 +297,9 @@ body {
   to   { opacity: 1; }
 }
 
-/* REDUCED-MOTION OPT-OUT (currently OFF — the clip reveal plays for everyone, by choice).
-   Uncomment this block to give reduced-motion visitors the motion-safe fade instead.
+/* Reduced-motion visitors get the motion-safe fade (opacity only) instead of the clip reveal. */
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-new(root) {
-    animation: soft-fade 0.35s ease-out forwards;
+    animation: soft-fade 0.3s ease-out forwards;
   }
 }
-*/

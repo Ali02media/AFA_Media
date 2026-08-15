@@ -6,42 +6,17 @@ import { PricingPreview } from "@/components/sections/pricing-preview";
 import { CTA } from "@/components/sections/cta";
 import { ProcessSection } from "@/components/sections/process-section";
 import { FAQ } from "@/components/sections/faq";
-import { site, faqs } from "@/lib/site";
+import { faqs } from "@/lib/site";
+import { JsonLd } from "@/components/json-ld";
+import { faqSchema } from "@/lib/schema";
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      name: site.name,
-      url: site.url,
-      email: site.email,
-      telephone: site.phone,
-      description: site.description,
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: "Brighton",
-        addressCountry: "GB",
-      },
-    },
-    {
-      "@type": "FAQPage",
-      mainEntity: faqs.map((f) => ({
-        "@type": "Question",
-        name: f.q,
-        acceptedAnswer: { "@type": "Answer", text: f.a },
-      })),
-    },
-  ],
-};
-
+// The Organization/business + WebSite entities are emitted globally in the root layout. The
+// homepage adds only the FAQPage, since it renders the FAQ accordion (Google shows those Q&As
+// as rich results; the text is built from the same `faqs` data that's on the page).
 export default function Home() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={faqSchema(faqs)} />
 
       {/* ── Homepage funnel order (restructured) ──────────────────────────────
           1. Hero               — hook
@@ -51,8 +26,7 @@ export default function Home() {
           5. Pricing            — the offer
           6. CTA #1             — first booking ask (no animation), catches ready buyers
           7. Process            — how it works / our AI edge / timeline
-          8. FAQ (short)        — knock down the last few objections
-          9. FAQ (full)         — everything else, for the thorough reader
+          8. FAQ                — objections, for the thorough reader
 
           TrustBar (the auto-scrolling "14-Day Delivery • No Long Contracts..." marquee that
           used to sit here, right after the hero) was removed at the owner's request.
@@ -68,15 +42,6 @@ export default function Home() {
       <PricingPreview />
       <CTA />
       <ProcessSection />
-      <FAQ
-        limit={4}
-        id="faq-quick"
-        title={
-          <>
-            A few quick <span className="text-gradient">answers.</span>
-          </>
-        }
-      />
       <FAQ />
     </>
   );

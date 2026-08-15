@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import { Mail, Phone, MapPin, ShieldCheck } from "lucide-react";
 import { Container } from "@/components/ui/section";
 import { CalInline } from "@/components/cal";
+import { JsonLd } from "@/components/json-ld";
+import { breadcrumb } from "@/lib/schema";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Book a Free Discovery Call | AFA Media",
+  title: "Book a Free Discovery Call",
   description:
     "Book your free 30-minute discovery call with AFA Media. We'll map where you're losing leads and show you exactly how to fix it. No hard sell, just a plan.",
   alternates: { canonical: "/contact" },
@@ -19,7 +21,8 @@ const details = [
 
 export default function ContactPage() {
   return (
-    <main className="relative min-h-[100svh] pb-24 pt-32 sm:pt-40">
+    <div className="relative min-h-[100svh] pb-24 pt-32 sm:pt-40">
+      <JsonLd data={breadcrumb([{ name: "Contact", path: "/contact" }])} />
       {/* Ambient */}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <div className="orb orb-blue absolute left-1/4 top-1/4 h-[500px] w-[500px] opacity-20" />
@@ -90,7 +93,9 @@ export default function ContactPage() {
                     {href ? (
                       <a
                         href={href}
-                        className="text-sm text-mist transition-colors hover:text-foreground"
+                        // -my-1/py-1: lifts the tap target to 28px (WCAG 2.2 2.5.8) without
+                        // changing the row spacing.
+                        className="-my-1 inline-block py-1 text-sm text-mist transition-colors hover:text-foreground"
                       >
                         {value}
                       </a>
@@ -104,6 +109,6 @@ export default function ContactPage() {
           </aside>
         </div>
       </Container>
-    </main>
+    </div>
   );
 }

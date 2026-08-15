@@ -1,15 +1,14 @@
 import { Link } from "next-view-transitions";
-import { Globe, Bot, Mail, Target, ArrowUpRight, Check } from "lucide-react";
+import { Globe, Bot, Target, ArrowUpRight, Check } from "lucide-react";
 import { Container, SectionHeading } from "@/components/ui/section";
 import { Reveal } from "@/components/reveal";
 import { GlowCard } from "@/components/ui/spotlight-card";
 import { services } from "@/lib/site";
 
 const icons = {
-  "web-design":       Globe,
-  "ai-chatbots":      Bot,
-  "email-marketing":  Mail,
-  "paid-ads":         Target,
+  "web-design":  Globe,
+  "ai-chatbots": Bot,
+  "paid-ads":    Target,
 } as const;
 
 export function ServicesSection({
@@ -29,18 +28,31 @@ export function ServicesSection({
 
       <Container>
         <Reveal forceVisible={forceVisible}>
+          {/* "The fix" — deliberately mirrors the Problem section's "The gap" label (same teal
+              rule + monospace tag, same left alignment) so the two sections read as a pair:
+              gap → fix. This is the bridge that stops the reader having to map offers to pains. */}
+          <div className="mb-8 flex items-center gap-3">
+            <span className="h-px w-6 bg-brand-teal" />
+            <span className="font-mono text-xs font-medium uppercase tracking-[0.14em] text-brand-teal">
+              The fix
+            </span>
+          </div>
+
           <SectionHeading
+            align="left"
             title={
               <>
-                Everything you need to grow,{" "}
-                <span className="text-gradient">under one roof.</span>
+                One system that catches every lead,{" "}
+                <span className="text-gradient">so you don&apos;t have to.</span>
               </>
             }
-            lead="No juggling three different agencies. One team, one plan, four ways to turn strangers into booked customers."
+            lead="No hiring, no midnight admin. A fast site that turns clicks into booked jobs, an AI that replies the second an enquiry lands, and ads that only bring you people ready to buy — run by one team, as one plan."
           />
         </Reveal>
 
-        <div className="mt-16 grid gap-5 md:grid-cols-2">
+        {/* Three cards → one row of three on desktop (lg), stacked below. Was md:grid-cols-2
+            for four cards (a 2×2); with three, a 2-col grid orphaned the last card. */}
+        <div className="mt-16 grid gap-5 lg:grid-cols-3">
           {services.map((service, i) => {
             const Icon = icons[service.id as keyof typeof icons];
             const isTeal = service.accent === "teal";
@@ -70,6 +82,11 @@ export function ServicesSection({
                     <h3 className="mt-7 font-display text-2xl font-semibold text-foreground">
                       {service.name}
                     </h3>
+                    {/* Names the exact pain this service kills (mono/teal, echoing the Problem
+                        section) so the offer→pain mapping is instant, not something to work out. */}
+                    <p className="mt-2 font-mono text-xs uppercase tracking-[0.12em] text-brand-teal">
+                      {service.fixes}
+                    </p>
                     <p className="mt-3 text-[15px] leading-relaxed text-mist">
                       {service.blurb}
                     </p>
@@ -96,7 +113,7 @@ export function ServicesSection({
           <div className="mt-12 flex justify-center">
             <Link
               href="/services"
-              className="group inline-flex items-center gap-2 text-sm font-medium text-mist transition-colors duration-200 hover:text-foreground"
+              className="group -my-1.5 inline-flex items-center gap-2 py-1.5 text-sm font-medium text-mist transition-colors duration-200 hover:text-foreground"
             >
               Explore all services in detail
               <ArrowUpRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

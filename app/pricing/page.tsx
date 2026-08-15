@@ -6,18 +6,23 @@ import { Reveal } from "@/components/reveal";
 import { PricingComparison } from "@/components/ui/pricing-comparison";
 import { FAQ } from "@/components/sections/faq";
 import { CTA } from "@/components/sections/cta";
-import { oneOffProjects } from "@/lib/site";
+import { oneOffProjects, faqs } from "@/lib/site";
+import { JsonLd } from "@/components/json-ld";
+import { pricingSchema, faqSchema, breadcrumb } from "@/lib/schema";
 
 export const metadata: Metadata = {
-  title: "Pricing",
+  title: "Pricing — Plans From £90/mo",
   description:
-    "Simple, honest pricing for UK service businesses. Rolling monthly plans you can cancel any time, plus one-off project options.",
+    "Simple, honest pricing for UK service businesses. Rolling monthly plans from £90/mo you can cancel any time, plus one-off project options. No long contracts, no surprises.",
   alternates: { canonical: "/pricing" },
 };
 
 export default function PricingPage() {
   return (
     <>
+      <JsonLd data={pricingSchema()} />
+      <JsonLd data={faqSchema(faqs)} />
+      <JsonLd data={breadcrumb([{ name: "Pricing", path: "/pricing" }])} />
       <PageHeader
         title={
           <>
@@ -76,10 +81,10 @@ export default function PricingPage() {
               </div>
               <div>
                 <p className="font-display text-xl font-semibold text-foreground">
-                  14 & 20-day delivery, guaranteed.
+                  20 & 25-day delivery, guaranteed.
                 </p>
                 <p className="mt-1 text-mist">
-                  Growth is live in 14 days, Mastery in 20 — if we&apos;re
+                  Growth is live in 20 days, Mastery in 25 — if we&apos;re
                   late, you don&apos;t pay for the setup. Simple as that.
                 </p>
               </div>

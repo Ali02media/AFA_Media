@@ -1,24 +1,25 @@
 import type { Metadata } from "next";
-import { Globe, Bot, Mail, Target, Check, ArrowUpRight } from "lucide-react";
+import { Globe, Bot, Target, Check, ArrowUpRight } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Container } from "@/components/ui/section";
 import { Reveal } from "@/components/reveal";
 import { GlowCard } from "@/components/ui/spotlight-card";
 import { CTA } from "@/components/sections/cta";
 import { services } from "@/lib/site";
+import { JsonLd } from "@/components/json-ld";
+import { servicesSchema, breadcrumb } from "@/lib/schema";
 import { Link } from "next-view-transitions";
 
 export const metadata: Metadata = {
-  title: "Services",
+  title: "Web Design, AI Chatbots & Paid Ads",
   description:
-    "Web design, AI chatbots, email marketing and paid ads for UK service businesses — everything you need to grow, under one roof.",
+    "Web design, AI chatbots and paid ads for UK service businesses — everything you need to grow, under one roof. Live in 20 days, or you don't pay the setup.",
   alternates: { canonical: "/services" },
 };
 
 const icons = {
   "web-design": Globe,
   "ai-chatbots": Bot,
-  "email-marketing": Mail,
   "paid-ads": Target,
 } as const;
 
@@ -33,11 +34,6 @@ const detail: Record<string, { who: string; longer: string }> = {
       "Most leads are lost in the gap between someone reaching out and someone replying. Your AI assistant closes that gap — answering questions, qualifying the lead and booking the job straight into your calendar, day or night.",
     who: "Ideal if you miss calls while on the job, or want every enquiry captured without hiring more staff.",
   },
-  "email-marketing": {
-    longer:
-      "The money is in the follow-up. We build campaigns and automations that nurture new leads, win back old customers and keep you top-of-mind — using proven, psychology-driven copywriting, not spam.",
-    who: "Great for businesses sitting on a list of past customers and enquiries they've never properly followed up.",
-  },
   "paid-ads": {
     longer:
       "When you need leads now, ads deliver. We build and manage Google and Meta campaigns focused on one metric that matters — qualified enquiries at a cost that pays you back — with clear, honest reporting.",
@@ -48,6 +44,8 @@ const detail: Record<string, { who: string; longer: string }> = {
 export default function ServicesPage() {
   return (
     <>
+      <JsonLd data={servicesSchema()} />
+      <JsonLd data={breadcrumb([{ name: "Services", path: "/services" }])} />
       <PageHeader
         title={
           <>
@@ -55,7 +53,7 @@ export default function ServicesPage() {
             <span className="text-gradient">under one roof.</span>
           </>
         }
-        lead="Four services, one team, one plan. No juggling agencies, no finger-pointing — just a growth engine built around your business."
+        lead="Three services, one team, one plan. No juggling agencies, no finger-pointing — just a growth engine built around your business."
       />
 
       <section className="pb-28 sm:pb-36">
@@ -119,14 +117,14 @@ export default function ServicesPage() {
           <Reveal delay={0.1}>
             <div className="mt-10 flex flex-col items-center gap-3 rounded-3xl border border-line bg-gradient-to-r from-brand-blue/10 to-brand-teal/10 px-8 py-10 text-center">
               <p className="font-display text-2xl font-semibold text-foreground">
-                Most clients combine all four — that&apos;s why we built packages.
+                Most clients combine all three — that&apos;s why we built packages.
               </p>
               {/* Link, not <a>: a raw anchor to an internal route does a FULL PAGE RELOAD,
                   which bypasses the view transition entirely (and throws away the client
                   cache). This was the only internal navigation still doing that. */}
               <Link
                 href="/pricing"
-                className="cta-type group inline-flex items-center gap-2 text-sm font-medium text-brand-blue-light transition-colors hover:text-brand-blue"
+                className="cta-type group -my-1.5 inline-flex items-center gap-2 py-1.5 text-sm font-medium text-brand-blue-light transition-colors hover:text-brand-blue"
               >
                 See pricing
                 <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

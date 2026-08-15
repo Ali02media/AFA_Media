@@ -53,7 +53,12 @@ export function PricingComparison() {
               <span className="mb-1 text-sm text-mist-dim">/month</span>
             </div>
             <p className="text-xs text-mist-dim">
-              + £{plan.onboarding} one-time setup
+              + one-time setup:{" "}
+              <span className="line-through opacity-60">£{plan.fullOnboarding}</span>{" "}
+              <span className="font-semibold text-foreground">£{plan.onboarding}</span>
+            </p>
+            <p className="text-[11px] font-medium uppercase tracking-wide text-brand-teal">
+              Founding price · 50% off setup
             </p>
             <CalButton
               className={cn(

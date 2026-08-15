@@ -32,16 +32,12 @@ export function Footer() {
             Navigation
           </h4>
           <ul className="mt-5 space-y-3 text-sm">
-            <li>
-              <Link href="/" className="text-mist transition-colors hover:text-foreground">
-                Home
-              </Link>
-            </li>
+            {/* `nav` already starts with Home, so it's not hard-coded again here. */}
             {nav.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="text-mist transition-colors hover:text-foreground"
+                  className="-my-1 inline-block py-1 text-mist transition-colors hover:text-foreground"
                 >
                   {item.label}
                 </Link>
@@ -59,7 +55,7 @@ export function Footer() {
             <li>
               <a
                 href={site.phoneHref}
-                className="flex items-center gap-3 text-mist transition-colors hover:text-foreground"
+                className="-my-1 flex items-center gap-3 py-1 text-mist transition-colors hover:text-foreground"
               >
                 <Phone className="h-4 w-4 shrink-0 text-brand-teal" />
                 {site.phone}
@@ -68,7 +64,7 @@ export function Footer() {
             <li>
               <a
                 href={`mailto:${site.email}`}
-                className="flex items-center gap-3 text-mist transition-colors hover:text-foreground"
+                className="-my-1 flex items-center gap-3 py-1 text-mist transition-colors hover:text-foreground"
               >
                 <Mail className="h-4 w-4 shrink-0 text-brand-teal" />
                 {site.email}
@@ -89,11 +85,14 @@ export function Footer() {
       <div className="border-t border-line">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-5 py-6 text-xs text-mist-dim sm:flex-row sm:px-8">
           <p>© {new Date().getFullYear()} AFA Media. All rights reserved.</p>
+          {/* `-my-2 py-2` grows these from a 16px text line to a 32px tap target (WCAG 2.2
+              2.5.8) while the negative margin cancels the padding out of the layout box, so the
+              footer bar keeps exactly the height it had. */}
           <div className="flex gap-6">
-            <Link href="/privacy" className="transition-colors hover:text-foreground">
+            <Link href="/privacy" className="-my-2 py-2 transition-colors hover:text-foreground">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="transition-colors hover:text-foreground">
+            <Link href="/terms" className="-my-2 py-2 transition-colors hover:text-foreground">
               Terms of Service
             </Link>
           </div>

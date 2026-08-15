@@ -3,7 +3,7 @@ import { Container } from "@/components/ui/section";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | AFA Media",
+  title: "Privacy Policy",
   description: "AFA Media privacy policy — how we collect, use, and protect your data in compliance with GDPR.",
   alternates: { canonical: "/privacy" },
   robots: { index: false, follow: false },
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <main className="relative min-h-[100svh] pb-24 pt-32 sm:pt-40">
+    <div className="relative min-h-[100svh] pb-24 pt-32 sm:pt-40">
       <Container className="max-w-3xl">
         <h1 className="font-display text-4xl font-semibold text-foreground sm:text-5xl">
           Privacy Policy
@@ -157,6 +157,6 @@ export default function PrivacyPage() {
           </section>
         </div>
       </Container>
-    </main>
+    </div>
   );
 }

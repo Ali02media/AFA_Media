@@ -34,9 +34,13 @@ export function Proof() {
                     <p className="text-sm font-semibold text-foreground">{t.name}</p>
                     <p className="text-xs text-mist-dim">{t.role}</p>
                   </div>
-                  <div className="ml-auto flex gap-0.5 text-brand-teal">
+                  <div
+                    className="ml-auto flex gap-0.5 text-brand-teal"
+                    role="img"
+                    aria-label="Rated 5 out of 5"
+                  >
                     {"★★★★★".split("").map((s, j) => (
-                      <span key={j} className="text-sm">{s}</span>
+                      <span key={j} aria-hidden="true" className="text-sm">{s}</span>
                     ))}
                   </div>
                 </figcaption>
@@ -55,8 +59,9 @@ export function Proof() {
                 Our Founder&apos;s Guarantee
               </p>
               <p className="mt-1 text-mist">
-                If your system isn&apos;t live in 14 days,
-                you don&apos;t pay for the setup. The risk is ours, not yours.
+                If your system isn&apos;t live on the timeline we agree — 20 days on
+                Growth, 25 on Mastery — you don&apos;t pay for the setup. The risk is
+                ours, not yours.
               </p>
             </div>
           </div>

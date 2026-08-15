@@ -1,7 +1,7 @@
-import { ArrowUpRight, Phone } from "lucide-react";
+import { Phone } from "lucide-react";
 import { Container } from "@/components/ui/section";
 import { Reveal } from "@/components/reveal";
-import { CalButton } from "@/components/cal";
+import { BookingCalendar } from "@/components/booking-calendar";
 import { site } from "@/lib/site";
 
 export function CTA({
@@ -28,33 +28,43 @@ export function CTA({
       )}
 
       <Container>
-        <Reveal direction="scale" forceVisible={forceVisible}>
-          <div className="border-gradient mx-auto flex max-w-4xl flex-col items-center gap-7 overflow-hidden rounded-[2rem] bg-ink-2 px-6 py-16 text-center backdrop-blur-sm shadow-[0_0_80px_-24px_rgba(44,135,208,0.3)] sm:px-16">
+        <Reveal direction="up" forceVisible={forceVisible}>
+          <div className="border-gradient mx-auto flex max-w-6xl flex-col items-center gap-7 overflow-hidden rounded-[2rem] bg-ink-2 px-4 py-16 text-center backdrop-blur-sm shadow-[0_0_80px_-24px_rgba(44,135,208,0.3)] sm:px-10">
             <h2 className="font-display text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
               Ready to get your{" "}
               <span className="text-gradient">phone ringing?</span>
             </h2>
 
             <p className="max-w-xl text-lg leading-relaxed text-mist">
-              Book a free 30-minute discovery call. We&apos;ll show you exactly
-              where you&apos;re losing leads — and how we&apos;d fix it. No hard
-              sell, just a plan.
+              Pick a time below for your free 30-minute discovery call. We&apos;ll
+              show you exactly where you&apos;re losing leads — and how we&apos;d
+              fix it. No hard sell, just a plan.
             </p>
 
-            <div className="mt-2 flex flex-col gap-3 sm:flex-row">
-              <CalButton className="bg-gradient-brand group inline-flex h-14 items-center justify-center gap-2 rounded-full px-8 text-base font-semibold text-white shadow-[0_8px_30px_-8px_rgba(44,135,208,0.6)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_-8px_rgba(25,176,161,0.7)]">
-                Book Your Free Call
-                <ArrowUpRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </CalButton>
-
-              <a
-                href={site.phoneHref}
-                className="cta-type inline-flex h-14 items-center justify-center gap-2 rounded-full border border-line bg-ink-3 px-8 text-base font-medium text-foreground backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-blue/40 hover:bg-ink-4"
-              >
-                <Phone className="h-5 w-5 text-brand-teal" />
-                {site.phone}
-              </a>
+            {/* Inline booking calendar — customers book straight from the page, no click-through
+                to a popup. Reuses BookingCalendar (the site's single Cal.com inline embed, wired
+                through the one shared bootstrap in components/cal.tsx) rather than a second raw
+                embed script, so there's only ever one Cal init on the page. White framed card so
+                the (light-themed) calendar reads as a distinct surface on the bg-ink-2 panel. */}
+            {/* Full width (not max-w-3xl): Cal's month_view only lays out as the WIDE 3-column
+                form — profile | month grid | time slots side by side — above ~900px. Narrower,
+                it collapses to the tall stacked layout. The card is now max-w-6xl so the embed
+                gets the width it needs to render wide-and-short instead of narrow-and-long. */}
+            <div className="w-full overflow-hidden rounded-2xl border border-line bg-white shadow-xl">
+              {/* height auto, not a fixed px: Cal auto-resizes its iframe to content (and grows
+                  again when a day is picked and the slot panel opens). A fixed height with the
+                  embed's overflow:hidden clipped the bottom of the calendar. minHeight just
+                  reserves space so there's no layout jump before the iframe reports its size. */}
+              <BookingCalendar style={{ height: "auto", minHeight: 560 }} />
             </div>
+
+            <a
+              href={site.phoneHref}
+              className="-my-1.5 inline-flex items-center gap-2 py-1.5 text-sm font-medium text-mist transition-colors hover:text-foreground"
+            >
+              <Phone className="h-4 w-4 text-brand-teal" />
+              Prefer to talk? {site.phone}
+            </a>
 
             <p className="text-xs text-mist-dim">
               Free 30-minute call · No obligation · Results-focused

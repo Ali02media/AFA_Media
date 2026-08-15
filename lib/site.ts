@@ -4,7 +4,7 @@ export const site = {
   name: "AFA Media",
   tagline: "One partner for everything that grows your business.",
   description:
-    "AFA Media builds high-converting websites, AI chatbots, email marketing and paid ads for UK service businesses — all under one roof, built to get your phone ringing.",
+    "AFA Media builds high-converting websites, AI chatbots and paid ads for UK service businesses — all under one roof, built to get your phone ringing.",
   url: "https://www.afamedia.co.uk",
   email: "ali@afamedia.co.uk",
   phone: "+44 7516 294378",
@@ -20,7 +20,7 @@ export const nav = [
   { label: "Home", href: "/" },
   { label: "Services", href: "/services" },
   { label: "Pricing", href: "/pricing" },
-  { label: "Process", href: "/process" },
+  { label: "Philosophy", href: "/philosophy" },
   { label: "Contact", href: "/contact" },
 ] as const;
 
@@ -29,12 +29,15 @@ export const services = [
     id: "web-design",
     name: "Web Design",
     tag: "Websites that convert",
+    // `fixes`: the pain from the Problem section this service kills — rendered on the homepage
+    // cards so the reader maps offer→pain instantly. (Not used on the /services detail page.)
+    fixes: "Fixes the slow site leaking leads",
     blurb:
       "Lightning-fast, mobile-first websites engineered to turn visitors into booked jobs — not just look pretty.",
     points: [
       "Conversion-focused design",
       "Built for speed & SEO",
-      "Live in 14 days",
+      "Live in 20 days",
     ],
     accent: "blue",
   },
@@ -42,6 +45,7 @@ export const services = [
     id: "ai-chatbots",
     name: "AI Chatbots",
     tag: "Never miss a lead",
+    fixes: "Fixes missed calls & midnight follow-up",
     blurb:
       "Custom-trained AI assistants that answer questions, qualify leads and book appointments 24/7 — in your voice.",
     points: [
@@ -52,22 +56,10 @@ export const services = [
     accent: "teal",
   },
   {
-    id: "email-marketing",
-    name: "Email Marketing",
-    tag: "Turn leads into regulars",
-    blurb:
-      "Psychology-driven campaigns and automations that warm up cold leads and bring past customers back.",
-    points: [
-      "Done-for-you campaigns",
-      "Automated follow-ups",
-      "Win-back sequences",
-    ],
-    accent: "blue",
-  },
-  {
     id: "paid-ads",
     name: "Paid Ads",
     tag: "Leads on demand",
+    fixes: "Fixes not enough enquiries",
     blurb:
       "Google and Meta ad campaigns managed for one thing only: more qualified enquiries at a price that pays back.",
     points: [
@@ -75,7 +67,9 @@ export const services = [
       "Lead-generation focused",
       "Transparent reporting",
     ],
-    accent: "teal",
+    // blue so the three cards alternate blue-teal-blue (web / chatbots / ads) now that the
+    // fourth service is gone; two teal cards would otherwise sit adjacent.
+    accent: "blue",
   },
 ] as const;
 
@@ -96,7 +90,7 @@ export const process = [
     step: "03",
     title: "Launch & Grow",
     blurb:
-      "Live in 14 days. Your calendar starts filling while you focus on the work you actually do best.",
+      "Live in 20 days. Your calendar starts filling while you focus on the work you actually do best.",
   },
 ] as const;
 
@@ -119,7 +113,10 @@ export type Plan = {
   id: string;
   name: string;
   monthly: number;
+  /** Founding-partner setup price (currently 50% off the full price). */
   onboarding: number;
+  /** Full (post-founding) setup price — shown struck through so the discount is visible. */
+  fullOnboarding: number;
   blurb: string;
   deliveryDays: number;
   featured?: boolean;
@@ -130,17 +127,19 @@ export const plans: Plan[] = [
     id: "growth",
     name: "Growth",
     monthly: 90,
-    onboarding: 600,
+    onboarding: 500,
+    fullOnboarding: 1000,
     blurb: "Everything a growing service business needs to look the part and capture every lead.",
-    deliveryDays: 14,
+    deliveryDays: 20,
   },
   {
     id: "mastery",
     name: "Mastery",
     monthly: 120,
-    onboarding: 750,
+    onboarding: 650,
+    fullOnboarding: 1300,
     blurb: "The full AI-powered growth engine — smarter chatbot, sharper site, deeper SEO.",
-    deliveryDays: 20,
+    deliveryDays: 25,
     featured: true,
   },
 ];
@@ -163,18 +162,18 @@ export const pricingFeatures: PricingFeatureRow[] = [
   { label: "Standard on-page SEO", growth: true, mastery: true },
   { label: "Advanced SEO package", growth: false, mastery: true },
   { label: "3D elements & advanced animations", growth: false, mastery: true },
-  { label: "Delivery", growth: "14 days", mastery: "20 days" },
+  { label: "Delivery", growth: "20 days", mastery: "25 days" },
 ];
 
 export const oneOffProjects = [
   {
     name: "AI Chatbot Setup",
-    price: "£750 + £80/mo",
+    price: "£200 + £60/mo",
     blurb: "Add a custom-trained AI assistant to your existing website.",
   },
   {
     name: "Ad Campaign Setup",
-    price: "from £500",
+    price: "£180",
     blurb: "A fully-built Google or Meta campaign, ready to launch.",
   },
 ] as const;
@@ -182,11 +181,11 @@ export const oneOffProjects = [
 export const faqs = [
   {
     q: "You're a newer agency — why should I trust you?",
-    a: "We're new, but we're hungry, and we back it up. Our first clients saw results fast and you can read their words on this page. Plus our 14-day delivery guarantee means the risk sits with us, not you.",
+    a: "We're new, but we're hungry, and we back it up. Our first clients saw results fast and you can read their words on this page. Plus our delivery guarantee means the risk sits with us, not you: miss the timeline, and you don't pay the setup.",
   },
   {
     q: "How long does it take to build?",
-    a: "Most projects go live in 7–14 days. More complex builds can take up to 21 days. You'll know your exact timeline before we start a thing.",
+    a: "Growth builds go live in 20 days, Mastery in 25. You'll know your exact timeline before we start a thing — and if we miss it, you don't pay the setup.",
   },
   {
     q: "Is there a long contract?",

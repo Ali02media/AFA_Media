@@ -5,7 +5,11 @@ import { site } from "@/lib/site";
 import { NavMenu } from "@/components/layout/nav-menu";
 import { Footer } from "@/components/layout/footer";
 import { CalProvider } from "@/components/cal";
+import { JsonLd } from "@/components/json-ld";
+import { globalGraph } from "@/lib/schema";
 import { ViewTransitions } from "next-view-transitions";
+// Vercel Analytics + Speed Insights (see components/analytics.tsx for why they're wrapped).
+import { SiteAnalytics } from "@/components/analytics";
 
 // Nunito, self-hosted by next/font (NOT the <link> embed from Google Fonts): Next downloads
 // the file at build time and serves it from our own origin, so there's no third-party
@@ -46,7 +50,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.name} — Marketing That Gets Your Phone Ringing`,
+    // Homepage <title> is keyword-forward (brand + the three services + audience, ~59 chars) so
+    // it ranks for the service queries — the benefit hook ("phone ringing") lives on the OG /
+    // Twitter titles below, where CTR on a social share matters more than keyword match.
+    default: `${site.name} — Web Design, AI Chatbots & Ads for UK Businesses`,
     template: `%s · ${site.name}`,
   },
   description: site.description,
@@ -54,7 +61,6 @@ export const metadata: Metadata = {
     "UK marketing agency",
     "web design",
     "AI chatbots",
-    "email marketing",
     "Google ads",
     "Meta ads",
     "service business marketing",
@@ -91,12 +97,15 @@ export default function RootLayout({
         className={`${nunito.variable} ${montserrat.variable} h-full antialiased`}
       >
         <body className="flex min-h-full flex-col bg-ink text-foreground">
+          {/* Global entity graph (Organization/ProfessionalService + WebSite) on every page. */}
+          <JsonLd data={globalGraph} />
           <CalProvider />
           <NavMenu />
           <main className="relative z-10 flex-1">{children}</main>
           <div className="relative z-10">
             <Footer />
           </div>
+          <SiteAnalytics />
         </body>
       </html>
     </ViewTransitions>

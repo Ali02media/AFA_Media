@@ -4,7 +4,7 @@ import { Container } from "@/components/ui/section";
 
 export default function NotFound() {
   return (
-    <main className="relative flex min-h-[100svh] items-center">
+    <div className="relative flex min-h-[100svh] items-center">
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <div className="orb orb-blue absolute left-1/3 top-1/3 h-[500px] w-[500px] opacity-20" />
       </div>
@@ -29,6 +29,6 @@ export default function NotFound() {
           </Link>
         </div>
       </Container>
-    </main>
+    </div>
   );
 }

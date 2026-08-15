@@ -456,6 +456,13 @@ export const LaserFlow = ({
 
     let raf = 0;
 
+    // Don't render faster than ~70fps. On a 60Hz display this is a no-op (every frame still
+    // renders); on a 120/144Hz display it roughly halves the shader's GPU work while the slow
+    // fog/laser drift stays visually identical. Time comes from the real clock below, so the
+    // motion SPEED is unchanged — there are just no redundant frames on high-refresh monitors.
+    const minFrameMs = 1000 / 75;
+    let lastRenderMs = 0;
+
     const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
     const dprFloor = 0.6;
     const lowerThresh = 50;
@@ -496,6 +503,12 @@ export const LaserFlow = ({
     const animate = () => {
       raf = requestAnimationFrame(animate);
       if (pausedRef.current || !inViewRef.current) return;
+
+      // Throttle to the ~70fps cap (schedule every frame for input responsiveness, but only
+      // render when enough time has passed). No-op on 60Hz; halves work on high-refresh.
+      const nowThrottle = performance.now();
+      if (nowThrottle - lastRenderMs < minFrameMs) return;
+      lastRenderMs = nowThrottle;
 
       const t = clock.getElapsedTime();
       const dt = Math.max(0, t - prevTime);

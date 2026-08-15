@@ -117,7 +117,11 @@ export function NavMenu() {
           aria-expanded={open}
           aria-controls="nav-panel"
           aria-label={open ? "Close menu" : "Open menu"}
-          className="cta-type flex cursor-pointer items-center gap-2 text-xs uppercase tracking-wide text-foreground sm:text-sm"
+          // `py-2` exists purely to grow the tap target: the label is a 16px text line, which is
+          // under the 24px minimum in WCAG 2.2 (2.5.8 Target Size). Padding takes the hit area to
+          // 32px WITHOUT any visual change — the row is `items-center` and its height is already
+          // set by the taller 40px "Book a Call" button, so nothing moves.
+          className="cta-type flex cursor-pointer items-center gap-2 py-2 text-xs uppercase tracking-wide text-foreground sm:text-sm"
         >
           {/* Burger → X. Two lines built from pseudo-elements, rotated when open. */}
           <span className="relative block w-[22.5px]" aria-hidden="true">
@@ -196,8 +200,10 @@ export function NavMenu() {
               ))}
               <ul className="w-1/2 overflow-hidden lg:w-auto">
                 <li className="js-footer-item flex gap-4 will-change-[transform,opacity]">
-                  <Link href="/privacy" onClick={() => setOpen(false)} className="hover:text-foreground">Privacy</Link>
-                  <Link href="/terms" onClick={() => setOpen(false)} className="hover:text-foreground">Terms</Link>
+                  {/* `-my-1 py-1` grows these to a 24px+ tap target (WCAG 2.2 2.5.8) with the
+                      negative margin cancelling the padding back out of the layout. */}
+                  <Link href="/privacy" onClick={() => setOpen(false)} className="-my-1 inline-block py-1 hover:text-foreground">Privacy</Link>
+                  <Link href="/terms" onClick={() => setOpen(false)} className="-my-1 inline-block py-1 hover:text-foreground">Terms</Link>
                 </li>
               </ul>
             </div>

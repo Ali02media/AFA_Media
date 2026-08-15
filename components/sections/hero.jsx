@@ -107,7 +107,10 @@ export function Hero() {
         position: 'absolute',
         top: '22vh',
         left: '8%',
-        maxWidth: '640px',
+        // min(640px, 84vw): on desktop it's 640px; on a 360px phone it becomes 84vw so the
+        // block fits (8% left + 84% width) instead of running off the right edge and being
+        // clipped by the hero's overflow:hidden.
+        maxWidth: 'min(640px, 84vw)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-start',
@@ -120,31 +123,34 @@ export function Hero() {
           lineHeight: 1.1,
           color: 'var(--color-hero-fg)',
           maxWidth: '20ch',
-          margin: 0
+          margin: 0,
+          // Subtle shadow so text stays readable where the bright laser beam passes behind it.
+          textShadow: '0 2px 24px rgba(0,0,0,0.55)'
         }}>
-          Your phone ringing again — in 30 days.
+          Your phone ringing again — in 20 days.
         </h1>
         <p style={{
           fontFamily: 'var(--font-sans)',
-          fontSize: '1.125rem',
+          fontSize: '1.2rem',
           lineHeight: 1.6,
-          color: 'var(--color-hero-muted)',
+          color: '#dfe2ec',
           maxWidth: '42ch',
-          marginTop: '1.5rem'
+          marginTop: '1.5rem',
+          textShadow: '0 1px 18px rgba(0,0,0,0.65)'
         }}>
-          AI chatbots that capture every lead, ads that only target buyers ready to book paired with a beautiful site, not a digital brochure. — if it isn&apos;t setup within less than 30 days, you don&apos;t pay.
+          AI chatbots that capture every lead, ads that target only buyers ready to book, and a site built to convert — not a digital brochure. Live in 20 days, or you don&apos;t pay the setup.
         </p>
         {/* Primary + secondary CTA pair. `flexWrap` so they stack rather than overflow on
-            narrow screens. White pill first (Book a Call), dark pill second (See Our Process). */}
+            narrow screens. White pill first (Book a Call), dark pill second (Our Philosophy). */}
         <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           {/* Primary: opens the Cal booking modal, same as every other "Book a Call" on the
               site — calAttrs are the data-cal-* attributes embed.js binds globally. */}
           <ShinyButton variant="light" {...calAttrs}>Book a Call</ShinyButton>
 
-          {/* Secondary: default (dark) variant, navigates to /process so it gets the page
+          {/* Secondary: default (dark) variant, navigates to /philosophy so it gets the page
               transition. */}
-          <ShinyButton href="/process">
-            See Our Process
+          <ShinyButton href="/philosophy">
+            Our Philosophy
           </ShinyButton>
         </div>
       </div>
