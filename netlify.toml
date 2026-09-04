@@ -1,0 +1,46 @@
+# Netlify configuration for AFA Media
+#
+# What lives HERE vs in next.config.ts:
+# next.config.ts already sets the same security headers via async headers(). When Netlify's
+# Next runtime honours that config we get identical headers from both sources — harmless. When
+# it doesn't (some deploy paths only serve headers declared in netlify.toml), THIS file becomes
+# the guarantee that HSTS, CSP, X-Frame-Options and the rest still ship. Also declared here:
+# the /about + /process → /philosophy redirects, for the same "belt and braces" reason.
+#
+# When either file changes, keep both in sync — a mismatched CSP is worse than one missing rule.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+# Next.js on Netlify — Netlify auto-detects but declaring the plugin makes CI failures explicit
+# and prevents accidental "static export" builds if someone runs `next export` in future.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# ─── Security headers ────────────────────────────────────────────────────────────────────────
+# Applied to every path. Values match next.config.ts exactly (see the note at the top).
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://app.cal.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://app.cal.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; frame-src https://app.cal.com https://cal.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+
+# ─── Redirects ──────────────────────────────────────────────────────────────────────────────
+# The old About / Process URLs land on the current Philosophy page. Permanent (301) so any old
+# inbound backlinks carry their SEO value forward. Also declared in next.config.ts.
+[[redirects]]
+  from = "/about"
+  to = "/philosophy"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/process"
+  to = "/philosophy"
+  status = 301
+  force = true

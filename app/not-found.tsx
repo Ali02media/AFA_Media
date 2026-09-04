@@ -1,6 +1,17 @@
+import type { Metadata } from "next";
 import { Link } from "next-view-transitions";
 import { ArrowLeft } from "lucide-react";
 import { Container } from "@/components/ui/section";
+
+// Explicit metadata so the 404 doesn't inherit the site's `index: true` from the root layout.
+// Without this, Next was emitting BOTH `<meta name="robots" content="noindex">` (its built-in
+// 404 default) AND the layout's `<meta name="robots" content="index, follow">`, and Google is
+// free to pick either. Setting robots here overrides the layout, and the title stops the 404
+// showing up as "AFA Media — Web Design…" if it ever does get indexed.
+export const metadata: Metadata = {
+  title: "Page not found",
+  robots: { index: false, follow: false },
+};
 
 export default function NotFound() {
   return (
