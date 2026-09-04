@@ -97,6 +97,23 @@ export default function RootLayout({
         lang="en-GB"
         className={`${nunito.variable} ${montserrat.variable} h-full antialiased`}
       >
+        <head>
+          {/* Warm the Cal.com connection at HTML parse — before React hydrates, before any
+              useEffect runs. `preconnect` runs the DNS + TCP + TLS handshake to Cal's origin
+              in parallel with the page's own load, so when embed.js is finally requested the
+              round-trip cost is already paid. `preload` starts fetching embed.js itself at the
+              same time, so it sits in the browser cache waiting; the moment CalProvider's
+              bootstrap appends the <script> tag, it resolves from cache rather than the wire.
+              Between them these turn a ~600–900 ms cold Cal boot into a near-instant one on
+              every page, with zero effect on the initial paint. */}
+          <link rel="preconnect" href="https://app.cal.com" crossOrigin="anonymous" />
+          <link
+            rel="preload"
+            href="https://app.cal.com/embed/embed.js"
+            as="script"
+            crossOrigin="anonymous"
+          />
+        </head>
         <body className="flex min-h-full flex-col bg-ink text-foreground">
           {/* Global entity graph (Organization/ProfessionalService + WebSite) on every page. */}
           <JsonLd data={globalGraph} />

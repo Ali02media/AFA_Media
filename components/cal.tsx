@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { CalSkeleton } from "@/components/cal-skeleton";
 import { site } from "@/lib/site";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -108,10 +109,12 @@ export function CalInline() {
     const el = document.getElementById("cal-inline");
     if (!el || el.dataset.calInit === "1") return;
 
-    // Lazy init (mirrors booking-calendar.tsx): only load Cal's third-party iframe once the
-    // embed scrolls within ~600px of the viewport, not on page load. The fixed-height container
-    // reserves the space so there's no layout shift. Only the inline instance — no second
-    // `init`/`ui` pass (CalProvider owns bootstrap + `ui`; Bugs 21 + 22).
+    // Eager init: mount the iframe on mount, not on scroll. On /contact the calendar is the
+    // primary content of the page — waiting for scroll made no sense, and it's what made the
+    // owner call the calendar "slow". Only the inline instance — no second `init`/`ui` pass
+    // (CalProvider owns bootstrap + `ui`; Bugs 21 + 22). Deferred behind requestIdleCallback so
+    // it doesn't fight the page's initial paint. The layout's <link preconnect> + <link preload>
+    // for app.cal.com mean embed.js is already cached when init runs.
     const init = () => {
       if (el.dataset.calInit === "1") return;
       el.dataset.calInit = "1";
@@ -123,23 +126,28 @@ export function CalInline() {
       });
     };
 
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          init();
-          io.disconnect();
-        }
-      },
-      { rootMargin: "600px" },
-    );
-    io.observe(el);
-    return () => io.disconnect();
+    const w = window as unknown as {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+    };
+    const handle = w.requestIdleCallback
+      ? w.requestIdleCallback(init, { timeout: 1000 })
+      : (window.setTimeout(init, 0) as unknown as number);
+
+    return () => {
+      const cancel = (window as unknown as { cancelIdleCallback?: (h: number) => void })
+        .cancelIdleCallback;
+      if (cancel) cancel(handle);
+      else window.clearTimeout(handle);
+    };
   }, []);
   return (
+    // `relative` anchors the skeleton; Cal's opaque iframe covers it once it paints.
     <div
       id="cal-inline"
-      className="min-h-[640px] w-full overflow-hidden rounded-2xl"
+      className="relative min-h-[640px] w-full overflow-hidden rounded-2xl"
       style={{ height: "640px" }}
-    />
+    >
+      <CalSkeleton />
+    </div>
   );
 }

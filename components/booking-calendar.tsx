@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { getCal } from "@/components/cal";
+import { CalSkeleton } from "@/components/cal-skeleton";
 import { site } from "@/lib/site";
 
 // Cal.com INLINE embed — the booking calendar rendered directly on the page.
@@ -20,11 +21,15 @@ export function BookingCalendar({
     const el = document.getElementById(EMBED_EL_ID);
     if (!el || el.dataset.calInit === "1") return;
 
-    // Lazy init: only load Cal's third-party iframe once the calendar scrolls within ~600px of
-    // the viewport, instead of on page load. The CTA (and this calendar) sits at the BOTTOM of
-    // 4 pages — loading a live cross-origin booking iframe immediately on every one of them is a
-    // heavy, wasted cost before anyone scrolls to it. The fixed-height container reserves the
-    // space so there's no layout shift when it fills in.
+    // Eager init: kick off the inline iframe as soon as the component mounts, so it's ready
+    // before the user scrolls to it. We used to gate this behind an IntersectionObserver, but
+    // that meant a fast scroller hit the CTA before the iframe had even started loading, which
+    // is exactly the "slow calendar" the owner complained about. The layout's <link preconnect>
+    // + <link preload> for app.cal.com have already warmed the network and cached embed.js by
+    // the time we get here, so this useEffect just wires the iframe to a hot connection.
+    //
+    // We do defer past first paint via requestIdleCallback so the calendar's boot never
+    // competes with the hero shader on the initial render.
     // (CalProvider owns bootstrap + `ui`; this only asks for the inline instance. The dataset
     // guard also prevents StrictMode double-mount from re-initialising the same element.)
     const init = () => {
@@ -38,17 +43,19 @@ export function BookingCalendar({
       });
     };
 
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          init();
-          io.disconnect();
-        }
-      },
-      { rootMargin: "600px" },
-    );
-    io.observe(el);
-    return () => io.disconnect();
+    const w = window as unknown as {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+    };
+    const handle = w.requestIdleCallback
+      ? w.requestIdleCallback(init, { timeout: 1000 })
+      : (window.setTimeout(init, 0) as unknown as number);
+
+    return () => {
+      const cancel = (window as unknown as { cancelIdleCallback?: (h: number) => void })
+        .cancelIdleCallback;
+      if (cancel) cancel(handle);
+      else window.clearTimeout(handle);
+    };
   }, []);
 
   return (
@@ -60,7 +67,13 @@ export function BookingCalendar({
       // first and only chained to the page once it hit its end, which reads as the page
       // "sticking". Cal sizes its own iframe to its content, so no scrollbar is needed here;
       // `hidden` also stops it ever becoming a scroll container again.
-      style={{ width: "100%", height: "100%", overflow: "hidden", ...style }}
-    />
+      //
+      // `position: relative` anchors the skeleton behind Cal's injected iframe: the iframe's
+      // opaque background paints over it the instant Cal boots, so the skeleton effectively
+      // fades to nothing on its own — no timers, no MutationObserver.
+      style={{ width: "100%", height: "100%", overflow: "hidden", position: "relative", ...style }}
+    >
+      <CalSkeleton />
+    </div>
   );
 }
