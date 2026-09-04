@@ -35,6 +35,12 @@ const dataUses = [
     basis: "Consent",
     kept: "14 months",
   },
+  {
+    what: "Anonymised session recordings and heatmaps — mouse movements, clicks, scrolls",
+    why: "To see where visitors get stuck and improve the site's usability",
+    basis: "Consent",
+    kept: "13 months (Microsoft Clarity default)",
+  },
 ];
 
 export default function PrivacyPage() {
@@ -44,7 +50,7 @@ export default function PrivacyPage() {
         <h1 className="font-display text-4xl font-semibold text-foreground sm:text-5xl">
           Privacy Policy
         </h1>
-        <p className="mt-4 text-sm text-mist-dim">Last updated: August 2026</p>
+        <p className="mt-4 text-sm text-mist-dim">Last updated: September 2026</p>
 
         <div className="prose-afa mt-12 space-y-10 text-[15px] leading-relaxed text-mist">
           <section>
@@ -125,6 +131,7 @@ export default function PrivacyPage() {
               {[
                 "Cal.com — booking and scheduling for discovery calls",
                 "Google (Workspace, Tag Manager and Analytics) — email, documents, and website analytics",
+                "Microsoft Clarity — anonymised session recordings and heatmaps (US-based; you have to press Accept on the cookie banner for it to load at all)",
                 "Netlify — website hosting and delivery",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2.5">
@@ -155,15 +162,24 @@ export default function PrivacyPage() {
             <p className="mt-3">
               We use essential cookies (session state) which are required for the site to work,
               and — only with your consent — analytics cookies delivered by Google Tag Manager
-              (which loads Google Analytics 4).
+              (which loads Google Analytics 4) and session-replay cookies from Microsoft Clarity.
             </p>
             <p className="mt-4">
               Analytics cookies (<code className="text-mist-dim">_ga</code>,{" "}
               <code className="text-mist-dim">_ga_*</code>) tell us which pages people visit and
-              how they found us. They are{" "}
-              <strong className="text-foreground">off by default</strong>. Nothing is stored on
-              your device unless you press &quot;Accept&quot; on the cookie banner, and declining
-              takes one click.
+              how they found us. Clarity cookies (
+              <code className="text-mist-dim">_clck</code>,{" "}
+              <code className="text-mist-dim">_clsk</code>) let us replay anonymised recordings
+              of visitor sessions and see where people click. All of them are{" "}
+              <strong className="text-foreground">off by default</strong>. Nothing is stored or
+              recorded on your device unless you press &quot;Accept&quot; on the cookie banner,
+              and declining takes one click.
+            </p>
+            <p className="mt-4">
+              Clarity masks sensitive input by default — password fields, credit-card numbers,
+              anything the site marks private. It does not record keystrokes in normal text
+              inputs; it records mouse movement, clicks and scrolls to reveal usability
+              problems.
             </p>
             <p className="mt-4">
               IP addresses are anonymised. We use no advertising, remarketing or cross-site
@@ -171,7 +187,7 @@ export default function PrivacyPage() {
             </p>
             <p className="mt-4">
               To change your mind, clear this site&apos;s data in your browser and the banner will
-              reappear. You can also opt out of Google Analytics everywhere using Google&apos;s{" "}
+              reappear. You can opt out of Google Analytics everywhere using Google&apos;s{" "}
               <a
                 href="https://tools.google.com/dlpage/gaoptout"
                 className="text-brand-blue-light hover:text-brand-blue transition-colors"
@@ -179,6 +195,15 @@ export default function PrivacyPage() {
                 rel="noopener noreferrer"
               >
                 browser add-on
+              </a>
+              , and Microsoft explains Clarity&apos;s own controls in its{" "}
+              <a
+                href="https://learn.microsoft.com/en-us/clarity/faq"
+                className="text-brand-blue-light hover:text-brand-blue transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                privacy FAQ
               </a>
               .
             </p>

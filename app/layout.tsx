@@ -11,6 +11,8 @@ import { ViewTransitions } from "next-view-transitions";
 // GTM (with GA4 delivered inside it) behind Consent Mode, plus the banner that grants/denies it.
 import { SiteAnalytics, GtmNoscript } from "@/components/analytics";
 import { CookieConsent } from "@/components/cookie-consent";
+// Microsoft Clarity — session replays. Loaded only AFTER the visitor accepts on the banner.
+import { Clarity } from "@/components/clarity";
 
 // Nunito, self-hosted by next/font (NOT the <link> embed from Google Fonts): Next downloads
 // the file at build time and serves it from our own origin, so there's no third-party
@@ -128,6 +130,7 @@ export default function RootLayout({
             <Footer />
           </div>
           <SiteAnalytics />
+          <Clarity />
           <CookieConsent />
         </body>
       </html>

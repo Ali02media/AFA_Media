@@ -21,11 +21,14 @@ const csp = [
   "default-src 'self'",
   // googletagmanager.com serves gtag.js (GA4). google-analytics.com is where the measurement
   // beacons are POSTed — without it in connect-src every hit is silently blocked.
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://app.cal.com https://www.googletagmanager.com`,
+  // clarity.ms serves Microsoft Clarity's tracking snippet (session replays + heatmaps).
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://app.cal.com https://www.googletagmanager.com https://www.clarity.ms`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://app.cal.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com",
+  // *.clarity.ms covers the collector endpoints Clarity POSTs session data to (a.clarity.ms,
+  // b.clarity.ms, region-specific hosts) — without this the recordings fail silently.
+  "connect-src 'self' https://app.cal.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://*.clarity.ms",
   // googletagmanager.com is needed for GTM's <noscript> iframe fallback (JS-disabled visitors).
   "frame-src https://app.cal.com https://cal.com https://www.googletagmanager.com",
   "object-src 'none'",

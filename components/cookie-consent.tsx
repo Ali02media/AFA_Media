@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Link } from "next-view-transitions";
 
 const STORAGE_KEY = "afa-cookie-consent";
+export const CONSENT_EVENT = "afa:consent-changed";
 type Choice = "granted" | "denied";
 
 function setConsent(choice: Choice) {
@@ -11,6 +12,11 @@ function setConsent(choice: Choice) {
   // Consent Mode update. Only `analytics_storage` is ever granted — we run no advertising or
   // remarketing tags, so the ad_* signals stay denied permanently.
   gtag?.("consent", "update", { analytics_storage: choice });
+  // Fire a same-tab event so consent-gated components (Microsoft Clarity in particular) can
+  // load themselves the moment consent flips to granted, without the visitor needing to reload
+  // the page. localStorage doesn't emit a 'storage' event in the tab that changed it — that
+  // event only fires in OTHER tabs — so we need our own signal for the current tab.
+  window.dispatchEvent(new CustomEvent(CONSENT_EVENT, { detail: choice }));
 }
 
 /**
@@ -70,8 +76,9 @@ export function CookieConsent() {
           An opaque surface makes contrast deterministic on every page. */}
       <div className="mx-auto flex max-w-3xl flex-col gap-4 rounded-2xl border border-line bg-white p-5 shadow-xl sm:flex-row sm:items-center sm:gap-6 sm:p-6">
         <p className="flex-1 text-sm leading-relaxed text-mist">
-          We use analytics cookies to understand how visitors use the site. They&apos;re optional
-          — decline and nothing is stored on your device. See our{" "}
+          We use analytics cookies and anonymised session recordings to understand how visitors
+          use the site — sensitive fields like forms are masked. They&apos;re optional: decline
+          and nothing is stored or recorded. See our{" "}
           <Link
             href="/privacy"
             className="text-brand-blue-light underline underline-offset-2 transition-colors hover:text-brand-blue"
