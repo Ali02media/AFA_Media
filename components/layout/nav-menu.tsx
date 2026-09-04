@@ -29,8 +29,24 @@ gsap.registerPlugin(useGSAP);
 //     hover blur effect is kept.
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-/** Matches the demo's cubic-bezier(0.76, 0, 0.24, 1) — the same curve as the page transition. */
-const EASE = "power3.inOut";
+// `power2.out` = decelerating curve: motion starts fast (immediate feedback on click) then
+// eases into rest (soft landing). Reversed by GSAP for close, it becomes `power2.in` —
+// accelerating out — which reads as the panel snapping shut. This is the standard
+// enter-decelerate / exit-accelerate pattern that makes menus feel "alive".
+//
+// The old EASE was `power3.inOut` with 1s durations. That is a heavy S-curve where BOTH ends
+// are slow, so the first ~200ms after a click showed nothing moving — hence the "delayed"
+// feel the owner reported. Replaced together as one change because a shorter duration under
+// power3.inOut still starts sluggish; a snappier ease is what actually solves it.
+const EASE = "power2.out";
+const DUR = 0.5;   // panel + backdrop expand — was 1s
+const FADE = 0.22; // burger→X, label cross-fade, CTA fade-out — was 0.35–1s
+const CHAR_START = 0.12;   // was 0.2, tightens the gap before letters appear
+const CHAR_DUR = 0.5;      // was 1
+const CHAR_STAGGER = 0.015; // was 0.02
+const FOOTER_START = 0.22;  // was 0.4
+const FOOTER_DUR = 0.4;     // was 1
+const FOOTER_STAGGER = 0.03; // was 0.05
 
 export function NavMenu() {
   const root = useRef<HTMLElement>(null);
@@ -48,13 +64,21 @@ export function NavMenu() {
       tl.current = gsap
         .timeline({ paused: true })
         // height:auto — GSAP measures the natural height, so the panel fits whatever's inside.
-        .to(".js-panel", { height: "auto", duration: 1, ease: EASE }, 0)
-        .to(".js-backdrop", { height: "100vh", duration: 1, ease: EASE }, 0)
-        .to(".js-label-menu", { opacity: 0, duration: 0.35 }, 0)
-        .to(".js-label-close", { opacity: 1, duration: 0.35 }, 0)
-        .to(".js-cta", { opacity: 0, duration: 0.35 }, 0)
-        .to(chars, { yPercent: 0, opacity: 1, duration: 1, ease: EASE, stagger: 0.02 }, 0.2)
-        .to(footerItems, { yPercent: 0, opacity: 1, duration: 1, ease: EASE, stagger: 0.05 }, 0.4);
+        .to(".js-panel", { height: "auto", duration: DUR, ease: EASE }, 0)
+        .to(".js-backdrop", { height: "100vh", duration: DUR, ease: EASE }, 0)
+        .to(".js-label-menu", { opacity: 0, duration: FADE }, 0)
+        .to(".js-label-close", { opacity: 1, duration: FADE }, 0)
+        .to(".js-cta", { opacity: 0, duration: FADE }, 0)
+        .to(
+          chars,
+          { yPercent: 0, opacity: 1, duration: CHAR_DUR, ease: EASE, stagger: CHAR_STAGGER },
+          CHAR_START,
+        )
+        .to(
+          footerItems,
+          { yPercent: 0, opacity: 1, duration: FOOTER_DUR, ease: EASE, stagger: FOOTER_STAGGER },
+          FOOTER_START,
+        );
     },
     { scope: root },
   );
@@ -123,15 +147,22 @@ export function NavMenu() {
           // set by the taller 40px "Book a Call" button, so nothing moves.
           className="cta-type flex cursor-pointer items-center gap-2 py-2 text-xs uppercase tracking-wide text-foreground sm:text-sm"
         >
-          {/* Burger → X. Two lines built from pseudo-elements, rotated when open. */}
+          {/* Burger → X. Two lines built from pseudo-elements, rotated when open. Duration +
+              easing live in an inline style rather than the Tailwind `duration-[...]` +
+              `[transition-timing-function:...]` classes: in v4 those arbitrary utilities feed a
+              `--tw-duration` custom property that `transition-all` was resetting to 0s, so the
+              lines snapped rather than animated. Inline style writes the property directly and
+              wins. */}
           <span className="relative block w-[22.5px]" aria-hidden="true">
             <span
-              className={`block h-px w-full bg-foreground transition-all duration-[1000ms] [transition-timing-function:cubic-bezier(0.76,0,0.24,1)] ${
+              style={{ transition: "transform 350ms cubic-bezier(0.33, 1, 0.68, 1)" }}
+              className={`block h-px w-full bg-foreground ${
                 open ? "translate-y-[1px] rotate-45" : "-translate-y-[4px]"
               }`}
             />
             <span
-              className={`block h-px w-full bg-foreground transition-all duration-[1000ms] [transition-timing-function:cubic-bezier(0.76,0,0.24,1)] ${
+              style={{ transition: "transform 350ms cubic-bezier(0.33, 1, 0.68, 1)" }}
+              className={`block h-px w-full bg-foreground ${
                 open ? "-translate-y-[0px] -rotate-45" : "translate-y-[4px]"
               }`}
             />
