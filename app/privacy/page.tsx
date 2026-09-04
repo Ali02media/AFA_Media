@@ -124,7 +124,7 @@ export default function PrivacyPage() {
             <ul className="mt-3 space-y-2 pl-4">
               {[
                 "Cal.com — booking and scheduling for discovery calls",
-                "Google (Workspace and Analytics) — email, documents, and website analytics",
+                "Google (Workspace, Tag Manager and Analytics) — email, documents, and website analytics",
                 "Netlify — website hosting and delivery",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2.5">
@@ -154,7 +154,8 @@ export default function PrivacyPage() {
             <h2 className="font-display text-xl font-semibold text-foreground">Cookies</h2>
             <p className="mt-3">
               We use essential cookies (session state) which are required for the site to work,
-              and — only with your consent — analytics cookies from Google Analytics 4.
+              and — only with your consent — analytics cookies delivered by Google Tag Manager
+              (which loads Google Analytics 4).
             </p>
             <p className="mt-4">
               Analytics cookies (<code className="text-mist-dim">_ga</code>,{" "}

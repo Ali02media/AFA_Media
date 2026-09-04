@@ -8,8 +8,8 @@ import { CalProvider } from "@/components/cal";
 import { JsonLd } from "@/components/json-ld";
 import { globalGraph } from "@/lib/schema";
 import { ViewTransitions } from "next-view-transitions";
-// GA4 behind Consent Mode, plus the banner that grants/denies it.
-import { SiteAnalytics } from "@/components/analytics";
+// GTM (with GA4 delivered inside it) behind Consent Mode, plus the banner that grants/denies it.
+import { SiteAnalytics, GtmNoscript } from "@/components/analytics";
 import { CookieConsent } from "@/components/cookie-consent";
 
 // Nunito, self-hosted by next/font (NOT the <link> embed from Google Fonts): Next downloads
@@ -115,6 +115,10 @@ export default function RootLayout({
           />
         </head>
         <body className="flex min-h-full flex-col bg-ink text-foreground">
+          {/* GTM's <noscript> iframe MUST be the first child of <body>, per Google's install
+              docs — it's what lets tags fire on browsers with JavaScript disabled. Rendered
+              only when NEXT_PUBLIC_GTM_ID is set. */}
+          <GtmNoscript />
           {/* Global entity graph (Organization/ProfessionalService + WebSite) on every page. */}
           <JsonLd data={globalGraph} />
           <CalProvider />

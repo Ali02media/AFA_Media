@@ -26,7 +26,8 @@ const csp = [
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   "connect-src 'self' https://app.cal.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com",
-  "frame-src https://app.cal.com https://cal.com",
+  // googletagmanager.com is needed for GTM's <noscript> iframe fallback (JS-disabled visitors).
+  "frame-src https://app.cal.com https://cal.com https://www.googletagmanager.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
