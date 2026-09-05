@@ -35,9 +35,7 @@ export default function PricingPage() {
 
       <section className="pb-20">
         <Container>
-          <Reveal>
-            <PricingComparison />
-          </Reveal>
+          <PricingComparison />
         </Container>
       </section>
 
@@ -57,25 +55,22 @@ export default function PricingPage() {
           </Reveal>
 
           <div className="mt-10 grid gap-6 md:grid-cols-2">
-            {oneOffProjects.map((project, i) => (
-              <Reveal key={project.name} delay={i * 0.06}>
-                <div className="group h-full rounded-2xl border border-line bg-ink-2 p-8 transition-all duration-300 hover:-translate-y-1 hover:border-brand-blue/25 hover:bg-ink-3">
-                  <h3 className="font-display text-xl font-semibold text-foreground">
-                    {project.name}
-                  </h3>
-                  <p className="mt-3 font-display text-2xl font-bold text-gradient">
-                    {project.price}
-                  </p>
-                  <p className="mt-3 text-sm leading-relaxed text-mist">
-                    {project.blurb}
-                  </p>
-                </div>
-              </Reveal>
+            {oneOffProjects.map((project) => (
+              <div key={project.name} className="group h-full rounded-2xl border border-line bg-ink-2 p-8 transition-all duration-300 hover:-translate-y-1 hover:border-brand-blue/25 hover:bg-ink-3">
+                <h3 className="font-display text-xl font-semibold text-foreground">
+                  {project.name}
+                </h3>
+                <p className="mt-3 font-display text-2xl font-bold text-gradient">
+                  {project.price}
+                </p>
+                <p className="mt-3 text-sm leading-relaxed text-mist">
+                  {project.blurb}
+                </p>
+              </div>
             ))}
           </div>
 
-          <Reveal delay={0.1}>
-            <div className="border-gradient mt-8 flex flex-col items-center gap-4 rounded-3xl bg-ink-2/40 px-8 py-8 text-center sm:flex-row sm:text-left">
+          <div className="border-gradient mt-8 flex flex-col items-center gap-4 rounded-3xl bg-ink-2/40 px-8 py-8 text-center sm:flex-row sm:text-left">
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-brand">
                 <ShieldCheck className="h-7 w-7 text-white" />
               </div>
@@ -88,8 +83,7 @@ export default function PricingPage() {
                   late, you don&apos;t pay for the setup. Simple as that.
                 </p>
               </div>
-            </div>
-          </Reveal>
+          </div>
         </Container>
       </section>
 

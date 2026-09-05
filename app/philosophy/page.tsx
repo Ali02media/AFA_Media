@@ -124,7 +124,6 @@ export default function PhilosophyPage() {
 
           {/* The two traps, as a contrasting pair. */}
           <div className="mt-14 grid gap-5 lg:grid-cols-2">
-            <Reveal>
               <div className="h-full rounded-2xl border border-line bg-ink-2 p-8 sm:p-10">
                 <Label>Option 1 — the big agency</Label>
                 <h2 className="font-display text-2xl font-semibold text-foreground sm:text-3xl">
@@ -149,9 +148,7 @@ export default function PhilosophyPage() {
                   </p>
                 </div>
               </div>
-            </Reveal>
 
-            <Reveal delay={0.08}>
               <div className="h-full rounded-2xl border border-line bg-ink-2 p-8 sm:p-10">
                 <Label>Option 2 — the cheap builder</Label>
                 <h2 className="font-display text-2xl font-semibold text-foreground sm:text-3xl">
@@ -176,11 +173,9 @@ export default function PhilosophyPage() {
                   </p>
                 </div>
               </div>
-            </Reveal>
           </div>
 
           {/* The third option — the resolution, given visual weight. */}
-          <Reveal delay={0.1}>
             <div className="border-gradient mt-5 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-blue/10 to-brand-teal/10 p-8 sm:p-12">
               <Label>The third option</Label>
               <h2 className="max-w-3xl font-display text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl">
@@ -209,7 +204,6 @@ export default function PhilosophyPage() {
                 </p>
               </div>
             </div>
-          </Reveal>
         </Container>
       </section>
 
@@ -236,7 +230,6 @@ export default function PhilosophyPage() {
           {/* Stat row */}
           <div className="mt-16 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line lg:grid-cols-4">
             {engineeringStats.map((s, i) => (
-              <Reveal key={s.stat} delay={i * 0.06}>
                 <div className="h-full bg-ink px-6 py-8">
                   <div className="font-mono text-3xl font-medium tracking-tight text-foreground sm:text-4xl">
                     {s.stat}
@@ -245,13 +238,11 @@ export default function PhilosophyPage() {
                     {s.note}
                   </p>
                 </div>
-              </Reveal>
             ))}
           </div>
 
           {/* Three things that make it different — reframed to what it means for the client. */}
           <div className="mt-20 grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
-            <Reveal>
               <div>
                 <Label>Why our sites don&apos;t look like the cheap ones</Label>
                 <h3 className="font-display text-2xl font-semibold text-foreground sm:text-3xl">
@@ -270,9 +261,7 @@ export default function PhilosophyPage() {
                   </p>
                 </div>
               </div>
-            </Reveal>
 
-            <Reveal delay={0.08}>
               <ul className="space-y-5">
                 {[
                   ["A real person leads every build.", "Smart tools do the heavy lifting fast; a designer makes sure it looks right and actually sells for you. You never get handed a generic template with your logo pasted on."],
@@ -288,12 +277,10 @@ export default function PhilosophyPage() {
                   </li>
                 ))}
               </ul>
-            </Reveal>
           </div>
 
           {/* The vault + performance, as a pair */}
           <div className="mt-20 grid gap-5 lg:grid-cols-2">
-            <Reveal>
               <div className="h-full rounded-2xl border border-line bg-ink p-8 sm:p-10">
                 <Label>What you&apos;re getting</Label>
                 <h3 className="font-display text-2xl font-semibold text-foreground">
@@ -314,9 +301,7 @@ export default function PhilosophyPage() {
                   ))}
                 </ul>
               </div>
-            </Reveal>
 
-            <Reveal delay={0.08}>
               <div className="h-full rounded-2xl border border-line bg-ink p-8 sm:p-10">
                 <Label>Fast, and flawless on a phone</Label>
                 <h3 className="font-display text-2xl font-semibold text-foreground">
@@ -337,15 +322,12 @@ export default function PhilosophyPage() {
                   ))}
                 </ul>
               </div>
-            </Reveal>
           </div>
 
           {/* Bridge — now leads into the interactive work showcase directly below. */}
-          <Reveal delay={0.1}>
             <p className="mx-auto mt-16 max-w-2xl text-center font-display text-xl font-medium leading-snug text-foreground sm:text-2xl">
               Rather than take our word for it, see it.
             </p>
-          </Reveal>
         </Container>
       </section>
 
@@ -368,11 +350,9 @@ export default function PhilosophyPage() {
           </Reveal>
         </Container>
 
-        <Reveal delay={0.08}>
           <div className="mt-14">
             <WorkShowcase />
           </div>
-        </Reveal>
       </section>
 
       {/* ─────────────────────────────────────────────────────────────────────
@@ -398,7 +378,6 @@ export default function PhilosophyPage() {
 
           {/* The media-buyer problem */}
           <div className="mt-16 grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
-            <Reveal>
               <div>
                 <Label>The usual agency trap</Label>
                 <h3 className="font-display text-2xl font-semibold text-foreground sm:text-3xl">
@@ -413,9 +392,7 @@ export default function PhilosophyPage() {
                   story that ends the same way.
                 </p>
               </div>
-            </Reveal>
 
-            <Reveal delay={0.08}>
               <ul className="space-y-4">
                 {adFailures.map((f) => (
                   <li key={f} className="flex gap-4 rounded-xl border border-line bg-ink p-5">
@@ -424,11 +401,9 @@ export default function PhilosophyPage() {
                   </li>
                 ))}
               </ul>
-            </Reveal>
           </div>
 
           {/* The engine */}
-          <Reveal delay={0.05}>
             <div className="border-gradient mt-16 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-blue/10 to-brand-teal/10 p-8 sm:p-12">
               <Label>How we do it differently</Label>
               <h3 className="max-w-3xl font-display text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-3xl">
@@ -453,12 +428,10 @@ export default function PhilosophyPage() {
                 </p>
               </div>
             </div>
-          </Reveal>
 
           {/* The 3 pillars */}
           <div className="mt-16 grid gap-5 lg:grid-cols-3">
             {adPillars.map((p, i) => (
-              <Reveal key={p.n} delay={i * 0.07}>
                 <div className="flex h-full flex-col rounded-2xl border border-line bg-ink p-8 sm:p-10">
                   <span className="font-mono text-sm font-medium text-brand-teal">
                     {p.n}
@@ -473,17 +446,14 @@ export default function PhilosophyPage() {
                     {p.result}
                   </p>
                 </div>
-              </Reveal>
             ))}
           </div>
 
           {/* Bridge → the guarantee / founding-partner section below. */}
-          <Reveal delay={0.1}>
             <p className="mx-auto mt-16 max-w-2xl text-center font-display text-xl font-medium leading-snug text-foreground sm:text-2xl">
               We&apos;re confident enough in all this to{" "}
               <span className="text-gradient">put money on it.</span>
             </p>
-          </Reveal>
         </Container>
       </section>
 
@@ -510,7 +480,6 @@ export default function PhilosophyPage() {
 
           <div className="mt-16 grid gap-12 lg:grid-cols-2 lg:gap-16">
             {/* The honest version */}
-            <Reveal>
               <div>
                 <Label>The honest version</Label>
                 <h3 className="font-display text-2xl font-semibold text-foreground sm:text-3xl">
@@ -530,10 +499,8 @@ export default function PhilosophyPage() {
                   </p>
                 </div>
               </div>
-            </Reveal>
 
             {/* The trade */}
-            <Reveal delay={0.08}>
               <div className="h-full rounded-2xl border border-line bg-ink p-8 sm:p-10">
                 <Label>The trade</Label>
                 <h3 className="font-display text-2xl font-semibold text-foreground">
@@ -555,11 +522,9 @@ export default function PhilosophyPage() {
                   results speak for themselves.
                 </p>
               </div>
-            </Reveal>
           </div>
 
           {/* The ironclad guarantee */}
-          <Reveal delay={0.05}>
             <div className="border-gradient mt-8 flex flex-col gap-5 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-blue/10 to-brand-teal/10 p-8 sm:flex-row sm:items-center sm:gap-8 sm:p-12">
               <ShieldCheck className="h-10 w-10 shrink-0 text-brand-teal" />
               <div>
@@ -575,10 +540,8 @@ export default function PhilosophyPage() {
                 </p>
               </div>
             </div>
-          </Reveal>
 
           {/* The cap + CTA */}
-          <Reveal delay={0.05}>
             <div className="mt-8 flex flex-col items-center gap-6 rounded-2xl border border-line bg-ink px-6 py-12 text-center sm:px-12">
               <Label>Strictly ten</Label>
               <h3 className="max-w-2xl font-display text-2xl font-semibold leading-tight text-foreground sm:text-3xl">
@@ -599,7 +562,6 @@ export default function PhilosophyPage() {
                 <ArrowUpRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </CalButton>
             </div>
-          </Reveal>
         </Container>
       </section>
 

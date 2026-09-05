@@ -51,39 +51,41 @@ export function Problem() {
           />
         </Reveal>
 
+        {/* The three pain rows and the bridge line used to each fade in on their own; that
+            piled up as noise as the visitor scrolled. The section's opening Reveal above sets
+            the moment — everything below just renders. */}
         <div className="mt-16 border-t border-line">
-          {pains.map((pain, i) => (
-            <Reveal key={pain.title} delay={i * 0.08}>
-              <div className="grid grid-cols-1 gap-6 border-b border-line py-9 md:grid-cols-[200px_1fr_280px] md:gap-10">
-                <div className="font-mono text-4xl font-medium tracking-tight text-foreground sm:text-[44px]">
-                  {pain.stat}
-                </div>
-                <div>
-                  <h3 className="font-display text-xl font-semibold text-foreground sm:text-2xl">
-                    {pain.title}
-                  </h3>
-                  <p className="mt-2 max-w-[420px] text-[15px] leading-relaxed text-mist sm:text-base">
-                    {pain.body}
-                  </p>
-                </div>
-                <div className="font-mono text-[13px] leading-relaxed text-mist-dim">
-                  {pain.note}
-                </div>
+          {pains.map((pain) => (
+            <div
+              key={pain.title}
+              className="grid grid-cols-1 gap-6 border-b border-line py-9 md:grid-cols-[200px_1fr_280px] md:gap-10"
+            >
+              <div className="font-mono text-4xl font-medium tracking-tight text-foreground sm:text-[44px]">
+                {pain.stat}
               </div>
-            </Reveal>
+              <div>
+                <h3 className="font-display text-xl font-semibold text-foreground sm:text-2xl">
+                  {pain.title}
+                </h3>
+                <p className="mt-2 max-w-[420px] text-[15px] leading-relaxed text-mist sm:text-base">
+                  {pain.body}
+                </p>
+              </div>
+              <div className="font-mono text-[13px] leading-relaxed text-mist-dim">
+                {pain.note}
+              </div>
+            </div>
           ))}
         </div>
 
         {/* Forward-pointing bridge — turns the corner from pain to hope and hands straight to
             the Services section's "The fix" label below, so the reader never has to work out
             how the offers map to these gaps. */}
-        <Reveal delay={0.1}>
-          <p className="mt-12 max-w-2xl text-lg leading-relaxed text-mist">
-            None of this means you&apos;re bad at your job. It means nothing&apos;s there to
-            catch the lead the moment it lands. That&apos;s a system problem —{" "}
-            <span className="text-foreground">and a system is exactly what we build.</span>
-          </p>
-        </Reveal>
+        <p className="mt-12 max-w-2xl text-lg leading-relaxed text-mist">
+          None of this means you&apos;re bad at your job. It means nothing&apos;s there to
+          catch the lead the moment it lands. That&apos;s a system problem —{" "}
+          <span className="text-foreground">and a system is exactly what we build.</span>
+        </p>
       </Container>
     </section>
   );

@@ -22,22 +22,18 @@ export function PricingPreview() {
         </Reveal>
 
         <div className="mt-16">
-          <Reveal>
-            <PricingComparison />
-          </Reveal>
+          <PricingComparison />
         </div>
 
-        <Reveal delay={0.1}>
-          <div className="mt-12 flex justify-center">
-            <Link
-              href="/pricing"
-              className="group inline-flex items-center gap-2 text-sm font-medium text-mist transition-colors hover:text-foreground"
-            >
-              See full pricing & one-off projects
-              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </Link>
-          </div>
-        </Reveal>
+        <div className="mt-12 flex justify-center">
+          <Link
+            href="/pricing"
+            className="group inline-flex items-center gap-2 text-sm font-medium text-mist transition-colors hover:text-foreground"
+          >
+            See full pricing & one-off projects
+            <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </Link>
+        </div>
       </Container>
     </section>
   );

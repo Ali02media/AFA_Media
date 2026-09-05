@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Globe, Bot, Target, Check, ArrowUpRight } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Container } from "@/components/ui/section";
-import { Reveal } from "@/components/reveal";
 import { GlowCard } from "@/components/ui/spotlight-card";
 import { CTA } from "@/components/sections/cta";
 import { services } from "@/lib/site";
@@ -64,12 +63,12 @@ export default function ServicesPage() {
               const isTeal = service.accent === "teal";
               const d = detail[service.id];
               return (
-                <Reveal key={service.id} delay={i * 0.04}>
-                  <GlowCard
-                    customSize
-                    glowColor={isTeal ? "green" : "blue"}
-                    className="grid w-full !p-8 sm:!p-12 md:grid-cols-[auto_1fr]"
-                  >
+                <GlowCard
+                  key={service.id}
+                  customSize
+                  glowColor={isTeal ? "green" : "blue"}
+                  className="grid w-full !p-8 sm:!p-12 md:grid-cols-[auto_1fr]"
+                >
                     <div
                       className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-line ${
                         isTeal ? "bg-brand-teal/10 text-brand-teal" : "bg-brand-blue/10 text-brand-blue-light"
@@ -107,15 +106,13 @@ export default function ServicesPage() {
                       <p className="mt-6 border-l-2 border-brand-blue/40 pl-4 text-sm italic text-mist-dim">
                         {d.who}
                       </p>
-                    </div>
-                  </GlowCard>
-                </Reveal>
+                  </div>
+                </GlowCard>
               );
             })}
           </div>
 
-          <Reveal delay={0.1}>
-            <div className="mt-10 flex flex-col items-center gap-3 rounded-3xl border border-line bg-gradient-to-r from-brand-blue/10 to-brand-teal/10 px-8 py-10 text-center">
+          <div className="mt-10 flex flex-col items-center gap-3 rounded-3xl border border-line bg-gradient-to-r from-brand-blue/10 to-brand-teal/10 px-8 py-10 text-center">
               <p className="font-display text-2xl font-semibold text-foreground">
                 Most clients combine all three — that&apos;s why we built packages.
               </p>
@@ -129,8 +126,7 @@ export default function ServicesPage() {
                 See pricing
                 <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </Link>
-            </div>
-          </Reveal>
+          </div>
         </Container>
       </section>
 

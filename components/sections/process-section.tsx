@@ -26,8 +26,7 @@ export function ProcessSection() {
           </div>
 
           {process.map((step, i) => (
-            <Reveal key={step.step} delay={i * 0.1}>
-              <div className="relative flex flex-col items-center px-6 pb-12 text-center md:pb-0">
+            <div key={step.step} className="relative flex flex-col items-center px-6 pb-12 text-center md:pb-0">
                 {/* Step number circle */}
                 <div className="relative mb-8">
                   {/* Outer ring */}
@@ -51,8 +50,7 @@ export function ProcessSection() {
                 {i < process.length - 1 && (
                   <div className="mt-4 h-8 w-px bg-gradient-to-b from-brand-teal/30 to-transparent md:hidden" />
                 )}
-              </div>
-            </Reveal>
+            </div>
           ))}
         </div>
       </Container>

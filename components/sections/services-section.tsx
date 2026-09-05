@@ -60,8 +60,8 @@ export function ServicesSection({
             const accentBg   = isTeal ? "bg-brand-teal/10" : "bg-brand-blue/10";
 
             return (
-              <Reveal key={service.id} delay={i * 0.07} forceVisible={forceVisible}>
-                <GlowCard
+              <GlowCard
+                key={service.id}
                   customSize
                   glowColor={isTeal ? "green" : "blue"}
                   interactive={cardsInteractive}
@@ -104,22 +104,19 @@ export function ServicesSection({
                     <div className={`absolute -bottom-2 left-0 right-0 h-px origin-center scale-x-0 bg-gradient-to-r from-transparent ${isTeal ? "via-brand-teal" : "via-brand-blue"} to-transparent transition-transform duration-500 group-hover:scale-x-100`} />
                   </div>
                 </GlowCard>
-              </Reveal>
             );
           })}
         </div>
 
-        <Reveal delay={0.12} forceVisible={forceVisible}>
-          <div className="mt-12 flex justify-center">
-            <Link
-              href="/services"
-              className="group -my-1.5 inline-flex items-center gap-2 py-1.5 text-sm font-medium text-mist transition-colors duration-200 hover:text-foreground"
-            >
-              Explore all services in detail
-              <ArrowUpRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </Link>
-          </div>
-        </Reveal>
+        <div className="mt-12 flex justify-center">
+          <Link
+            href="/services"
+            className="group -my-1.5 inline-flex items-center gap-2 py-1.5 text-sm font-medium text-mist transition-colors duration-200 hover:text-foreground"
+          >
+            Explore all services in detail
+            <ArrowUpRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </Link>
+        </div>
       </Container>
     </section>
   );
