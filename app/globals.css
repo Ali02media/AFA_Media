@@ -65,6 +65,13 @@ html {
   /* Bug 24: the navbar is `fixed` and 64px tall, so without this an in-page anchor scrolls
      its target to y=0 — underneath the navbar. Matters for #pricing and #faq-quick. */
   scroll-padding-top: 4rem;
+
+  /* Same `clip` (not hidden) as body — needed on <html> too or iOS Safari lets you rubber-band
+     horizontally when a decorative child (the orb blur layers behind the hero and services)
+     sticks past the viewport edge. `overflow: clip` on body alone doesn't stop it because the
+     root scroller is <html>. `clip` doesn't turn <html> into its own scroll container, so the
+     native sticky in the MacBook stage keeps working. */
+  overflow-x: clip;
 }
 
 body {

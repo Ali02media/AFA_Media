@@ -190,7 +190,13 @@ const GlowCard: React.FC<GlowCardProps> = ({
       backgroundPosition: "50% 50%",
       border: "var(--border-size) solid var(--backup-border)",
       position: "relative",
-      touchAction: "none",
+      // `pan-y` (was `none`): mobile users were getting the spotlight to react to their thumb
+      // but couldn't scroll the page through the card — they had to reach for the edge. With
+      // pan-y the browser reserves vertical panning for scroll, so a downward swipe scrolls
+      // the page normally. The reactive border still updates from any horizontal thumb
+      // movement, or when the finger holds still, so the interaction survives — just no
+      // longer at the cost of scroll.
+      touchAction: "pan-y",
     } : {
       "--border-size": "3px",
       backgroundColor: "hsl(0 0% 60% / 0.12)",
