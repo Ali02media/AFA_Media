@@ -1,7 +1,6 @@
 'use client';
 
 import LaserFlow from '../LaserFlow';
-import Plasma from '../Plasma';
 import { ShinyButton } from '../ui/shiny-button';
 import { calAttrs } from '../cal';
 import { useEffect, useRef, useState } from 'react';
@@ -60,25 +59,12 @@ export function Hero() {
         overflow: 'hidden',
         backgroundColor: 'var(--color-hero-bg)'
       }}
-      onMouseMove={(e) => {
+      onPointerMove={(e) => {
         const rect = e.currentTarget.getBoundingClientRect();
         queue(e.clientX - rect.left, e.clientY - rect.top);
       }}
-      onMouseLeave={() => queue(-9999, -9999)}
+      onPointerLeave={() => queue(-9999, -9999)}
     >
-      {desktopGfx && (
-        <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-          <Plasma
-            color="#298e99"
-            speed={1.4}
-            direction="reverse"
-            scale={1.2}
-            opacity={1}
-            mouseInteractive={false}
-          />
-        </div>
-      )}
-
       <LaserFlow
         style={{ position: 'relative', zIndex: 2 }}
         // Perf 4.3: LaserFlow IS the hero's identity, so it stays on mobile rather than being
