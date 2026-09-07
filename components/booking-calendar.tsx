@@ -19,19 +19,8 @@ export function BookingCalendar({
 }) {
   useEffect(() => {
     const el = document.getElementById(EMBED_EL_ID);
-    if (!el || el.dataset.calInit === "1") return;
+    if (!el) return;
 
-    // Eager init: kick off the inline iframe as soon as the component mounts, so it's ready
-    // before the user scrolls to it. We used to gate this behind an IntersectionObserver, but
-    // that meant a fast scroller hit the CTA before the iframe had even started loading, which
-    // is exactly the "slow calendar" the owner complained about. The layout's <link preconnect>
-    // + <link preload> for app.cal.com have already warmed the network and cached embed.js by
-    // the time we get here, so this useEffect just wires the iframe to a hot connection.
-    //
-    // We do defer past first paint via requestIdleCallback so the calendar's boot never
-    // competes with the hero shader on the initial render.
-    // (CalProvider owns bootstrap + `ui`; this only asks for the inline instance. The dataset
-    // guard also prevents StrictMode double-mount from re-initialising the same element.)
     const init = () => {
       if (el.dataset.calInit === "1") return;
       el.dataset.calInit = "1";
@@ -43,19 +32,20 @@ export function BookingCalendar({
       });
     };
 
-    const w = window as unknown as {
-      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
-    };
-    const handle = w.requestIdleCallback
-      ? w.requestIdleCallback(init, { timeout: 1000 })
-      : (window.setTimeout(init, 0) as unknown as number);
-
-    return () => {
-      const cancel = (window as unknown as { cancelIdleCallback?: (h: number) => void })
-        .cancelIdleCallback;
-      if (cancel) cancel(handle);
-      else window.clearTimeout(handle);
-    };
+    // Load Cal only when the element is within 600px of the viewport — saves all Cal.com
+    // requests on initial page load while still giving the iframe time to boot before the
+    // user reaches the CTA section.
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          observer.disconnect();
+          init();
+        }
+      },
+      { rootMargin: "0px 0px 600px 0px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   return (
