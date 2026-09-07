@@ -302,6 +302,11 @@ export const LaserFlow = ({
 
   useEffect(() => {
     const mount = mountRef.current;
+    // Reset the size cache for THIS canvas. lastSizeRef survives the effect re-running
+    // (StrictMode's double-mount, or a `dpr` change), but the canvas below does not — so a
+    // stale entry makes setSizeNow() see "nothing changed" and skip sizing the NEW canvas,
+    // leaving it at the 300x150 default and rendering nothing.
+    lastSizeRef.current = { width: 0, height: 0, dpr: 0 };
     const renderer = new THREE.WebGLRenderer({
       antialias: false,
       alpha: false,

@@ -1,0 +1,43 @@
+'use client';
+
+import './LaserFlowCSS.css';
+
+// Baked fbm noise for the fog. feTurbulence runs once when the browser decodes this
+// data-URI and never again — from then on it's an ordinary image used as a mask, so the
+// drift animation is pure compositor work. `stitchTiles` makes it tile seamlessly.
+const NOISE =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='620' height='620'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.4 0.4 0.4 0 -0.08'/%3E%3C/filter%3E%3Crect width='620' height='620' filter='url(%23n)'/%3E%3C/svg%3E\")";
+
+/**
+ * Pure-CSS stand-in for <LaserFlow>. Same beam, splash, wisps and drifting fog, but with
+ * no WebGL context, no three.js and no per-frame JS — the WebGL version cost ~22s of
+ * Total Blocking Time on a mid-range phone. Every animation here runs on `transform` or
+ * `opacity` only, so it stays on the compositor.
+ *
+ * @param {string} [beamX='63.8%'] Horizontal position of the beam. The shader's
+ *   horizontalBeamOffset of 0.14 offsets by 2*0.14 of the half-width, i.e. 14% of the
+ *   full width right of centre — measured at 63.8%, not the 57% the old placeholder used.
+ */
+export function LaserFlowCSS({ className, style, beamX = '63.8%' }) {
+  return (
+    <div
+      aria-hidden="true"
+      className={`lfc ${className || ''}`}
+      style={{ '--lfc-x': beamX, '--lfc-noise': NOISE, ...style }}
+    >
+      <div className="lfc-fog">
+        <div className="lfc-fog-inner" />
+      </div>
+      <div className="lfc-shaft lfc-pulse" />
+      <div className="lfc-flare" />
+      <div className="lfc-hot" />
+      <div className="lfc-pool" />
+      <div className="lfc-floor" />
+      <div className="lfc-wisps">
+        <div className="lfc-wisps-inner" />
+      </div>
+    </div>
+  );
+}
+
+export default LaserFlowCSS;

@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { ShinyButton } from '../ui/shiny-button';
+import { LaserFlowCSS } from '../LaserFlowCSS';
 import { calAttrs } from '../cal';
 import { useEffect, useRef, useState } from 'react';
 
@@ -11,20 +12,18 @@ import { useEffect, useRef, useState } from 'react';
 // parses, or compiles three.js at all.
 const LaserFlow = dynamic(() => import('../LaserFlow'), { ssr: false });
 
-// Homepage hero: a LaserFlow beam over an optional Plasma backdrop, with a spotlight that
-// reveals a node graph image where the cursor is.
+// Homepage hero: a descending laser beam, with a spotlight that reveals a node graph image
+// where the pointer is.
 export function Hero() {
   const revealImgRef = useRef(null);
-  // Desktop-only WebGL. Perf 4.3: LaserFlow had NO gate at all, so every phone ran a full
-  // shader — while Plasma right beside it was deliberately excluded from mobile for exactly
-  // that cost. Both are now behind the same check.
+  // WebGL is desktop-only now. Both start false so server and first client render agree,
+  // and so a phone never even evaluates the WebGL branch.
   const [desktopGfx, setDesktopGfx] = useState(false);
   // Defer LaserFlow's WebGL boot until AFTER the page is interactive (perf: TTI). The shader
-  // compile + GL init run on the main thread and were the biggest single blocker of
-  // time-to-interactive. A CSS gradient stands in from first paint (see the backdrop div),
-  // then LaserFlow mounts on top once the browser is idle — the swap is seamless because the
-  // gradient matches the beam's colour and position.
+  // compile + GL init run on the main thread and were the single biggest blocker of
+  // time-to-interactive; <LaserFlowCSS> covers the gap from the very first frame.
   const [laserReady, setLaserReady] = useState(false);
+  const showWebGL = desktopGfx && laserReady;
   // rAF coalescing for the reveal spotlight (perf 4.2). Mousemove fires up to ~120x/sec and
   // each write invalidated a FULL-VIEWPORT layer that is both radial-masked and
   // mix-blend-mode: lighten — so the compositor had to read back the backdrop and
@@ -94,30 +93,24 @@ export function Hero() {
       }}
       onPointerLeave={() => queue(-9999, -9999)}
     >
-      {/* Instant CSS stand-in for LaserFlow: a cyan beam-glow descending from the top,
-          positioned to match the shader's beam (horizontalBeamOffset 0.14 → ~57% from left).
-          Always painted so the hero is never blank; LaserFlow mounts over it once idle. */}
-      <div
-        aria-hidden="true"
+      {/* CSS rendition of the laser — beam, floor splash, drifting fog and wisps built
+          from gradients measured off the shader itself. It paints on the first frame and
+          costs no JS at all, so on phones and tablets it is the ONLY thing that runs:
+          even at 0.6 dpr the real shader was blocking the main thread for ~22s on a
+          mid-range Android, which alone held the mobile PageSpeed score at 63.
+          On desktop it doubles as the instant first paint, then fades as WebGL mounts. */}
+      <LaserFlowCSS
         style={{
-          position: 'absolute',
-          inset: 0,
           zIndex: 1,
-          background:
-            'radial-gradient(ellipse 32% 85% at 57% -8%, rgba(66,181,207,0.42), rgba(66,181,207,0.10) 38%, transparent 68%)',
-          transition: 'opacity 0.6s ease',
-          opacity: laserReady ? 0 : 1,
-          pointerEvents: 'none'
+          opacity: showWebGL ? 0 : 1,
+          transition: 'opacity 0.5s ease'
         }}
       />
 
-      {laserReady && (
+      {showWebGL && (
         <LaserFlow
           style={{ position: 'relative', zIndex: 2 }}
-          // Perf 4.3: LaserFlow IS the hero's identity, so it stays on mobile rather than being
-          // cut like Plasma — but at a reduced tier. This is a full-viewport fragment shader, so
-          // cost scales directly with pixel count; 0.6 dpr is ~36% of the fragments.
-          dpr={desktopGfx ? 1 : 0.6}
+          dpr={1}
           horizontalBeamOffset={0.14}
           verticalBeamOffset={-0.5}
           color="#42b5cf"

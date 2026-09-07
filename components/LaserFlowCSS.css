@@ -1,0 +1,278 @@
+/* CSS stand-in for the LaserFlow WebGL shader.
+   Every layer is either a static gradient (rasterised once) or a transform/opacity
+   animation (compositor-only) — no filters on animated layers, no JS, no main-thread work.
+
+   The stops below are sampled off the real shader's framebuffer rather than eyeballed.
+   At 1512x700 the beam sits at 63.8% of the width, and its horizontal profile is
+   IDENTICAL from the top edge down to ~55% height — it only widens and brightens over
+   the bottom 40% before blowing out into the floor splash. */
+
+.lfc {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background-color: var(--lfc-bg, #060608);
+  --lfc-x: 63.8%;
+}
+
+.lfc > * {
+  position: absolute;
+  inset: 0;
+}
+
+/* ── Shaft ───────────────────────────────────────────────────────────────────
+   Constant width over the full height, so this is a pure horizontal gradient with
+   no vertical component — the earlier ellipse-anchored-at-the-bottom approach was
+   wrong, it tapered the beam to nothing at the top. */
+.lfc-shaft {
+  /* Sampled per-pixel off the shader at 1512px wide. The core is a FLAT-TOPPED
+     plateau — alpha holds at 0.96 across the middle ±0.66% and only then falls away
+     on a long inverse-square tail. That plateau is what makes it read as a laser
+     rather than a soft glow; interpolating straight to a single peak stop loses it. */
+  background: linear-gradient(
+    to right,
+    rgba(66, 181, 207, 0) 44.3%,
+    rgba(66, 181, 207, 0.01) 46.65%,
+    rgba(66, 181, 207, 0.035) 49.29%,
+    rgba(66, 181, 207, 0.06) 51.6%,
+    rgba(66, 181, 207, 0.09) 53.58%,
+    rgba(66, 181, 207, 0.121) 55.22%,
+    rgba(66, 181, 207, 0.151) 56.54%,
+    rgba(66, 181, 207, 0.181) 57.73%,
+    rgba(66, 181, 207, 0.216) 58.79%,
+    rgba(66, 181, 207, 0.256) 59.71%,
+    rgba(66, 181, 207, 0.302) 60.5%,
+    rgba(66, 181, 207, 0.357) 61.16%,
+    rgba(66, 181, 207, 0.417) 61.69%,
+    rgba(66, 181, 207, 0.487) 62.08%,
+    rgba(66, 181, 207, 0.598) 62.48%,
+    rgba(66, 181, 207, 0.759) 62.81%,
+    rgba(66, 181, 207, 0.96) 63.14%,
+    rgba(66, 181, 207, 0.96) 64.46%,
+    rgba(66, 181, 207, 0.759) 64.79%,
+    rgba(66, 181, 207, 0.598) 65.12%,
+    rgba(66, 181, 207, 0.487) 65.52%,
+    rgba(66, 181, 207, 0.417) 65.91%,
+    rgba(66, 181, 207, 0.357) 66.44%,
+    rgba(66, 181, 207, 0.302) 67.1%,
+    rgba(66, 181, 207, 0.256) 67.89%,
+    rgba(66, 181, 207, 0.216) 68.81%,
+    rgba(66, 181, 207, 0.181) 69.87%,
+    rgba(66, 181, 207, 0.151) 71.06%,
+    rgba(66, 181, 207, 0.121) 72.38%,
+    rgba(66, 181, 207, 0.09) 74.02%,
+    rgba(66, 181, 207, 0.06) 76%,
+    rgba(66, 181, 207, 0.035) 78.31%,
+    rgba(66, 181, 207, 0.01) 80.95%,
+    rgba(66, 181, 207, 0) 83.3%
+  );
+}
+
+/* Flare: the beam holds its width until ~80% height, then trumpets outward fast —
+   measured half-width goes 2.8% -> 4.8% -> 9.2% -> 14.4% -> 23% over the last 20%.
+   A single ellipse decays far too gently to trace that, so it's two stacked: a tall
+   narrow one for the neck and a short wide one for the mouth. */
+.lfc-flare {
+  background:
+    /* neck */
+    radial-gradient(
+      ellipse 6% 26% at var(--lfc-x) 100%,
+      rgba(72, 204, 240, 0.85) 0%,
+      rgba(68, 190, 224, 0.48) 50%,
+      rgba(66, 181, 207, 0.14) 78%,
+      transparent 94%
+    ),
+    /* mouth */
+    radial-gradient(
+      ellipse 15% 12% at var(--lfc-x) 100%,
+      rgba(74, 208, 244, 0.9) 0%,
+      rgba(70, 196, 230, 0.6) 46%,
+      rgba(66, 181, 207, 0.28) 72%,
+      rgba(66, 181, 207, 0.06) 89%,
+      transparent 100%
+    );
+}
+
+/* The core also brightens toward the floor — 199 at mid-height, 224 by 80%, clipping
+   to a white-hot 255 from 95% down. */
+.lfc-hot {
+  background: radial-gradient(
+    ellipse 3.5% 30% at var(--lfc-x) 100%,
+    rgba(96, 230, 255, 0.95) 0%,
+    rgba(76, 212, 246, 0.5) 36%,
+    rgba(66, 181, 207, 0.12) 66%,
+    transparent 88%
+  );
+}
+
+/* ── Splash ──────────────────────────────────────────────────────────────────
+   The beam striking the floor. This is the shape that most says "laser": a THIN,
+   hard, bright line hugging the bottom edge and running out to roughly 30%-90% of
+   the width — not a soft pool. It is deepest just left of the beam (at x=50% it is
+   still half-bright 33px up, but only 10px up at x=40% and x=80%) and cuts off
+   hard past x=90%, where the shader's edge vignette clips it. */
+.lfc-floor {
+  /* Horizontal profile with a flat saturated top from 38% to 86% and a hard cut just
+     past 90% — the same plateau shape as the beam core, and for the same reason: a
+     radial gradient rounds it off into a soft pool instead of a line. The vertical
+     mask is what keeps it thin (half-bright 1.6% of the height up, gone by 8%). */
+  background: linear-gradient(
+    to right,
+    transparent 14%,
+    rgba(66, 181, 207, 0.1) 25%,
+    rgba(72, 204, 240, 0.5) 33%,
+    rgba(81, 223, 255, 1) 38%,
+    rgba(81, 223, 255, 1) 86%,
+    rgba(78, 214, 248, 0.66) 89%,
+    rgba(66, 181, 207, 0.12) 92%,
+    transparent 95%
+  );
+  -webkit-mask-image: linear-gradient(
+    to top,
+    #000 0%,
+    #000 0.6%,
+    rgba(0, 0, 0, 0.5) 1.6%,
+    rgba(0, 0, 0, 0.12) 3.6%,
+    transparent 6.5%
+  );
+  mask-image: linear-gradient(
+    to top,
+    #000 0%,
+    #000 0.6%,
+    rgba(0, 0, 0, 0.5) 1.6%,
+    rgba(0, 0, 0, 0.12) 3.6%,
+    transparent 6.5%
+  );
+}
+
+/* The floor light pools deeper just LEFT of the beam — half-bright 33px up at x=50%
+   but only 10px up at x=40% and x=80%. */
+.lfc-pool {
+  background: radial-gradient(
+    ellipse 17% 6.5% at 55% 100%,
+    rgba(78, 214, 248, 0.6) 0%,
+    rgba(68, 190, 224, 0.26) 44%,
+    rgba(66, 181, 207, 0.07) 72%,
+    transparent 90%
+  );
+}
+
+/* ── Fog ─────────────────────────────────────────────────────────────────────
+   The shader hazes the whole frame at a low level (1-30/255 across the width),
+   bottom-biased and concentrated around the beam. Two nested layers so the masks
+   multiply: the outer shapes the haze, the inner carries baked fbm noise and drifts
+   downward. The noise is a data-URI, so feTurbulence runs once at decode and never
+   again — only `transform` animates, which stays on the compositor. */
+.lfc-fog {
+  opacity: 0.22;
+  /* Centred left of the beam: in the reference the haze trails much further to the
+     left (at 275px out it is 26/255 on the left but only 12/255 on the right),
+     because the beam sits right of centre and the shader's edge vignette clips that
+     side sooner. */
+  -webkit-mask-image: radial-gradient(
+    ellipse 52% 66% at 52% 106%,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.6) 36%,
+    rgba(0, 0, 0, 0.22) 64%,
+    transparent 88%
+  );
+  mask-image: radial-gradient(
+    ellipse 52% 66% at 52% 106%,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.6) 36%,
+    rgba(0, 0, 0, 0.22) 64%,
+    transparent 88%
+  );
+}
+
+.lfc-fog-inner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  /* Double height so a 50% translate loops seamlessly against the tiled noise. */
+  top: -100%;
+  height: 200%;
+  background-color: rgba(76, 190, 214, 0.42);
+  -webkit-mask-image: var(--lfc-noise);
+  mask-image: var(--lfc-noise);
+  -webkit-mask-size: 520px 520px;
+  mask-size: 520px 520px;
+  will-change: transform;
+  animation: lfc-fog-fall 30s linear infinite;
+}
+
+@keyframes lfc-fog-fall {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(0, 50%, 0); }
+}
+
+/* ── Wisps ───────────────────────────────────────────────────────────────────
+   The shader's micro-streaks: short dashes hugging the beam, confined to the
+   bottom of the frame and travelling downward. Vertical dashes only — crossing a
+   horizontal repeat over them reads as a wire fence, not as sparks. */
+.lfc-wisps {
+  opacity: 0.13;
+  -webkit-mask-image:
+    radial-gradient(ellipse 9% 30% at var(--lfc-x) 101%, #000 0%, rgba(0,0,0,0.45) 46%, transparent 76%);
+  mask-image:
+    radial-gradient(ellipse 9% 30% at var(--lfc-x) 101%, #000 0%, rgba(0,0,0,0.45) 46%, transparent 76%);
+}
+
+.lfc-wisps-inner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -100%;
+  height: 200%;
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent 5px,
+    rgba(178, 238, 255, 0.5) 5px,
+    rgba(178, 238, 255, 0.5) 6px,
+    transparent 6px,
+    transparent 13px
+  );
+  -webkit-mask-image: repeating-linear-gradient(
+    to bottom,
+    #000 0,
+    #000 14px,
+    transparent 14px,
+    transparent 58px
+  );
+  mask-image: repeating-linear-gradient(
+    to bottom,
+    #000 0,
+    #000 14px,
+    transparent 14px,
+    transparent 58px
+  );
+  will-change: transform;
+  animation: lfc-wisp-fall 3.6s linear infinite;
+}
+
+@keyframes lfc-wisp-fall {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(0, 58px, 0); }
+}
+
+/* The shader breathes the beam via uFlowStrength. Opacity-only, so it never leaves
+   the compositor. */
+.lfc-pulse {
+  will-change: opacity;
+  animation: lfc-pulse 7s ease-in-out infinite;
+}
+
+@keyframes lfc-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.88; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lfc-fog-inner,
+  .lfc-wisps-inner,
+  .lfc-pulse {
+    animation: none;
+  }
+}
