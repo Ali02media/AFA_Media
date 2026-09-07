@@ -1,9 +1,15 @@
 'use client';
 
-import LaserFlow from '../LaserFlow';
+import dynamic from 'next/dynamic';
 import { ShinyButton } from '../ui/shiny-button';
 import { calAttrs } from '../cal';
 import { useEffect, useRef, useState } from 'react';
+
+// Dynamic, client-only import: three.js is a large dependency, so keeping it out of the
+// initial bundle is a direct TTI win. The chunk isn't even requested until laserReady flips
+// true and <LaserFlow> first renders — so on initial load the browser never downloads,
+// parses, or compiles three.js at all.
+const LaserFlow = dynamic(() => import('../LaserFlow'), { ssr: false });
 
 // Homepage hero: a LaserFlow beam over an optional Plasma backdrop, with a spotlight that
 // reveals a node graph image where the cursor is.
@@ -13,6 +19,12 @@ export function Hero() {
   // shader — while Plasma right beside it was deliberately excluded from mobile for exactly
   // that cost. Both are now behind the same check.
   const [desktopGfx, setDesktopGfx] = useState(false);
+  // Defer LaserFlow's WebGL boot until AFTER the page is interactive (perf: TTI). The shader
+  // compile + GL init run on the main thread and were the biggest single blocker of
+  // time-to-interactive. A CSS gradient stands in from first paint (see the backdrop div),
+  // then LaserFlow mounts on top once the browser is idle — the swap is seamless because the
+  // gradient matches the beam's colour and position.
+  const [laserReady, setLaserReady] = useState(false);
   // rAF coalescing for the reveal spotlight (perf 4.2). Mousemove fires up to ~120x/sec and
   // each write invalidated a FULL-VIEWPORT layer that is both radial-masked and
   // mix-blend-mode: lighten — so the compositor had to read back the backdrop and
@@ -28,6 +40,23 @@ export function Hero() {
     const onChange = (e) => setDesktopGfx(e.matches);
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
+  }, []);
+
+  useEffect(() => {
+    let handle;
+    const start = () => {
+      const w = window;
+      handle = w.requestIdleCallback
+        ? w.requestIdleCallback(() => setLaserReady(true), { timeout: 2500 })
+        : window.setTimeout(() => setLaserReady(true), 1200);
+    };
+    if (document.readyState === 'complete') start();
+    else window.addEventListener('load', start, { once: true });
+    return () => {
+      if (handle && window.cancelIdleCallback) window.cancelIdleCallback(handle);
+      else clearTimeout(handle);
+      window.removeEventListener('load', start);
+    };
   }, []);
 
   useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
@@ -65,29 +94,47 @@ export function Hero() {
       }}
       onPointerLeave={() => queue(-9999, -9999)}
     >
-      <LaserFlow
-        style={{ position: 'relative', zIndex: 2 }}
-        // Perf 4.3: LaserFlow IS the hero's identity, so it stays on mobile rather than being
-        // cut like Plasma — but at a reduced tier. This is a full-viewport fragment shader, so
-        // cost scales directly with pixel count; 0.6 dpr is ~36% of the fragments. Change to
-        // `{desktopGfx && <LaserFlow …>}` if you'd rather drop it entirely on phones.
-        dpr={desktopGfx ? 1 : 0.6}
-        horizontalBeamOffset={0.14}
-        verticalBeamOffset={-0.5}
-        color="#42b5cf"
-        horizontalSizing={0.91}
-        verticalSizing={15}
-        wispDensity={1}
-        wispSpeed={19.5}
-        wispIntensity={1.4}
-        flowSpeed={0.22}
-        flowStrength={0.16}
-        fogIntensity={0.54}
-        fogScale={0.12}
-        fogFallSpeed={0.43}
-        decay={1.06}
-        falloffStart={1.82}
+      {/* Instant CSS stand-in for LaserFlow: a cyan beam-glow descending from the top,
+          positioned to match the shader's beam (horizontalBeamOffset 0.14 → ~57% from left).
+          Always painted so the hero is never blank; LaserFlow mounts over it once idle. */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 1,
+          background:
+            'radial-gradient(ellipse 32% 85% at 57% -8%, rgba(66,181,207,0.42), rgba(66,181,207,0.10) 38%, transparent 68%)',
+          transition: 'opacity 0.6s ease',
+          opacity: laserReady ? 0 : 1,
+          pointerEvents: 'none'
+        }}
       />
+
+      {laserReady && (
+        <LaserFlow
+          style={{ position: 'relative', zIndex: 2 }}
+          // Perf 4.3: LaserFlow IS the hero's identity, so it stays on mobile rather than being
+          // cut like Plasma — but at a reduced tier. This is a full-viewport fragment shader, so
+          // cost scales directly with pixel count; 0.6 dpr is ~36% of the fragments.
+          dpr={desktopGfx ? 1 : 0.6}
+          horizontalBeamOffset={0.14}
+          verticalBeamOffset={-0.5}
+          color="#42b5cf"
+          horizontalSizing={0.91}
+          verticalSizing={15}
+          wispDensity={1}
+          wispSpeed={19.5}
+          wispIntensity={1.4}
+          flowSpeed={0.22}
+          flowStrength={0.16}
+          fogIntensity={0.54}
+          fogScale={0.12}
+          fogFallSpeed={0.43}
+          decay={1.06}
+          falloffStart={1.82}
+        />
+      )}
 
       <div style={{
         position: 'absolute',
