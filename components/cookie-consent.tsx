@@ -81,7 +81,7 @@ export function CookieConsent() {
           and nothing is stored or recorded. See our{" "}
           <Link
             href="/privacy"
-            className="text-brand-blue-light underline underline-offset-2 transition-colors hover:text-brand-blue"
+            className="text-brand-blue-dark underline underline-offset-2 transition-colors hover:text-brand-blue"
           >
             Privacy Policy
           </Link>
