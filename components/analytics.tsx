@@ -68,7 +68,13 @@ export function SiteAnalytics() {
       />
       <Script
         id="gtm-container"
-        strategy="afterInteractive"
+        // lazyOnload (was afterInteractive) defers gtm.js and every tag inside it until the
+        // browser is idle after window.onload — so hydration, LCP and TBT all finish first and
+        // GTM's script execution (which the "Reduce JavaScript execution time" audit was
+        // measuring in seconds) drops out of the critical path entirely. It still fires the
+        // same page-view events; it just fires them a beat later, which is invisible to a real
+        // visitor but the difference between LH perf mid-70s and mid-90s.
+        strategy="lazyOnload"
         // The official GTM install snippet from tagmanager.google.com — copied verbatim so it
         // stays byte-identical to what Google publishes, then interpolated with the container
         // id. This appends gtm.js from Google's CDN and pushes gtm.start into the dataLayer.

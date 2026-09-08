@@ -60,7 +60,13 @@ export function Clarity() {
   return (
     <Script
       id="ms-clarity"
-      strategy="afterInteractive"
+      // lazyOnload defers Clarity's tag script (and the recorder it fetches from scripts.clarity.ms)
+      // until the browser is idle after window.onload. That takes Clarity's ~50 KB payload plus
+      // its own execution completely off the LCP/TBT/SI critical path. The consent-first model
+      // still holds — Clarity records nothing until `clarity("consent")` is pushed, and that
+      // push is queued from the effect above so an already-consented returning visitor still
+      // starts recording on that same visit, just a beat later.
+      strategy="lazyOnload"
       // Verbatim from https://clarity.microsoft.com/projects/view/${CLARITY_ID}/gettingstarted
       // with the project id interpolated. Kept byte-identical to Clarity's published snippet.
       dangerouslySetInnerHTML={{
