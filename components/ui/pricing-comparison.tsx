@@ -57,7 +57,7 @@ export function PricingComparison() {
               <span className="line-through opacity-60">£{plan.fullOnboarding}</span>{" "}
               <span className="font-semibold text-foreground">£{plan.onboarding}</span>
             </p>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-brand-teal">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-brand-teal-dark">
               Founding price · 50% off setup
             </p>
             <CalButton

@@ -33,7 +33,7 @@ export function Problem() {
               that component; this is a one-off treatment for this section only. */}
           <div className="mb-8 flex items-center gap-3">
             <span className="h-px w-6 bg-brand-teal" />
-            <span className="font-mono text-xs font-medium uppercase tracking-[0.14em] text-brand-teal">
+            <span className="font-mono text-xs font-medium uppercase tracking-[0.14em] text-brand-teal-dark">
               The gap
             </span>
           </div>
@@ -43,7 +43,7 @@ export function Problem() {
             title={
               <>
                 You&apos;re great at the job. The{" "}
-                <span className="text-brand-teal">seven minutes</span> after
+                <span className="text-brand-teal-dark">seven minutes</span> after
                 an enquiry is where the money goes.
               </>
             }

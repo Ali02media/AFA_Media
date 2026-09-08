@@ -18,8 +18,10 @@
 
   /* ── Text ── */
   --color-foreground: #0a0d16;   /* primary dark text */
-  --color-mist:     #4c5468;     /* secondary text */
-  --color-mist-dim: #838aa0;     /* tertiary text */
+  --color-mist:     #4c5468;     /* secondary text — 7.4:1 on white */
+  /* Was #838aa0 (3.44:1 on white) — Lighthouse flagged every use as failing WCAG AA.
+     Darkened to hit 4.5:1 while staying visibly muted vs body copy. */
+  --color-mist-dim: #6b7286;     /* tertiary text — 4.5:1 on white */
 
   /* ── Hero (the one DARK surface on the site — it sits above the white paper scale) ──
      Bug 31: these were hardcoded hex values inline in hero.jsx, so the hero could not be

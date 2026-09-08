@@ -28,9 +28,9 @@ export function Footer() {
 
         {/* Nav */}
         <div>
-          <h4 className="text-xs font-medium uppercase tracking-widest text-mist-dim">
+          <h3 className="text-xs font-medium uppercase tracking-widest text-mist-dim">
             Navigation
-          </h4>
+          </h3>
           <ul className="mt-5 space-y-3 text-sm">
             {/* `nav` already starts with Home, so it's not hard-coded again here. */}
             {nav.map((item) => (
@@ -48,9 +48,9 @@ export function Footer() {
 
         {/* Contact + CTA */}
         <div>
-          <h4 className="text-xs font-medium uppercase tracking-widest text-mist-dim">
+          <h3 className="text-xs font-medium uppercase tracking-widest text-mist-dim">
             Get in touch
-          </h4>
+          </h3>
           <ul className="mt-5 space-y-4 text-sm">
             <li>
               <a

@@ -23,7 +23,7 @@ function Label({ children }: { children: React.ReactNode }) {
   return (
     <div className="mb-6 flex items-center gap-3">
       <span className="h-px w-6 bg-brand-teal" />
-      <span className="font-mono text-xs font-medium uppercase tracking-[0.14em] text-brand-teal">
+      <span className="font-mono text-xs font-medium uppercase tracking-[0.14em] text-brand-teal-dark">
         {children}
       </span>
     </div>
@@ -433,7 +433,7 @@ export default function PhilosophyPage() {
           <div className="mt-16 grid gap-5 lg:grid-cols-3">
             {adPillars.map((p, i) => (
                 <div className="flex h-full flex-col rounded-2xl border border-line bg-ink p-8 sm:p-10">
-                  <span className="font-mono text-sm font-medium text-brand-teal">
+                  <span className="font-mono text-sm font-medium text-brand-teal-dark">
                     {p.n}
                   </span>
                   <h3 className="mt-4 font-display text-xl font-semibold text-foreground">

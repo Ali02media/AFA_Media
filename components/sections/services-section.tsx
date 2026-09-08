@@ -33,7 +33,7 @@ export function ServicesSection({
               gap → fix. This is the bridge that stops the reader having to map offers to pains. */}
           <div className="mb-8 flex items-center gap-3">
             <span className="h-px w-6 bg-brand-teal" />
-            <span className="font-mono text-xs font-medium uppercase tracking-[0.14em] text-brand-teal">
+            <span className="font-mono text-xs font-medium uppercase tracking-[0.14em] text-brand-teal-dark">
               The fix
             </span>
           </div>
@@ -56,7 +56,9 @@ export function ServicesSection({
           {services.map((service, i) => {
             const Icon = icons[service.id as keyof typeof icons];
             const isTeal = service.accent === "teal";
-            const accentText = isTeal ? "text-brand-teal" : "text-brand-blue-light";
+            // Text-only accents pick the DARKER variant of each brand ramp so contrast holds
+            // (brand-teal 2.7:1 and brand-blue-light 2.5:1 on white both fail WCAG AA).
+            const accentText = isTeal ? "text-brand-teal-dark" : "text-brand-blue-dark";
             const accentBg   = isTeal ? "bg-brand-teal/10" : "bg-brand-blue/10";
 
             return (
@@ -84,7 +86,7 @@ export function ServicesSection({
                     </h3>
                     {/* Names the exact pain this service kills (mono/teal, echoing the Problem
                         section) so the offer→pain mapping is instant, not something to work out. */}
-                    <p className="mt-2 font-mono text-xs uppercase tracking-[0.12em] text-brand-teal">
+                    <p className="mt-2 font-mono text-xs uppercase tracking-[0.12em] text-brand-teal-dark">
                       {service.fixes}
                     </p>
                     <p className="mt-3 text-[15px] leading-relaxed text-mist">

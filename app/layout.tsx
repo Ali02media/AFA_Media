@@ -22,10 +22,13 @@ import { Clarity } from "@/components/clarity";
 // Variable font: one file covers the whole 200–1000 weight range, so no `weight` is declared
 // (that would pin it to static instances and lose the range). Italic is included because
 // services/page.tsx uses it.
+// Italic style was pulled: it was preloaded on every page but used exactly once in the
+// entire site (a single <p className="italic"> on /services). The browser now synthesises
+// a slanted glyph for that one paragraph — visually indistinguishable at that size —
+// and every page saves one preloaded font file, which is real LCP bandwidth on cold 4G.
 const nunito = Nunito({
   variable: "--font-nunito",
   subsets: ["latin"],
-  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -35,7 +38,6 @@ const nunito = Nunito({
 const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],
-  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -99,23 +101,13 @@ export default function RootLayout({
         lang="en-GB"
         className={`${nunito.variable} ${montserrat.variable} h-full antialiased`}
       >
-        <head>
-          {/* Warm the Cal.com connection at HTML parse — before React hydrates, before any
-              useEffect runs. `preconnect` runs the DNS + TCP + TLS handshake to Cal's origin
-              in parallel with the page's own load, so when embed.js is finally requested the
-              round-trip cost is already paid. `preload` starts fetching embed.js itself at the
-              same time, so it sits in the browser cache waiting; the moment CalProvider's
-              bootstrap appends the <script> tag, it resolves from cache rather than the wire.
-              Between them these turn a ~600–900 ms cold Cal boot into a near-instant one on
-              every page, with zero effect on the initial paint. */}
-          <link rel="preconnect" href="https://app.cal.com" crossOrigin="anonymous" />
-          <link
-            rel="preload"
-            href="https://app.cal.com/embed/embed.js"
-            as="script"
-            crossOrigin="anonymous"
-          />
-        </head>
+        {/* Cal.com preconnect+preload used to live here to warm embed.js during initial paint.
+            That was correct when embed.js booted eagerly on load, but the calendar is now
+            lazy-mounted via IntersectionObserver ~600px above the CTA (see booking-calendar.tsx),
+            so preloading it competes with LCP for bandwidth on cold 4G and then triggers the
+            "preload not used within a few seconds of load" browser warning that shows up under
+            Best Practices in Lighthouse. Cal's own bootstrap does its own DNS/TCP work when the
+            observer fires — which is well after LCP — so there's nothing left to warm. */}
         <body className="flex min-h-full flex-col bg-ink text-foreground">
           {/* GTM's <noscript> iframe MUST be the first child of <body>, per Google's install
               docs — it's what lets tags fire on browsers with JavaScript disabled. Rendered

@@ -59,7 +59,7 @@ export function FAQ({
                     className={cn(
                       "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border",
                       isOpen
-                        ? "border-brand-blue/50 bg-brand-blue/10 text-brand-teal"
+                        ? "border-brand-blue/50 bg-brand-blue/10 text-brand-teal-dark"
                         : "border-line bg-ink-3 text-mist-dim"
                     )}
                     animate={{ rotate: isOpen ? 45 : 0 }}
