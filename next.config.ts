@@ -69,6 +69,18 @@ const nextConfig: NextConfig = {
     // material chunk of that back into "used" without changing any call sites.
     // (lucide-react is already optimized by default in Next 16, so it isn't listed here.)
     optimizePackageImports: ["framer-motion"],
+
+    // Inline the emitted CSS into <style> tags in <head> instead of shipping <link rel="stylesheet">
+    // tags. Two blocking CSS requests were the single biggest LCP cost on the site (Lighthouse
+    // flagged 910 ms of estimated savings from "Render-blocking requests" — both of them Tailwind
+    // atomic CSS chunks); with inline CSS the styles arrive with the HTML, so the browser can
+    // paint immediately without the discover → request → parse round trip. This is the exact case
+    // the Next docs recommend it for (atomic CSS, first-time visitors, slow connections — all
+    // three describe the cold-email traffic this site actually gets).
+    // Trade-off: returning visitors re-download the styles with every HTML response instead of
+    // reading them from cache. Acceptable here because (a) the CSS is small (atomic Tailwind, no
+    // per-page bloat), and (b) most traffic is first-touch.
+    inlineCss: true,
   },
 
   async headers() {
