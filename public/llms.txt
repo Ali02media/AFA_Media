@@ -1,0 +1,19 @@
+# AFA Media
+
+> UK marketing agency for service businesses — high-converting websites, AI chatbots that capture every lead, and paid ads that target only buyers ready to book. Live in 20 days or you don't pay the setup.
+
+AFA Media builds and operates the growth stack for UK trade and service businesses: web design, AI voice/chat assistants, and paid media, all under one roof. Founded 2025, based in Brighton.
+
+## Main pages
+
+- [Home](https://www.afamedia.co.uk/): Landing page — problem, services, pricing, book a call
+- [Services](https://www.afamedia.co.uk/services): Web design, AI chatbots and paid ads — what each includes, who it's for, and how it fits together
+- [Pricing](https://www.afamedia.co.uk/pricing): Monthly plans and one-time setup fees, with the founding-partner discount
+- [Philosophy](https://www.afamedia.co.uk/philosophy): How we work, why we work this way, and the process from first call to live in 20 days
+- [Contact](https://www.afamedia.co.uk/contact): Book a free 30-minute discovery call
+
+## Optional
+
+- [Privacy Policy](https://www.afamedia.co.uk/privacy): Cookie use, analytics, session recording and data handling
+- [Terms of Service](https://www.afamedia.co.uk/terms): Service terms and conditions
+- [Sitemap](https://www.afamedia.co.uk/sitemap.xml): Machine-readable list of every public URL
