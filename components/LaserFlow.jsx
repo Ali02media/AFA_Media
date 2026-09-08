@@ -379,7 +379,11 @@ export const LaserFlow = ({
     mesh.frustumCulled = false;
     scene.add(mesh);
 
-    const clock = new THREE.Clock();
+    // Was `new THREE.Clock()` — deprecated in three r150+ (logs a "please use THREE.Timer
+    // instead" warning to the console on every mount, which Lighthouse counts as a Best
+    // Practices hit). Only ever used to get elapsed seconds since mount, so `performance.now()`
+    // does the same job with no timer object and no deprecation warning.
+    const clockStart = performance.now();
     let prevTime = 0;
     let fade = hasFadedRef.current ? 1 : 0;
 
@@ -515,7 +519,7 @@ export const LaserFlow = ({
       if (nowThrottle - lastRenderMs < minFrameMs) return;
       lastRenderMs = nowThrottle;
 
-      const t = clock.getElapsedTime();
+      const t = (performance.now() - clockStart) / 1000;
       const dt = Math.max(0, t - prevTime);
       prevTime = t;
 

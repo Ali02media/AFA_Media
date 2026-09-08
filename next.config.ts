@@ -21,8 +21,11 @@ const csp = [
   "default-src 'self'",
   // googletagmanager.com serves gtag.js (GA4). google-analytics.com is where the measurement
   // beacons are POSTed — without it in connect-src every hit is silently blocked.
-  // clarity.ms serves Microsoft Clarity's tracking snippet (session replays + heatmaps).
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://app.cal.com https://www.googletagmanager.com https://www.clarity.ms`,
+  // *.clarity.ms covers Microsoft Clarity's snippet host (www.clarity.ms bootstrap loads the
+  // real recorder from scripts.clarity.ms) plus its regional collectors — without this it's
+  // blocked by CSP and every recording fails silently, which also shows up in Lighthouse as a
+  // "Browser errors were logged to the console" Best Practices hit.
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://app.cal.com https://www.googletagmanager.com https://*.clarity.ms`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
@@ -57,6 +60,16 @@ const nextConfig: NextConfig = {
   // Drop `X-Powered-By: Next.js` — free version disclosure for an attacker fingerprinting the
   // stack against known CVEs.
   poweredByHeader: false,
+
+  experimental: {
+    // Tree-shake modules from libraries that re-export hundreds of files behind a barrel
+    // index — with this on, `import { motion } from "framer-motion"` only pulls the motion
+    // module in, not every animator, gesture and layout helper. Framer Motion was the biggest
+    // single hit in Lighthouse's "Reduce unused JavaScript" audit at 207 KiB; this brings a
+    // material chunk of that back into "used" without changing any call sites.
+    // (lucide-react is already optimized by default in Next 16, so it isn't listed here.)
+    optimizePackageImports: ["framer-motion"],
+  },
 
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
