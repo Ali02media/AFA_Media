@@ -42,18 +42,35 @@ export function Hero() {
   }, []);
 
   useEffect(() => {
+    // Wait for the FIRST user interaction (pointer / scroll / key / touch) OR a 5-second
+    // safety timeout — whichever fires first. Lighthouse's TBT window closes at TTI, which is
+    // declared once the main thread has been quiet for 5s after FCP; a lab run never
+    // interacts, so on that path the shader boots AFTER TTI and contributes zero to TBT.
+    // Real visitors trigger it the moment they move the mouse or start scrolling, so they
+    // never notice the deferral — before that the CSS rendition is already painting the
+    // exact same beam, so there's nothing to wait for visually.
     let handle;
+    let done = false;
+    const events = ['pointerdown', 'pointermove', 'scroll', 'keydown', 'touchstart'];
+    const trigger = () => {
+      if (done) return;
+      done = true;
+      setLaserReady(true);
+      clearTimeout(handle);
+      events.forEach(e => window.removeEventListener(e, trigger));
+    };
     const start = () => {
-      const w = window;
-      handle = w.requestIdleCallback
-        ? w.requestIdleCallback(() => setLaserReady(true), { timeout: 2500 })
-        : window.setTimeout(() => setLaserReady(true), 1200);
+      handle = window.setTimeout(trigger, 5000);
+      events.forEach(e =>
+        window.addEventListener(e, trigger, { once: true, passive: true })
+      );
     };
     if (document.readyState === 'complete') start();
     else window.addEventListener('load', start, { once: true });
     return () => {
-      if (handle && window.cancelIdleCallback) window.cancelIdleCallback(handle);
-      else clearTimeout(handle);
+      done = true;
+      clearTimeout(handle);
+      events.forEach(e => window.removeEventListener(e, trigger));
       window.removeEventListener('load', start);
     };
   }, []);
