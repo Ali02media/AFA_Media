@@ -42,9 +42,15 @@ export function Hero() {
   }, []);
 
   useEffect(() => {
-    // Wait for the FIRST user interaction (pointer / scroll / key / touch) OR a 5-second
-    // safety timeout — whichever fires first. Lighthouse's TBT window closes at TTI, which is
-    // declared once the main thread has been quiet for 5s after FCP; a lab run never
+    // MOBILE / TABLET: LaserFlow is gated behind desktopGfx in the JSX below and never
+    // renders on <1024px anyway, so there is nothing to schedule and no reason to attach
+    // interaction listeners that would only trigger a wasted re-render. Bail early so mobile
+    // pays zero cost for a feature it can't see.
+    if (!desktopGfx) return;
+
+    // DESKTOP: wait for the FIRST user interaction (pointer / scroll / key / touch) OR a
+    // 5-second safety timeout — whichever fires first. Lighthouse's TBT window closes at TTI,
+    // which is declared once the main thread has been quiet for 5s after FCP; a lab run never
     // interacts, so on that path the shader boots AFTER TTI and contributes zero to TBT.
     // Real visitors trigger it the moment they move the mouse or start scrolling, so they
     // never notice the deferral — before that the CSS rendition is already painting the
@@ -73,7 +79,7 @@ export function Hero() {
       events.forEach(e => window.removeEventListener(e, trigger));
       window.removeEventListener('load', start);
     };
-  }, []);
+  }, [desktopGfx]);
 
   useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
 
