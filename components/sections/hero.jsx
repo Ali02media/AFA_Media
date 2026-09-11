@@ -250,10 +250,24 @@ export function Hero() {
           pointerEvents: 'none',
           '--mx': '-9999px',
           '--my': '-9999px',
-          WebkitMaskImage: 'radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,1) 0px, rgba(255,255,255,0.95) 60px, rgba(255,255,255,0.6) 120px, rgba(255,255,255,0.25) 180px, rgba(255,255,255,0) 240px)',
-          maskImage: 'radial-gradient(circle at var(--mx) var(--my), rgba(255,255,255,1) 0px, rgba(255,255,255,0.95) 60px, rgba(255,255,255,0.6) 120px, rgba(255,255,255,0.25) 180px, rgba(255,255,255,0) 240px)',
+          // Restructured from "radial-gradient(... at var(--mx) var(--my))" to a fixed
+          // gradient image + moving mask-position. The old form forced the browser to
+          // rebuild the radial gradient every mouse/touch move, which is a MAIN-THREAD paint
+          // and was noticeably choppy on phones — the finger would outrun the reveal near
+          // the bottom of the hero, exactly where a longer drag concentrates the frames.
+          // The new form keeps the mask image constant and just slides its origin around,
+          // which composited engines can handle without repainting the gradient. `will-change`
+          // promotes the reveal to its own compositor layer so mask-position updates never
+          // dirty the surrounding paint.
+          WebkitMaskImage: 'radial-gradient(circle 240px at center, rgba(255,255,255,1) 0px, rgba(255,255,255,0.95) 60px, rgba(255,255,255,0.6) 120px, rgba(255,255,255,0.25) 180px, rgba(255,255,255,0) 240px)',
+          maskImage: 'radial-gradient(circle 240px at center, rgba(255,255,255,1) 0px, rgba(255,255,255,0.95) 60px, rgba(255,255,255,0.6) 120px, rgba(255,255,255,0.25) 180px, rgba(255,255,255,0) 240px)',
+          WebkitMaskSize: '480px 480px',
+          maskSize: '480px 480px',
           WebkitMaskRepeat: 'no-repeat',
-          maskRepeat: 'no-repeat'
+          maskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'calc(var(--mx) - 240px) calc(var(--my) - 240px)',
+          maskPosition: 'calc(var(--mx) - 240px) calc(var(--my) - 240px)',
+          willChange: 'mask-position'
         }}
       />
     </div>

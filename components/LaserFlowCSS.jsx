@@ -45,6 +45,7 @@ export function LaserFlowCSS({ className, style, beamX = '63.8%' }) {
       <div className="lfc-fog">
         <div className="lfc-fog-inner" />
       </div>
+      <div className="lfc-halo" />
       <div className="lfc-shaft lfc-pulse" />
       <div className="lfc-flow">
         <div className="lfc-flow-inner" />

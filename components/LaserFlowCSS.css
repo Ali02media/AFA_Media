@@ -234,25 +234,45 @@
    downward. The noise is a data-URI, so feTurbulence runs once at decode and never
    again — only `transform` animates, which stays on the compositor. */
 .lfc-fog {
-  opacity: 0.22;
-  /* Centred left of the beam: in the reference the haze trails much further to the
-     left (at 275px out it is 26/255 on the left but only 12/255 on the right),
-     because the beam sits right of centre and the shader's edge vignette clips that
-     side sooner. */
+  opacity: 0.34;
+  /* Widened and lifted so the haze fills the frame the way the desktop WebGL version does.
+     Centred left of the beam because in the reference the fog trails much further to the
+     left (the beam sits right of centre and the shader's edge vignette clips that side
+     sooner). Vertical radius grown from 66% to 92%, horizontal from 52% to 72%, so on a
+     mobile viewport the whole hero reads as hazy atmosphere rather than a small pool of
+     mist at the base — that atmospheric fill is what makes the desktop version feel
+     "cinematic" and the previous mobile version feel like a bare beam on a black rect. */
   -webkit-mask-image: radial-gradient(
-    ellipse 52% 66% at 52% 106%,
+    ellipse 72% 92% at 52% 104%,
     rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.6) 36%,
-    rgba(0, 0, 0, 0.22) 64%,
-    transparent 88%
+    rgba(0, 0, 0, 0.72) 32%,
+    rgba(0, 0, 0, 0.4) 56%,
+    rgba(0, 0, 0, 0.16) 76%,
+    transparent 96%
   );
   mask-image: radial-gradient(
-    ellipse 52% 66% at 52% 106%,
+    ellipse 72% 92% at 52% 104%,
     rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.6) 36%,
-    rgba(0, 0, 0, 0.22) 64%,
-    transparent 88%
+    rgba(0, 0, 0, 0.72) 32%,
+    rgba(0, 0, 0, 0.4) 56%,
+    rgba(0, 0, 0, 0.16) 76%,
+    transparent 96%
   );
+}
+
+/* Ambient halo — a big soft cyan glow around the whole beam, so on mobile the beam sits
+   inside a lit atmosphere instead of on a bare black rectangle. Purely a static gradient,
+   no animation, so it's free at runtime. */
+.lfc-halo {
+  background: radial-gradient(
+    ellipse 60% 70% at var(--lfc-x) 100%,
+    rgba(66, 181, 207, 0.14) 0%,
+    rgba(66, 181, 207, 0.08) 26%,
+    rgba(66, 181, 207, 0.04) 48%,
+    rgba(66, 181, 207, 0.015) 66%,
+    transparent 82%
+  );
+  pointer-events: none;
 }
 
 .lfc-fog-inner {
