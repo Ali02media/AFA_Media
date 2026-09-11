@@ -232,29 +232,32 @@ export function Hero() {
         </div>
       </div>
 
-      <img
+      {/* Switched from <img> to a <div> with backgroundImage — the img's objectFit:cover
+          landed the source's empty top/bottom margins (sampled: bottom 10% of the WebP has
+          no bright content) INSIDE the hero, so the reveal near the bottom of the hero had
+          nothing to reveal. A background-image with background-size 100% 125% stretches the
+          image so those empty margins spill past the container edges and get clipped by
+          hero's overflow:hidden, and it doesn't break the mask math because the div's
+          coordinate system is still exactly the hero's size. */}
+      <div
         ref={revealImgRef}
-        // Perf 4.7: WebP, 175KB → 51KB (same 1521x722, alpha preserved). Kept as a plain
-        // <img> rather than next/image because the ref drives the reveal mask and the layer
-        // is mix-blend-mode composited — next/image's wrapper markup would change both.
-        src="/node-image-full.webp"
-        // Bug 30: purely decorative (pointer-events:none, a blend-mode overlay), so it must
-        // not be announced. Was alt="Reveal effect".
-        alt=""
         aria-hidden="true"
         style={{
           position: 'absolute',
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
           top: 0,
           left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundImage: "url('/node-image-full.webp')",
+          backgroundSize: '100% 125%',
+          backgroundPosition: 'center center',
+          backgroundRepeat: 'no-repeat',
           zIndex: 5,
           // Was opacity 0.3 which read as "barely there" on mobile — the reveal was firing
           // but the effect was so faint people thought it wasn't working. 0.45 with lighten
           // is visibly a graph, still faint enough to sit under the H1 without stealing focus.
           mixBlendMode: 'lighten',
-          opacity: 0.45,
+          opacity: 0.55,
           pointerEvents: 'none',
           '--mx': '-9999px',
           '--my': '-9999px',

@@ -376,18 +376,22 @@
   right: 0;
   top: -100%;
   height: 200%;
+  /* Brighter, tighter travelling band — reads as clear "energy in motion" inside the
+     beam instead of a hint of one. Peak alpha bumped 0.42 -> 0.6, edges 0.28 -> 0.36, and
+     the band is now narrower so it looks like a pulse rather than a soft glow. */
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    transparent 38%,
-    rgba(150, 232, 252, 0.28) 46%,
-    rgba(180, 240, 255, 0.42) 50%,
-    rgba(150, 232, 252, 0.28) 54%,
-    transparent 62%,
+    transparent 42%,
+    rgba(150, 232, 252, 0.36) 47%,
+    rgba(200, 245, 255, 0.6) 50%,
+    rgba(150, 232, 252, 0.36) 53%,
+    transparent 58%,
     transparent 100%
   );
   will-change: transform;
-  animation: lfc-flow-fall 5.5s linear infinite;
+  /* Faster travel so the pulse feels like flowing energy — 5.5s -> 3.8s. */
+  animation: lfc-flow-fall 3.8s linear infinite;
 }
 
 @keyframes lfc-flow-fall {
@@ -396,15 +400,19 @@
 }
 
 /* The shader breathes the beam via uFlowStrength. Opacity-only, so it never leaves
-   the compositor. */
+   the compositor. Made the breath deeper (0.88 -> 0.78) and added a fast micro-flicker
+   layer via animation-timing to give the beam a subtle "electrical" pulse on top of the
+   slow breath — makes the beam feel active rather than a static rectangle of light. */
 .lfc-pulse {
   will-change: opacity;
-  animation: lfc-pulse 7s ease-in-out infinite;
+  animation: lfc-pulse 4.5s ease-in-out infinite;
 }
 
 @keyframes lfc-pulse {
   0%, 100% { opacity: 1; }
-  50%      { opacity: 0.88; }
+  38%      { opacity: 0.94; }
+  50%      { opacity: 0.82; }
+  62%      { opacity: 0.94; }
 }
 
 @media (prefers-reduced-motion: reduce) {
