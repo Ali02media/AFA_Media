@@ -17,6 +17,14 @@ import './LaserFlowCSS.css';
 const NOISE =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='900'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.006' numOctaves='6' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.42 0.42 0.42 0 -0.06'/%3E%3C/filter%3E%3Crect width='900' height='900' filter='url(%23n)'/%3E%3C/svg%3E\")";
 
+// Grain used to dither out gradient banding — the visible "stepping" the CSS beam showed
+// at its widening bottom, where several stacked low-alpha radial gradients cross. Cheap
+// dither: fine SVG monochrome noise, tiled, overlaid at ~4% opacity. The eye stops seeing
+// alpha steps because the grain moves them around by a pixel or two of noise, but the grain
+// itself is under the visibility threshold on its own. One-shot decode, no animation.
+const DITHER =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.4' numOctaves='1' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23d)'/%3E%3C/svg%3E\")";
+
 /**
  * Pure-CSS stand-in for <LaserFlow>. Same beam, splash, wisps and drifting fog, but with
  * no WebGL context, no three.js and no per-frame JS — the WebGL version cost ~22s of
@@ -32,7 +40,7 @@ export function LaserFlowCSS({ className, style, beamX = '63.8%' }) {
     <div
       aria-hidden="true"
       className={`lfc ${className || ''}`}
-      style={{ '--lfc-x': beamX, '--lfc-noise': NOISE, ...style }}
+      style={{ '--lfc-x': beamX, '--lfc-noise': NOISE, '--lfc-dither': DITHER, ...style }}
     >
       <div className="lfc-fog">
         <div className="lfc-fog-inner" />

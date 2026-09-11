@@ -21,6 +21,27 @@
   inset: 0;
 }
 
+/* Dither overlay. The stacked low-alpha radial gradients on the beam's flare and floor
+   were visibly banding at mobile widths — a phone sees full 8-bit alpha stepping across a
+   ~400px gradient, which reads as chunky "stripes" at the bottom of the beam. This layer
+   scatters that stepping with a single tile of fine SVG grain: the eye no longer picks out
+   the alpha steps because the grain moves them around by a pixel of noise, but the grain
+   itself sits below the visibility threshold. mix-blend-mode: overlay so it lifts bright
+   pixels and dims dark ones without introducing any colour of its own; sits at the top of
+   the stack via z-index so it dithers everything the beam paints. */
+.lfc::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  background-image: var(--lfc-dither);
+  background-size: 240px 240px;
+  background-repeat: repeat;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+}
+
 /* ── Shaft ───────────────────────────────────────────────────────────────────
    Constant width over the full height, so this is a pure horizontal gradient with
    no vertical component — the earlier ellipse-anchored-at-the-bottom approach was
