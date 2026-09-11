@@ -134,7 +134,15 @@ export function Hero() {
         const rect = e.currentTarget.getBoundingClientRect();
         queue(e.clientX - rect.left, e.clientY - rect.top);
       }}
-      onPointerLeave={() => queue(-9999, -9999)}
+      onPointerLeave={(e) => {
+        // Only clear on a MOUSE leave. On touch, "pointer leaves the hero" often just
+        // means the finger crossed into the section below while still dragging — the
+        // reveal was clipping to nothing before the user's finger reached the actual
+        // bottom of the black area, which read as the effect quitting early. For touch,
+        // the reveal keeps its last position; the hero is about to leave the viewport
+        // anyway on any real drag past its edge.
+        if (e.pointerType !== 'touch') queue(-9999, -9999);
+      }}
     >
       {/* CSS rendition of the laser — beam, floor splash, drifting fog and wisps built
           from gradients measured off the shader itself. It paints on the first frame and

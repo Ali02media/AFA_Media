@@ -421,3 +421,25 @@
     animation: none;
   }
 }
+
+/* On phones and small tablets, the whole beam ends up rendering as thin threads because
+   the horizontal proportions (beam plateau at 1.32% of width, halo at 60%, etc.) were
+   calibrated against a 1440px desktop viewport. Scale the entire .lfc container up on
+   small viewports, anchored at the base of the beam, so the mobile view reads as a real
+   zoomed-in desktop beam rather than a miniature diagram of one. Any overshoot spills
+   past the hero edges and gets clipped by hero's overflow:hidden, so it just fills the
+   viewport more — which is what makes the desktop version feel atmospheric.
+   Kept below the reveal image (z-index 5 > any layer here), so the hover-graph still
+   composites correctly on top. */
+@media (max-width: 900px) {
+  .lfc {
+    transform: scale(1.55);
+    transform-origin: 63.8% 100%;
+    will-change: transform;
+  }
+}
+@media (max-width: 500px) {
+  .lfc {
+    transform: scale(1.9);
+  }
+}
