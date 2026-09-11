@@ -5,8 +5,17 @@ import './LaserFlowCSS.css';
 // Baked fbm noise for the fog. feTurbulence runs once when the browser decodes this
 // data-URI and never again — from then on it's an ordinary image used as a mask, so the
 // drift animation is pure compositor work. `stitchTiles` makes it tile seamlessly.
+//
+// Went from 620/0.012/4-octave to 900/0.006/6-octave because the mobile viewers reported
+// the fog reading "pixelated". At the old baseFrequency of 0.012 on a 620px tile the
+// low-octave features rasterised at ~13px chunks — visibly blocky on a phone screen where
+// the tile fills most of the viewport. 0.006 spreads those chunks to ~26px so each block
+// is now bigger than the eye can pick out at arm's length, and two extra octaves stack finer
+// grain on top so the surface reads as continuous smoke rather than tiles. Rendering into
+// 900x900 keeps the higher-frequency detail sub-pixel on 2x/3x DPR phones. Decode cost is
+// still one-shot at ~5ms and pure GPU thereafter, so no impact on runtime performance.
 const NOISE =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='620' height='620'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.4 0.4 0.4 0 -0.08'/%3E%3C/filter%3E%3Crect width='620' height='620' filter='url(%23n)'/%3E%3C/svg%3E\")";
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='900'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.006' numOctaves='6' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.42 0.42 0.42 0 -0.06'/%3E%3C/filter%3E%3Crect width='900' height='900' filter='url(%23n)'/%3E%3C/svg%3E\")";
 
 /**
  * Pure-CSS stand-in for <LaserFlow>. Same beam, splash, wisps and drifting fog, but with
@@ -29,6 +38,9 @@ export function LaserFlowCSS({ className, style, beamX = '63.8%' }) {
         <div className="lfc-fog-inner" />
       </div>
       <div className="lfc-shaft lfc-pulse" />
+      <div className="lfc-flow">
+        <div className="lfc-flow-inner" />
+      </div>
       <div className="lfc-flare" />
       <div className="lfc-hot" />
       <div className="lfc-pool" />
