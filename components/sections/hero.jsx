@@ -108,7 +108,15 @@ export function Hero() {
         height: '100svh',
         position: 'relative',
         overflow: 'hidden',
-        backgroundColor: 'var(--color-hero-bg)'
+        backgroundColor: 'var(--color-hero-bg)',
+        // touchAction pan-y: keep vertical page-scroll working (users still need to
+        // swipe down from the hero to leave it), but explicitly reserve every other
+        // gesture — horizontal drag, angled drag, any tap-and-move — for pointer events
+        // so the reveal follows the thumb instead of the browser eating the stream as
+        // scroll. Without this, the default touch-action:auto meant even a small
+        // horizontal component in a swipe would fire pointercancel and the mask blinked
+        // off the moment the finger started moving.
+        touchAction: 'pan-y'
       }}
       // pointerdown + pointermove keeps the reveal following the finger for the full
       // life of the touch (tap alone, tap-and-drag, whatever). onPointerLeave clears when

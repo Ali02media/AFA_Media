@@ -103,36 +103,70 @@
 /* Flare: the beam holds its width until ~80% height, then trumpets outward fast —
    measured half-width goes 2.8% -> 4.8% -> 9.2% -> 14.4% -> 23% over the last 20%.
    A single ellipse decays far too gently to trace that, so it's two stacked: a tall
-   narrow one for the neck and a short wide one for the mouth. */
+   narrow one for the neck and a short wide one for the mouth.
+
+   `filter: blur(0.5px)` costs one rasterization at load (no per-frame work — the layer
+   is static) and completely eliminates the sub-pixel alpha stepping that reads as
+   banding at the trumpet's edges. Well worth it: the beam is 5-15 px wide with radial
+   falloff over another 60-80 px, exactly the geometry where 1/255 alpha steps land on
+   visible display pixels. A sub-pixel blur smears each step across its neighbours. */
 .lfc-flare {
+  filter: blur(0.5px);
   background:
-    /* neck */
+    /* neck — many closely-spaced stops so alpha interpolation stays smooth in each
+       segment even without the blur, so the blur only has to hide a tiny residual */
     radial-gradient(
       ellipse 6% 26% at var(--lfc-x) 100%,
       rgba(72, 204, 240, 0.85) 0%,
-      rgba(68, 190, 224, 0.48) 50%,
+      rgba(71, 202, 237, 0.79) 8%,
+      rgba(70, 198, 233, 0.72) 17%,
+      rgba(69, 194, 229, 0.65) 26%,
+      rgba(68, 190, 224, 0.55) 38%,
+      rgba(67, 186, 217, 0.48) 50%,
+      rgba(66, 183, 212, 0.38) 60%,
+      rgba(66, 181, 207, 0.28) 68%,
+      rgba(66, 181, 207, 0.2) 74%,
       rgba(66, 181, 207, 0.14) 78%,
+      rgba(66, 181, 207, 0.09) 84%,
+      rgba(66, 181, 207, 0.045) 89%,
+      rgba(66, 181, 207, 0.015) 92%,
       transparent 94%
     ),
     /* mouth */
     radial-gradient(
       ellipse 15% 12% at var(--lfc-x) 100%,
       rgba(74, 208, 244, 0.9) 0%,
-      rgba(70, 196, 230, 0.6) 46%,
-      rgba(66, 181, 207, 0.28) 72%,
-      rgba(66, 181, 207, 0.06) 89%,
+      rgba(72, 202, 237, 0.78) 12%,
+      rgba(71, 199, 233, 0.72) 20%,
+      rgba(71, 196, 230, 0.6) 32%,
+      rgba(70, 192, 224, 0.5) 42%,
+      rgba(69, 188, 218, 0.4) 52%,
+      rgba(68, 185, 213, 0.32) 62%,
+      rgba(66, 181, 207, 0.24) 72%,
+      rgba(66, 181, 207, 0.15) 80%,
+      rgba(66, 181, 207, 0.08) 87%,
+      rgba(66, 181, 207, 0.03) 94%,
       transparent 100%
     );
 }
 
 /* The core also brightens toward the floor — 199 at mid-height, 224 by 80%, clipping
-   to a white-hot 255 from 95% down. */
+   to a white-hot 255 from 95% down. Same sub-pixel blur trick as the flare. */
 .lfc-hot {
+  filter: blur(0.5px);
   background: radial-gradient(
     ellipse 3.5% 30% at var(--lfc-x) 100%,
     rgba(96, 230, 255, 0.95) 0%,
-    rgba(76, 212, 246, 0.5) 36%,
-    rgba(66, 181, 207, 0.12) 66%,
+    rgba(92, 227, 253, 0.82) 10%,
+    rgba(88, 224, 251, 0.72) 18%,
+    rgba(84, 220, 249, 0.6) 26%,
+    rgba(80, 216, 247, 0.5) 34%,
+    rgba(76, 212, 246, 0.4) 42%,
+    rgba(73, 205, 240, 0.3) 52%,
+    rgba(70, 197, 232, 0.22) 60%,
+    rgba(68, 190, 220, 0.15) 68%,
+    rgba(66, 181, 207, 0.08) 76%,
+    rgba(66, 181, 207, 0.03) 83%,
     transparent 88%
   );
 }
@@ -147,7 +181,11 @@
   /* Horizontal profile with a flat saturated top from 38% to 86% and a hard cut just
      past 90% — the same plateau shape as the beam core, and for the same reason: a
      radial gradient rounds it off into a soft pool instead of a line. The vertical
-     mask is what keeps it thin (half-bright 1.6% of the height up, gone by 8%). */
+     mask is what keeps it thin (half-bright 1.6% of the height up, gone by 8%).
+     Sub-pixel blur smoothes the mask's hard bottom edge and the sharp horizontal
+     stops on the plateau's outer flanks — those were the sharpest transitions on
+     screen, so the blur has visibly the largest effect here. */
+  filter: blur(0.6px);
   background: linear-gradient(
     to right,
     transparent 14%,
