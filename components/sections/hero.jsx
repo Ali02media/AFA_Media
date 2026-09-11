@@ -267,14 +267,18 @@ export function Hero() {
           // which composited engines can handle without repainting the gradient. `will-change`
           // promotes the reveal to its own compositor layer so mask-position updates never
           // dirty the surrounding paint.
-          WebkitMaskImage: 'radial-gradient(circle 240px at center, rgba(255,255,255,1) 0px, rgba(255,255,255,0.95) 60px, rgba(255,255,255,0.6) 120px, rgba(255,255,255,0.25) 180px, rgba(255,255,255,0) 240px)',
-          maskImage: 'radial-gradient(circle 240px at center, rgba(255,255,255,1) 0px, rgba(255,255,255,0.95) 60px, rgba(255,255,255,0.6) 120px, rgba(255,255,255,0.25) 180px, rgba(255,255,255,0) 240px)',
-          WebkitMaskSize: '480px 480px',
-          maskSize: '480px 480px',
+          WebkitMaskImage: 'radial-gradient(circle 340px at center, rgba(255,255,255,1) 0px, rgba(255,255,255,0.95) 90px, rgba(255,255,255,0.65) 170px, rgba(255,255,255,0.3) 250px, rgba(255,255,255,0) 340px)',
+          maskImage: 'radial-gradient(circle 340px at center, rgba(255,255,255,1) 0px, rgba(255,255,255,0.95) 90px, rgba(255,255,255,0.65) 170px, rgba(255,255,255,0.3) 250px, rgba(255,255,255,0) 340px)',
+          WebkitMaskSize: '680px 680px',
+          maskSize: '680px 680px',
           WebkitMaskRepeat: 'no-repeat',
           maskRepeat: 'no-repeat',
-          WebkitMaskPosition: 'calc(var(--mx) - 240px) calc(var(--my) - 240px)',
-          maskPosition: 'calc(var(--mx) - 240px) calc(var(--my) - 240px)',
+          // Bigger reveal circle (340px radius vs 240px) so more of the graph shows in one
+          // pass — the user said the reveal near the bottom of the hero didn't "show the
+          // whole canvas", and at 240px the visible area was small enough that it read as
+          // barely-anything even when the mask was tracking correctly.
+          WebkitMaskPosition: 'calc(var(--mx) - 340px) calc(var(--my) - 340px)',
+          maskPosition: 'calc(var(--mx) - 340px) calc(var(--my) - 340px)',
           willChange: 'mask-position'
         }}
       />

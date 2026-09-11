@@ -234,42 +234,36 @@
    downward. The noise is a data-URI, so feTurbulence runs once at decode and never
    again — only `transform` animates, which stays on the compositor. */
 .lfc-fog {
-  opacity: 0.34;
-  /* Widened and lifted so the haze fills the frame the way the desktop WebGL version does.
-     Centred left of the beam because in the reference the fog trails much further to the
-     left (the beam sits right of centre and the shader's edge vignette clips that side
-     sooner). Vertical radius grown from 66% to 92%, horizontal from 52% to 72%, so on a
-     mobile viewport the whole hero reads as hazy atmosphere rather than a small pool of
-     mist at the base — that atmospheric fill is what makes the desktop version feel
-     "cinematic" and the previous mobile version feel like a bare beam on a black rect. */
+  opacity: 0.22;
+  /* Pulled the fog back in: the wider fill was flooding the entire hero with cyan haze,
+     which is the opposite of the beam-on-dark feel the reference has. Narrower ellipse
+     (48% x 62% instead of 72% x 92%) concentrates the mist right at the beam's base and
+     lets the corners of the hero stay dark. */
   -webkit-mask-image: radial-gradient(
-    ellipse 72% 92% at 52% 104%,
+    ellipse 48% 62% at 55% 106%,
     rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.72) 32%,
-    rgba(0, 0, 0, 0.4) 56%,
-    rgba(0, 0, 0, 0.16) 76%,
-    transparent 96%
+    rgba(0, 0, 0, 0.62) 34%,
+    rgba(0, 0, 0, 0.24) 62%,
+    transparent 88%
   );
   mask-image: radial-gradient(
-    ellipse 72% 92% at 52% 104%,
+    ellipse 48% 62% at 55% 106%,
     rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.72) 32%,
-    rgba(0, 0, 0, 0.4) 56%,
-    rgba(0, 0, 0, 0.16) 76%,
-    transparent 96%
+    rgba(0, 0, 0, 0.62) 34%,
+    rgba(0, 0, 0, 0.24) 62%,
+    transparent 88%
   );
 }
 
-/* Ambient halo — a big soft cyan glow around the whole beam, so on mobile the beam sits
-   inside a lit atmosphere instead of on a bare black rectangle. Purely a static gradient,
-   no animation, so it's free at runtime. */
+/* Tight halo just around the shaft, not across the whole hero. Was 60% x 70% at 0.14
+   opacity which tinted the entire viewport cyan; the reference has that cyan hugging the
+   beam and falling off inside a body-length. */
 .lfc-halo {
   background: radial-gradient(
-    ellipse 60% 70% at var(--lfc-x) 100%,
-    rgba(66, 181, 207, 0.14) 0%,
-    rgba(66, 181, 207, 0.08) 26%,
-    rgba(66, 181, 207, 0.04) 48%,
-    rgba(66, 181, 207, 0.015) 66%,
+    ellipse 26% 55% at var(--lfc-x) 100%,
+    rgba(66, 181, 207, 0.11) 0%,
+    rgba(66, 181, 207, 0.05) 34%,
+    rgba(66, 181, 207, 0.02) 60%,
     transparent 82%
   );
   pointer-events: none;
@@ -433,13 +427,13 @@
    composites correctly on top. */
 @media (max-width: 900px) {
   .lfc {
-    transform: scale(1.55);
+    transform: scale(1.35);
     transform-origin: 63.8% 100%;
     will-change: transform;
   }
 }
 @media (max-width: 500px) {
   .lfc {
-    transform: scale(1.9);
+    transform: scale(1.55);
   }
 }
