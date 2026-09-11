@@ -26,9 +26,13 @@
    ~400px gradient, which reads as chunky "stripes" at the bottom of the beam. This layer
    scatters that stepping with a single tile of fine SVG grain: the eye no longer picks out
    the alpha steps because the grain moves them around by a pixel of noise, but the grain
-   itself sits below the visibility threshold. mix-blend-mode: overlay so it lifts bright
-   pixels and dims dark ones without introducing any colour of its own; sits at the top of
-   the stack via z-index so it dithers everything the beam paints. */
+   itself sits below the visibility threshold.
+   Blend mode is `screen`, not `overlay`. Overlay's formula on a base darker than 0.5
+   simplifies to `2*base*blend`, which collapses everything toward the base on a near-black
+   backdrop like this hero (bg is 0.03 luminance) — the grain effectively did nothing, which
+   is why the first pass didn't fix the banding. Screen writes `base + blend*(1 - base)`,
+   so a white noise pixel lifts a 0.03 base by ~0.06 and a black one leaves it alone; that
+   ±0.06 variance is comfortably above the 1/255 alpha step the banding rides on. */
 .lfc::after {
   content: '';
   position: absolute;
@@ -38,8 +42,8 @@
   background-image: var(--lfc-dither);
   background-size: 240px 240px;
   background-repeat: repeat;
-  opacity: 0.04;
-  mix-blend-mode: overlay;
+  opacity: 0.07;
+  mix-blend-mode: screen;
 }
 
 /* ── Shaft ───────────────────────────────────────────────────────────────────

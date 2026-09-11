@@ -110,11 +110,25 @@ export function Hero() {
         overflow: 'hidden',
         backgroundColor: 'var(--color-hero-bg)'
       }}
+      // pointerdown is added alongside pointermove so a stationary tap on mobile also
+      // reveals the graph — pointermove alone only fires after the finger starts moving,
+      // so a single tap did nothing. touchend clears the mask so the reveal fades once the
+      // finger lifts.
       onPointerMove={(e) => {
         const rect = e.currentTarget.getBoundingClientRect();
         queue(e.clientX - rect.left, e.clientY - rect.top);
       }}
+      onPointerDown={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        queue(e.clientX - rect.left, e.clientY - rect.top);
+      }}
       onPointerLeave={() => queue(-9999, -9999)}
+      onPointerUp={(e) => {
+        // On touch, the finger lifting is the natural end of interaction; on mouse we keep
+        // the last position (pointerleave handles that path).
+        if (e.pointerType === 'touch') queue(-9999, -9999);
+      }}
+      onPointerCancel={() => queue(-9999, -9999)}
     >
       {/* CSS rendition of the laser — beam, floor splash, drifting fog and wisps built
           from gradients measured off the shader itself. It paints on the first frame and
