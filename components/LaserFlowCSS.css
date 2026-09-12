@@ -234,36 +234,35 @@
    downward. The noise is a data-URI, so feTurbulence runs once at decode and never
    again — only `transform` animates, which stays on the compositor. */
 .lfc-fog {
-  opacity: 0.22;
-  /* Pulled the fog back in: the wider fill was flooding the entire hero with cyan haze,
-     which is the opposite of the beam-on-dark feel the reference has. Narrower ellipse
-     (48% x 62% instead of 72% x 92%) concentrates the mist right at the beam's base and
-     lets the corners of the hero stay dark. */
+  opacity: 0.14;
+  /* Pulled tighter and dimmer again — the previous 0.22 with a 48%x62% mask was still
+     tinting more of the hero than the reference does. Now 0.14 / 40%x48%, so the mist
+     sits right at the base of the beam and doesn't reach the top half of the hero. */
   -webkit-mask-image: radial-gradient(
-    ellipse 48% 62% at 55% 106%,
+    ellipse 40% 48% at 58% 108%,
     rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.62) 34%,
-    rgba(0, 0, 0, 0.24) 62%,
-    transparent 88%
+    rgba(0, 0, 0, 0.6) 30%,
+    rgba(0, 0, 0, 0.22) 58%,
+    transparent 86%
   );
   mask-image: radial-gradient(
-    ellipse 48% 62% at 55% 106%,
+    ellipse 40% 48% at 58% 108%,
     rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.62) 34%,
-    rgba(0, 0, 0, 0.24) 62%,
-    transparent 88%
+    rgba(0, 0, 0, 0.6) 30%,
+    rgba(0, 0, 0, 0.22) 58%,
+    transparent 86%
   );
 }
 
-/* Tight halo just around the shaft, not across the whole hero. Was 60% x 70% at 0.14
-   opacity which tinted the entire viewport cyan; the reference has that cyan hugging the
-   beam and falling off inside a body-length. */
+/* Halo now sits tight around the shaft — was pushing enough cyan out that the user could
+   see it across the whole hero on their phone. Shrunk to 15% x 40% at 0.08 peak, and it
+   fades to nothing well before the corners of the hero. */
 .lfc-halo {
   background: radial-gradient(
-    ellipse 26% 55% at var(--lfc-x) 100%,
-    rgba(66, 181, 207, 0.11) 0%,
-    rgba(66, 181, 207, 0.05) 34%,
-    rgba(66, 181, 207, 0.02) 60%,
+    ellipse 15% 40% at var(--lfc-x) 100%,
+    rgba(66, 181, 207, 0.08) 0%,
+    rgba(66, 181, 207, 0.03) 40%,
+    rgba(66, 181, 207, 0.01) 66%,
     transparent 82%
   );
   pointer-events: none;

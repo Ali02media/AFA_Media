@@ -249,7 +249,12 @@ export function Hero() {
           width: '100%',
           height: '100%',
           backgroundImage: "url('/node-image-full.webp')",
-          backgroundSize: '100% 125%',
+          // `auto 140%` keeps the image's own aspect ratio (was `100% 125%` which stretched
+          // it vertically and made the graph look squeezed on mobile). Height is scaled to
+          // 140% of the hero so the empty top and bottom margins of the source WebP overflow
+          // and get clipped by hero's overflow:hidden; width auto scales in proportion so
+          // horizontal excess crops equally left/right the way objectFit:cover did.
+          backgroundSize: 'auto 140%',
           backgroundPosition: 'center center',
           backgroundRepeat: 'no-repeat',
           zIndex: 5,
