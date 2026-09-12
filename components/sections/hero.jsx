@@ -249,13 +249,16 @@ export function Hero() {
           width: '100%',
           height: '100%',
           backgroundImage: "url('/node-image-full.webp')",
-          // `auto 140%` keeps the image's own aspect ratio (was `100% 125%` which stretched
-          // it vertically and made the graph look squeezed on mobile). Height is scaled to
-          // 140% of the hero so the empty top and bottom margins of the source WebP overflow
-          // and get clipped by hero's overflow:hidden; width auto scales in proportion so
-          // horizontal excess crops equally left/right the way objectFit:cover did.
-          backgroundSize: 'auto 140%',
-          backgroundPosition: 'center center',
+          // Natural aspect, sized to the hero's WIDTH, positioned around the middle of the
+          // hero so the graph reads as a compact "AI-nodes card" rather than a wall-sized
+          // scatter. The `auto 140%` stretch was making the nodes look enormous and
+          // disorganised because you were seeing them zoomed in ~4x their intended size.
+          // Now the whole graph fits horizontally in one glance and the nodes look
+          // like nodes — anywhere outside that horizontal band the mask reveals nothing,
+          // which is fine because the reveal is meant to feel like a small window into
+          // "the system", not a background wallpaper.
+          backgroundSize: '100% auto',
+          backgroundPosition: 'center 45%',
           backgroundRepeat: 'no-repeat',
           zIndex: 5,
           // Was opacity 0.3 which read as "barely there" on mobile — the reveal was firing

@@ -234,23 +234,23 @@
    downward. The noise is a data-URI, so feTurbulence runs once at decode and never
    again — only `transform` animates, which stays on the compositor. */
 .lfc-fog {
-  opacity: 0.14;
-  /* Pulled tighter and dimmer again — the previous 0.22 with a 48%x62% mask was still
-     tinting more of the hero than the reference does. Now 0.14 / 40%x48%, so the mist
-     sits right at the base of the beam and doesn't reach the top half of the hero. */
+  opacity: 0.07;
+  /* Pulled tighter and dimmer yet again — the user was still reading a grey wash over the
+     hero. Halved opacity to 0.07 and narrowed the mask further so only a whisper of fog
+     sits at the beam's base and the rest of the hero reads as clean black. */
   -webkit-mask-image: radial-gradient(
-    ellipse 40% 48% at 58% 108%,
+    ellipse 32% 36% at 60% 110%,
     rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.6) 30%,
-    rgba(0, 0, 0, 0.22) 58%,
-    transparent 86%
+    rgba(0, 0, 0, 0.55) 32%,
+    rgba(0, 0, 0, 0.18) 62%,
+    transparent 88%
   );
   mask-image: radial-gradient(
-    ellipse 40% 48% at 58% 108%,
+    ellipse 32% 36% at 60% 110%,
     rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.6) 30%,
-    rgba(0, 0, 0, 0.22) 58%,
-    transparent 86%
+    rgba(0, 0, 0, 0.55) 32%,
+    rgba(0, 0, 0, 0.18) 62%,
+    transparent 88%
   );
 }
 
