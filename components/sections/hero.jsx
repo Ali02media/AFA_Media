@@ -257,7 +257,10 @@ export function Hero() {
           // and right — no distortion. Positioned a hair above centre so the reveal lines
           // up under the H1 where the thumb most naturally lands.
           backgroundSize: 'auto 70%',
-          backgroundPosition: 'center 44%',
+          // Pushed the image down from 44% -> 82% so its bottom edge lands near the base of
+          // the hero (where the beam meets the floor). Reveal now finds nodes when the thumb
+          // sits down at the beam-end area, not just under the H1.
+          backgroundPosition: 'center 82%',
           backgroundRepeat: 'no-repeat',
           zIndex: 5,
           // Was opacity 0.3 which read as "barely there" on mobile — the reveal was firing
