@@ -249,16 +249,15 @@ export function Hero() {
           width: '100%',
           height: '100%',
           backgroundImage: "url('/node-image-full.webp')",
-          // Natural aspect, sized to the hero's WIDTH, positioned around the middle of the
-          // hero so the graph reads as a compact "AI-nodes card" rather than a wall-sized
-          // scatter. The `auto 140%` stretch was making the nodes look enormous and
-          // disorganised because you were seeing them zoomed in ~4x their intended size.
-          // Now the whole graph fits horizontally in one glance and the nodes look
-          // like nodes — anywhere outside that horizontal band the mask reveals nothing,
-          // which is fine because the reveal is meant to feel like a small window into
-          // "the system", not a background wallpaper.
-          backgroundSize: '100% auto',
-          backgroundPosition: 'center 45%',
+          // Natural aspect (aspect intact — no more squeezed graph), sized to 70% of the
+          // hero's HEIGHT so the graph fills about two-thirds of the frame with the WHOLE
+          // node network at ~0.55x its natural zoom. That reads as a clean, compact
+          // "AI-system diagram" rather than a wall of enormous zoomed-in nodes. Because
+          // width scales in proportion (auto), the horizontal excess crops equally left
+          // and right — no distortion. Positioned a hair above centre so the reveal lines
+          // up under the H1 where the thumb most naturally lands.
+          backgroundSize: 'auto 70%',
+          backgroundPosition: 'center 44%',
           backgroundRepeat: 'no-repeat',
           zIndex: 5,
           // Was opacity 0.3 which read as "barely there" on mobile — the reveal was firing
