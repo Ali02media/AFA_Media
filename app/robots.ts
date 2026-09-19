@@ -28,6 +28,9 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: AI_CRAWLERS, allow: "/", disallow },
     ],
     sitemap: `${site.url}/sitemap.xml`,
-    host: site.url,
+    // `Host:` intentionally omitted. It's a Yandex-only directive that every non-Yandex
+    // parser (Semrush's site audit included) reports as invalid syntax, and we don't rank
+    // in Yandex, so the line was pure downside — it lost us "Robots.txt valid syntax" on
+    // audits and Yandex's own docs now recommend a 301 redirect over Host: anyway.
   };
 }
