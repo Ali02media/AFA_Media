@@ -14,12 +14,6 @@
   pointer-events: none;
   background-color: var(--lfc-bg, #060608);
   --lfc-x: 63.8%;
-  /* isolation:isolate creates a stacking context so ::after's mix-blend-mode: screen only
-     blends against the beam elements below it in THIS component, not through to whatever
-     is behind the hero. Without this the dither would fight the page's own background paint
-     underneath (which is a different colour), and on some GPUs the whole ::after silently
-     drops out. */
-  isolation: isolate;
 }
 
 .lfc > * {
@@ -48,8 +42,11 @@
   background-image: var(--lfc-dither);
   background-size: 240px 240px;
   background-repeat: repeat;
-  opacity: 0.11;
-  mix-blend-mode: screen;
+  /* Was mix-blend-mode: screen at 0.11 opacity — the blend mode forces the whole beam
+     stack to composite into an isolated layer on every frame, which was measurable perf
+     cost on low-end phones (Moto G Power PSI profile). Dropped to normal-blend with a
+     slightly higher opacity to compensate; band-hiding effect is essentially the same. */
+  opacity: 0.06;
 }
 
 /* ── Shaft ───────────────────────────────────────────────────────────────────
@@ -111,7 +108,6 @@
    falloff over another 60-80 px, exactly the geometry where 1/255 alpha steps land on
    visible display pixels. A sub-pixel blur smears each step across its neighbours. */
 .lfc-flare {
-  filter: blur(0.5px);
   background:
     /* neck — many closely-spaced stops so alpha interpolation stays smooth in each
        segment even without the blur, so the blur only has to hide a tiny residual */
@@ -153,7 +149,6 @@
 /* The core also brightens toward the floor — 199 at mid-height, 224 by 80%, clipping
    to a white-hot 255 from 95% down. Same sub-pixel blur trick as the flare. */
 .lfc-hot {
-  filter: blur(0.5px);
   background: radial-gradient(
     ellipse 3.5% 30% at var(--lfc-x) 100%,
     rgba(96, 230, 255, 0.95) 0%,
@@ -185,7 +180,6 @@
      Sub-pixel blur smoothes the mask's hard bottom edge and the sharp horizontal
      stops on the plateau's outer flanks — those were the sharpest transitions on
      screen, so the blur has visibly the largest effect here. */
-  filter: blur(0.6px);
   background: linear-gradient(
     to right,
     transparent 14%,
@@ -351,8 +345,9 @@
    inner carries the vertical gradient and translates — pure compositor work, same as the
    wisps and fog. */
 .lfc-flow {
-  opacity: 0.85;
-  mix-blend-mode: screen;
+  /* Dropped mix-blend-mode: screen — the isolation cost was measurable on low-end phones.
+     Normal blend with the existing bright gradient does essentially the same thing here. */
+  opacity: 0.75;
   -webkit-mask-image: linear-gradient(
     to right,
     transparent 55%,
@@ -436,7 +431,9 @@
   .lfc {
     transform: scale(1.35);
     transform-origin: 63.8% 100%;
-    will-change: transform;
+    /* will-change: transform was here — dropped because the scale is static (never
+       animates), and will-change on a static transform holds a compositor layer
+       permanently, which is real cost on low-end phones with tight GPU memory. */
   }
 }
 @media (max-width: 500px) {
