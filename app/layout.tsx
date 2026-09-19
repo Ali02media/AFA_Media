@@ -101,13 +101,30 @@ export default function RootLayout({
         lang="en-GB"
         className={`${nunito.variable} ${montserrat.variable} h-full antialiased`}
       >
-        {/* Cal.com preconnect+preload used to live here to warm embed.js during initial paint.
-            That was correct when embed.js booted eagerly on load, but the calendar is now
-            lazy-mounted via IntersectionObserver ~600px above the CTA (see booking-calendar.tsx),
-            so preloading it competes with LCP for bandwidth on cold 4G and then triggers the
-            "preload not used within a few seconds of load" browser warning that shows up under
-            Best Practices in Lighthouse. Cal's own bootstrap does its own DNS/TCP work when the
-            observer fires — which is well after LCP — so there's nothing left to warm. */}
+        <head>
+          {/* Preload the homepage hero's reveal graph. It was moved from an <img> to a <div>
+              with background-image so that background-size:auto controls could size it right
+              without objectFit's letterboxing — but that meant it stopped being visible to the
+              browser's preload scanner during HTML parse (background-image URLs are only
+              discovered once the CSS chunk containing them has been parsed and applied). As
+              the largest paintable element in the hero it was becoming the LCP, which Lighthouse
+              then reported at ~3.5s. An explicit preload here makes the browser fetch the WebP
+              in parallel with the CSS so it's warm the moment the reveal div paints. */}
+          <link
+            rel="preload"
+            as="image"
+            href="/node-image-full.webp"
+            type="image/webp"
+            fetchPriority="high"
+          />
+          {/* Cal.com preconnect+preload used to live here to warm embed.js during initial paint.
+              That was correct when embed.js booted eagerly on load, but the calendar is now
+              lazy-mounted via IntersectionObserver ~600px above the CTA (see booking-calendar.tsx),
+              so preloading it competes with LCP for bandwidth on cold 4G and then triggers the
+              "preload not used within a few seconds of load" browser warning that shows up under
+              Best Practices in Lighthouse. Cal's own bootstrap does its own DNS/TCP work when the
+              observer fires — which is well after LCP — so there's nothing left to warm. */}
+        </head>
         <body className="flex min-h-full flex-col bg-ink text-foreground">
           {/* GTM's <noscript> iframe MUST be the first child of <body>, per Google's install
               docs — it's what lets tags fire on browsers with JavaScript disabled. Rendered
