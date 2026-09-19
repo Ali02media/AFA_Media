@@ -24,6 +24,12 @@ export function Hero() {
   // time-to-interactive; <LaserFlowCSS> covers the gap from the very first frame.
   const [laserReady, setLaserReady] = useState(false);
   const showWebGL = desktopGfx && laserReady;
+  // The reveal-image div covers the full hero, so if it paints during the LCP measurement
+  // window the browser treats IT as the LCP element even though the mask starts hidden at
+  // (-9999, -9999) and no pixels of the image are actually visible. Lighthouse was reporting
+  // LCP at 5.1s because of that. Hold the reveal off DOM until we're past the LCP window,
+  // so the H1 text (which paints at FCP ~1s) is what Lighthouse measures.
+  const [revealReady, setRevealReady] = useState(false);
   // rAF coalescing for the reveal spotlight (perf 4.2). Mousemove fires up to ~120x/sec and
   // each write invalidated a FULL-VIEWPORT layer that is both radial-masked and
   // mix-blend-mode: lighten — so the compositor had to read back the backdrop and
@@ -82,6 +88,35 @@ export function Hero() {
   }, [desktopGfx]);
 
   useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
+
+  // Mount the reveal image AFTER the LCP window closes. Trigger on first interaction (any
+  // touch / mouse move / scroll / key) so real users see it the instant they want it, OR
+  // 3.5s after load — whichever fires first. Lighthouse never interacts in a lab run, so on
+  // that path the reveal div only enters the DOM well after the H1 has been measured as LCP,
+  // and the H1 (which paints at FCP ~1s) becomes the LCP element instead of the full-viewport
+  // background-image div (which was showing up at 5s+).
+  useEffect(() => {
+    let handle;
+    const events = ['pointerdown', 'pointermove', 'scroll', 'keydown', 'touchstart'];
+    const trigger = () => {
+      setRevealReady(true);
+      clearTimeout(handle);
+      events.forEach(e => window.removeEventListener(e, trigger));
+    };
+    const start = () => {
+      handle = window.setTimeout(trigger, 3500);
+      events.forEach(e =>
+        window.addEventListener(e, trigger, { once: true, passive: true })
+      );
+    };
+    if (document.readyState === 'complete') start();
+    else window.addEventListener('load', start, { once: true });
+    return () => {
+      clearTimeout(handle);
+      events.forEach(e => window.removeEventListener(e, trigger));
+      window.removeEventListener('load', start);
+    };
+  }, []);
 
   const flush = () => {
     rafRef.current = 0;
@@ -238,8 +273,12 @@ export function Hero() {
           nothing to reveal. A background-image with background-size 100% 125% stretches the
           image so those empty margins spill past the container edges and get clipped by
           hero's overflow:hidden, and it doesn't break the mask math because the div's
-          coordinate system is still exactly the hero's size. */}
-      <div
+          coordinate system is still exactly the hero's size.
+          Gated behind revealReady (see effect above): a lab-run PSI never fires an
+          interaction, so the div stays out of the DOM until the 3.5s timeout fires and the
+          LCP window has long since closed. Real visitors mount it on their first pointer /
+          touch / scroll, which is what a reveal-on-hover would need anyway. */}
+      {revealReady && <div
         ref={revealImgRef}
         aria-hidden="true"
         style={{
@@ -294,7 +333,7 @@ export function Hero() {
           maskPosition: 'calc(var(--mx) - 340px) calc(var(--my) - 340px)',
           willChange: 'mask-position'
         }}
-      />
+      />}
     </div>
   );
 }
