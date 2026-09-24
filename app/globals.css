@@ -132,14 +132,7 @@ body {
 }
 
 .bg-gradient-brand {
-  /* Was `--color-brand-blue -> --color-brand-teal`, which measured 3.06:1 against the white
-     button text at its midpoint — enough for large text but the site's CTAs all sit at 14px,
-     which needs 4.5:1. Switched both ends to the DARK variants of each ramp
-     (`--color-brand-blue-dark` -> `--color-brand-teal-dark`): the midpoint is now ~5:1, so
-     every button that uses this gradient — Book a Call in the nav, footer and cookie banner,
-     Get started on pricing, Book a Free Call in the footer, the Recommended badge — passes
-     WCAG AA. Still unmistakably brand blue-to-teal, just a shade deeper. */
-  background: linear-gradient(105deg, var(--color-brand-blue-dark) 0%, var(--color-brand-teal-dark) 100%);
+  background: linear-gradient(105deg, var(--color-brand-blue) 0%, var(--color-brand-teal) 100%);
 }
 
 /* ──────────────────────────────────────── Glassmorphism ── */
