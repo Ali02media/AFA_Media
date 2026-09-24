@@ -54,7 +54,10 @@ export function PricingComparison() {
             </div>
             <p className="text-xs text-mist-dim">
               + one-time setup:{" "}
-              <span className="line-through opacity-60">£{plan.fullOnboarding}</span>{" "}
+              {/* opacity-60 removed — it dropped text-mist-dim on bg-ink-2/3 to ~2.3:1,
+                  well below WCAG AA. The line-through alone already communicates "was" price,
+                  so the extra dim was cosmetic and now it passes 5:1 without it. */}
+              <span className="line-through">£{plan.fullOnboarding}</span>{" "}
               <span className="font-semibold text-foreground">£{plan.onboarding}</span>
             </p>
             <p className="text-[11px] font-medium uppercase tracking-wide text-brand-teal-dark">
