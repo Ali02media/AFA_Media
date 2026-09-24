@@ -35,10 +35,21 @@ const nunito = Nunito({
 // Montserrat carries the headings, the hero headline and the CTAs — a geometric sans with
 // much more structure than Nunito's rounded body face, so the two give real typographic
 // contrast without going back to a serif. Variable (100–900), same self-hosting rationale.
+//
+// display:"optional" (not "swap") is deliberate. Lighthouse's LCP element on the homepage
+// is the hero H1, and with display:swap the H1 first paints in the size-adjusted fallback
+// at ~1.2s (FCP), then Montserrat finishes downloading over Slow 4G at ~2.5–3s, the H1
+// re-renders in the real font, and Lighthouse marks THAT later paint as the LCP — pushing
+// mobile Performance into the low 90s on runs where the network variance goes the wrong
+// way. With "optional", if Montserrat hasn't arrived within ~100ms the fallback stays for
+// the whole page load (no swap, no re-render, LCP == FCP); repeat visits with a warm cache
+// get Montserrat normally. next/font size-adjusts the fallback stack to match Montserrat's
+// metrics so there's no visible shift. Nunito stays on "swap" — it carries body copy which
+// isn't the LCP element.
 const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],
-  display: "swap",
+  display: "optional",
 });
 
 export const viewport: Viewport = {
