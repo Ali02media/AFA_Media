@@ -35,20 +35,10 @@ const nunito = Nunito({
 // Montserrat carries the headings, the hero headline and the CTAs — a geometric sans with
 // much more structure than Nunito's rounded body face, so the two give real typographic
 // contrast without going back to a serif. Variable (100–900), same self-hosting rationale.
-//
-// `display: "optional"` is deliberate on Montserrat and NOT swap. Lighthouse's LCP element on
-// this site is the hero <h1>, and with display:swap the H1 first paints in the fallback
-// (~1.0s FCP), then Montserrat finishes downloading on slow 4G at ~2.5–3s, the H1 re-renders,
-// and Lighthouse marks that later paint as the LCP — pushing the LCP score into the yellow
-// even though users see text on screen at 1.0s. With `optional`, if Montserrat hasn't arrived
-// within a 100ms budget, the fallback stays for the whole page load and no swap happens, so
-// LCP = FCP. On a warm cache (repeat visit) Montserrat is already local and displays normally.
-// The one-visit typographic difference is worth ~15 PSI points; the fallback stack is
-// size-adjusted by next/font to match Montserrat's metrics, so nothing shifts.
 const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],
-  display: "optional",
+  display: "swap",
 });
 
 export const viewport: Viewport = {
@@ -111,10 +101,13 @@ export default function RootLayout({
         lang="en-GB"
         className={`${nunito.variable} ${montserrat.variable} h-full antialiased`}
       >
-        {/* No preloads here — the reveal graph is now deferred past the LCP window (see the
-            revealReady effect in hero.jsx), so preloading it was pulling bandwidth away from
-            the actual LCP-critical resources on cold 4G. Cal.com's own bootstrap also handles
-            its own DNS/TCP work when the observer fires. */}
+        {/* Cal.com preconnect+preload used to live here to warm embed.js during initial paint.
+            That was correct when embed.js booted eagerly on load, but the calendar is now
+            lazy-mounted via IntersectionObserver ~600px above the CTA (see booking-calendar.tsx),
+            so preloading it competes with LCP for bandwidth on cold 4G and then triggers the
+            "preload not used within a few seconds of load" browser warning that shows up under
+            Best Practices in Lighthouse. Cal's own bootstrap does its own DNS/TCP work when the
+            observer fires — which is well after LCP — so there's nothing left to warm. */}
         <body className="flex min-h-full flex-col bg-ink text-foreground">
           {/* GTM's <noscript> iframe MUST be the first child of <body>, per Google's install
               docs — it's what lets tags fire on browsers with JavaScript disabled. Rendered
